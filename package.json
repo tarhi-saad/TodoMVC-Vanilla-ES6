@@ -1,0 +1,54 @@
+{
+  "name": "to-do-list_vanilla-js",
+  "version": "1.0.0",
+  "description": "A To-Do List application using Vanilla JS",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --open --config ./webpack/webpack.dev.js",
+    "build": "webpack --config ./webpack/webpack.prod.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarhi-saad/To-Do-List_vanilla-JS.git"
+  },
+  "keywords": [
+    "To-Do List",
+    "Vanilla JS",
+    "Single Responsibility",
+    "Loosely Coupled Objects",
+    "Unit testing",
+    "TDD",
+    "SOLID principles"
+  ],
+  "author": "Saad Tarhi",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/tarhi-saad/To-Do-List_vanilla-JS/issues"
+  },
+  "homepage": "https://github.com/tarhi-saad/To-Do-List_vanilla-JS#readme",
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "css-loader": "^3.2.0",
+    "cssnano": "^4.1.10",
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "file-loader": "^4.2.0",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.8.0",
+    "node-sass": "^4.13.0",
+    "postcss-import": "^12.0.1",
+    "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "sass-loader": "^8.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0",
+    "webpack-merge": "^4.2.2"
+  }
+}
