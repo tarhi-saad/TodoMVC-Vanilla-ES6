@@ -1,1 +1,3 @@
-document.body.innerHTML = 'hello world!';
+import todoController from './modules/todos.controller';
+
+todoController.init();

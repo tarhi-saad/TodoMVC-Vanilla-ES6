@@ -1,0 +1,219 @@
+import todoApp from '../todos';
+
+describe('The todoApp instance', () => {
+  let list = null;
+
+  beforeEach(() => {
+    todoApp.getProjects().splice(0, 1);
+  });
+
+  describe('The todoStore instance', () => {
+    beforeEach(() => {
+      todoApp.addProject('list 1');
+      [list] = todoApp.getProjects();
+    });
+
+    describe('addTodo', () => {
+      test('should add a todo object with the given title when called', () => {
+        list.addTodo('saad');
+        expect(list.getItems()[0].title).toBe('saad');
+      });
+
+      test('should add a todo object with the given title and all the default values when called', () => {
+        list.addTodo('test');
+        const [{ description, dueDate, note, priority }] = list.getItems();
+        expect(list.getItems()).toEqual([
+          {
+            description,
+            dueDate,
+            id: 1,
+            isComplete: false,
+            note,
+            priority,
+            title: 'test',
+          },
+        ]);
+      });
+
+      test('should not add a todo when no title is given', () => {
+        list.addTodo();
+        expect(list.getItems().length).toBe(0);
+      });
+    });
+
+    describe('removeTodo', () => {
+      test('should remove a todo object from the store when an existing id is given', () => {
+        list.addTodo('saad');
+        list.addTodo('brahim');
+        list.addTodo('ahmed');
+        list.removeTodo(2);
+        const item = list.getItems().find((todo) => todo.id === 2);
+        expect(item).toBeUndefined();
+      });
+
+      test('should not alter the todoStore when a non-existing id is given', () => {
+        list.addTodo('saad');
+        const [
+          { description, dueDate, id, isComplete, note, priority, title },
+        ] = list.getItems();
+        list.removeTodo(0);
+        expect(list.getItems()).toEqual([
+          {
+            description,
+            dueDate,
+            id,
+            isComplete,
+            note,
+            priority,
+            title,
+          },
+        ]);
+      });
+    });
+
+    describe('toggleTodo', () => {
+      test('should set complete to true to the item when its id is given', () => {
+        list.addTodo('saad');
+        const { isComplete } = list.getItems()[0];
+        list.toggleTodo(1);
+        expect(list.getItems()[0].isComplete).toBe(!isComplete);
+      });
+
+      test('should note change other values of the item when called', () => {
+        list.addTodo('some other todo');
+        const {
+          description,
+          dueDate,
+          id,
+          isComplete,
+          note,
+          priority,
+          title,
+        } = list.getItems()[0];
+        list.toggleTodo(1);
+        expect(list.getItems()[0]).toEqual({
+          description,
+          dueDate,
+          id,
+          isComplete: !isComplete,
+          note,
+          priority,
+          title,
+        });
+      });
+
+      test('should note change other items values when called', () => {
+        list.addTodo('task 1');
+        list.addTodo('task 2');
+        list.addTodo('task 3');
+        const [
+          {
+            description: description1,
+            dueDate: dueDate1,
+            id: id1,
+            isComplete: isComplete1,
+            note: note1,
+            priority: priority1,
+            title: title1,
+          },
+          {
+            description: description2,
+            dueDate: dueDate2,
+            id: id2,
+            isComplete: isComplete2,
+            note: note2,
+            priority: priority2,
+            title: title2,
+          },
+          {
+            description: description3,
+            dueDate: dueDate3,
+            id: id3,
+            isComplete: isComplete3,
+            note: note3,
+            priority: priority3,
+            title: title3,
+          },
+        ] = list.getItems();
+        list.toggleTodo(2);
+
+        expect(list.getItems()).toEqual([
+          {
+            description: description1,
+            dueDate: dueDate1,
+            id: id1,
+            isComplete: isComplete1,
+            note: note1,
+            priority: priority1,
+            title: title1,
+          },
+          {
+            description: description2,
+            dueDate: dueDate2,
+            id: id2,
+            isComplete: !isComplete2,
+            note: note2,
+            priority: priority2,
+            title: title2,
+          },
+          {
+            description: description3,
+            dueDate: dueDate3,
+            id: id3,
+            isComplete: isComplete3,
+            note: note3,
+            priority: priority3,
+            title: title3,
+          },
+        ]);
+      });
+    });
+
+    describe('updateTodoTitle', () => {
+      test('should change the title of the todo item to the new one when called', () => {
+        list.addTodo('My awesome title');
+        list.updateTodoTitle(1, "It's not that awesome");
+
+        expect(list.getItems()[0].title).toBe("It's not that awesome");
+      });
+
+      test('should not change the title when the given new title is null/empty', () => {
+        list.addTodo('My awesome title');
+        list.updateTodoTitle(1, '');
+
+        expect(list.getItems()[0].title).toBe('My awesome title');
+      });
+
+      test("should change the title of only the chosen one when it's id is given", () => {
+        list.addTodo('title 1');
+        list.addTodo('title 2');
+        list.addTodo('title 3');
+        list.updateTodoTitle(2, 'title 2 is updated');
+
+        expect(
+          `${list.getItems()[0].title}, ${list.getItems()[1].title}, ${
+            list.getItems()[2].title
+          }`,
+        ).toBe('title 1, title 2 is updated, title 3');
+      });
+    });
+  });
+
+  describe('addProject', () => {
+    test('should add a project when a name is given', () => {
+      todoApp.addProject('project 1');
+
+      expect(todoApp.getProjects()[0].getName()).toBe('project 1');
+    });
+
+    test("should add projects with distinct ID's when a name is given", () => {
+      todoApp.addProject('project 1');
+      todoApp.addProject('project 2');
+      todoApp.addProject('project 3');
+
+      expect(todoApp.getProjects()[0].id).toBe(1);
+      expect(todoApp.getProjects()[1].id).toBe(2);
+      expect(todoApp.getProjects()[2].id).toBe(3);
+    });
+  });
+});
