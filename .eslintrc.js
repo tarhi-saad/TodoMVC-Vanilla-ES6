@@ -25,5 +25,7 @@ module.exports = {
         peerDependencies: false,
       },
     ],
+    'operator-linebreak': ['off'],
+    'object-curly-newline': ['off'],
   },
 };
