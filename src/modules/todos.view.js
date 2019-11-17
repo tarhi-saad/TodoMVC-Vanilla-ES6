@@ -142,6 +142,10 @@ const todoView = () => {
       li.append(label, checkbox, title, deleteBtn);
       elements.todoList.append(li);
     });
+
+    // Update todoCount in current list
+    elements.lists.querySelector('.selected .todo-count').innerHTML =
+      todos.length;
   };
 
   /**
