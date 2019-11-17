@@ -1,9 +1,9 @@
 import { todoView, DOMHelpers } from '../todos.view';
 
-describe('DOMHelpers', () => {
+describe('\n => DOMHelpers', () => {
   const { createElement } = DOMHelpers();
 
-  describe('createElement', () => {
+  describe('\n   => createElement', () => {
     test('should create the element when tag is given', () => {
       const div = createElement('div');
       expect(div.tagName).toBe('DIV');
@@ -23,15 +23,15 @@ describe('DOMHelpers', () => {
   });
 });
 
-describe('todoView', () => {
+describe('\n => todoView', () => {
   let view = null;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="root"></div>';
     view = todoView();
   });
-
-  describe('displayList', () => {
+  //! We must check if the problem is in the view...
+  describe('\n   => displayList', () => {
     test('should add project to "ul" element', () => {
       view.displayList(1, 'My awesome project', []);
 
@@ -57,7 +57,7 @@ describe('todoView', () => {
     });
   });
 
-  describe('displayTodos', () => {
+  describe('\n   => displayTodos', () => {
     test('should display nothing when there is no todo item', () => {
       view.displayTodos([]);
 
@@ -97,6 +97,26 @@ describe('todoView', () => {
       expect(
         document.querySelector('.todo-list .todo-item').dataset.index,
       ).toBe('1');
+    });
+
+    test('should display only one list when called multiple times', () => {
+      view.displayTodos([]);
+      view.displayTodos([]);
+
+      expect(document.querySelectorAll('.todo-list').length).toBe(1);
+    });
+
+    test('should replace old list with the new one when called again', () => {
+      view.displayTodos([
+        { id: 1, title: 'My awesome todo', isComplete: true },
+      ]);
+
+      view.displayTodos([
+        { id: 1, title: 'My awesome todo', isComplete: true },
+        { id: 2, title: 'My second awesome todo', isComplete: false },
+      ]);
+
+      expect(document.querySelector('.todo-list').childElementCount).toBe(2);
     });
   });
 });

@@ -1,19 +1,19 @@
 import todoApp from '../todos';
 
-describe('The todoApp instance', () => {
+describe('\n => The todoApp instance', () => {
   let list = null;
 
   beforeEach(() => {
     todoApp.getProjects().splice(0, 1);
   });
 
-  describe('The todoStore instance', () => {
+  describe('\n   => The todoStore instance', () => {
     beforeEach(() => {
       todoApp.addProject('list 1');
       [list] = todoApp.getProjects();
     });
 
-    describe('addTodo', () => {
+    describe('\n     => addTodo', () => {
       test('should add a todo object with the given title when called', () => {
         list.addTodo('saad');
         expect(list.getItems()[0].title).toBe('saad');
@@ -41,7 +41,7 @@ describe('The todoApp instance', () => {
       });
     });
 
-    describe('removeTodo', () => {
+    describe('\n     => removeTodo', () => {
       test('should remove a todo object from the store when an existing id is given', () => {
         list.addTodo('saad');
         list.addTodo('brahim');
@@ -69,9 +69,16 @@ describe('The todoApp instance', () => {
           },
         ]);
       });
+
+      test('should remove todo when string id is given', () => {
+        list.addTodo('saad');
+        list.removeTodo('1');
+
+        expect(list.getItems().length).toBe(0);
+      });
     });
 
-    describe('toggleTodo', () => {
+    describe('\n     => toggleTodo', () => {
       test('should set complete to true to the item when its id is given', () => {
         list.addTodo('saad');
         const { isComplete } = list.getItems()[0];
@@ -169,7 +176,7 @@ describe('The todoApp instance', () => {
       });
     });
 
-    describe('updateTodoTitle', () => {
+    describe('\n     => updateTodoTitle', () => {
       test('should change the title of the todo item to the new one when called', () => {
         list.addTodo('My awesome title');
         list.updateTodoTitle(1, "It's not that awesome");
@@ -199,7 +206,7 @@ describe('The todoApp instance', () => {
     });
   });
 
-  describe('addProject', () => {
+  describe('\n   => addProject', () => {
     test('should add a project when a name is given', () => {
       todoApp.addProject('project 1');
 

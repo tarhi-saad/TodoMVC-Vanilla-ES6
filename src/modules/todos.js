@@ -55,12 +55,12 @@ const todoStore = (name = '') => {
 
   const removeTodo = (id) => {
     const items = getItems();
-    const index = items.findIndex((item) => item.id === id);
+    const index = items.findIndex((item) => item.id === Number(id));
     if (index !== -1) items.splice(index, 1);
   };
 
   const toggleTodo = (id) => {
-    getItemByID(id).isComplete = !getItemByID.isComplete;
+    getItemByID(id).isComplete = !getItemByID(id).isComplete;
   };
 
   const updateTodoTitle = (id, title) => {
@@ -80,11 +80,19 @@ const todoStore = (name = '') => {
 
 const todoApp = (() => {
   const defaultStore = todoStore('tasks');
+  defaultStore.id = 0;
   const state = {
     projects: [defaultStore],
+    selected: 0,
   };
 
   const getProjects = () => state.projects;
+
+  const getSelected = () => state.selected;
+
+  const setSelected = (index) => {
+    state.selected = index;
+  };
 
   const addProject = (name) => {
     const project = todoStore(name);
@@ -99,6 +107,8 @@ const todoApp = (() => {
   return {
     getProjects,
     addProject,
+    getSelected,
+    setSelected,
   };
 })();
 

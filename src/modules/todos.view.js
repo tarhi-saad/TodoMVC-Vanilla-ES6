@@ -18,12 +18,23 @@ const DOMHelpers = () => {
     return elem;
   };
 
+  const on = (target, type, callback) =>
+    target.addEventListener(type, callback);
+
+  const empty = (parentNode) => {
+    while (parentNode.firstChild) {
+      parentNode.removeChild(parentNode.firstChild);
+    }
+  };
+
   return {
     createElement,
+    on,
+    empty,
   };
 };
 
-const { createElement } = DOMHelpers();
+const { createElement, on, empty } = DOMHelpers();
 
 const initializeDOMElements = () => {
   // the root element
@@ -35,27 +46,34 @@ const initializeDOMElements = () => {
   // The form with our input to add a project
   const newList = createElement('form');
   const newListInput = createElement('input', '#newList');
+  const newListSubmit = createElement('input', '.submitBtn');
   const newListLabel = createElement('label');
   newListInput.type = 'text';
+  newListSubmit.type = 'submit';
   newListLabel.htmlFor = 'newList';
-  newListLabel.innerHtml = 'New list';
+  newListLabel.innerHTML = 'New list';
+  newListSubmit.value = 'Add';
 
   // The center block which will display our todos/tasks
   const tasksView = createElement('div', '.tasks-view');
-  // UL element with our list of projects
+  // UL element with our list of tasks
+  const todoList = createElement('ul', '.todo-list');
   // The form with the input to add a Todo
   const newTodo = createElement('form');
   const newTodoInput = createElement('input', '#newTodo');
   const newTodoLabel = createElement('label');
+  const newTodoSubmit = createElement('input', '.submit-btn');
   newTodoInput.type = 'text';
+  newTodoSubmit.type = 'submit';
+  newTodoSubmit.value = 'Add';
   newTodoLabel.htmlFor = 'newTodo';
-  newTodoLabel.innerHtml = 'New list';
+  newTodoLabel.innerHTML = 'New todo';
 
   // Append elements
-  newList.append(newListLabel, newListInput);
+  newList.append(newListLabel, newListInput, newListSubmit);
   listsMenu.append(lists, newList);
-  newTodo.append(newTodoLabel, newTodoInput);
-  tasksView.append(newTodo);
+  newTodo.append(newTodoLabel, newTodoInput, newTodoSubmit);
+  tasksView.append(newTodo, todoList);
 
   root.append(listsMenu, tasksView);
 
@@ -63,11 +81,16 @@ const initializeDOMElements = () => {
     root,
     tasksView,
     lists,
+    todoList,
+    newTodo,
+    newTodoInput,
+    newList,
+    newListInput,
   };
 };
 
 const todoView = () => {
-  const { tasksView, lists } = initializeDOMElements();
+  const elements = initializeDOMElements();
 
   /**
    *  Display the project by name in an HTML list element
@@ -87,7 +110,7 @@ const todoView = () => {
     todoCount.textContent = items.length;
     // Append elements
     li.append(projectName, todoCount);
-    lists.append(li);
+    elements.lists.append(li);
   };
 
   /**
@@ -95,9 +118,7 @@ const todoView = () => {
    * @param {Object[]} todos List of todo objects
    */
   const displayTodos = (todos) => {
-    const ul = createElement('ul', '.todo-list');
-    tasksView.append(ul);
-
+    empty(elements.todoList);
     todos.forEach((todo) => {
       // Setup the 'li' element container of the "todo item"
       const li = createElement('li', '.todo-item');
@@ -111,15 +132,56 @@ const todoView = () => {
       // Setting up "todo" title
       const title = createElement('span', '.todo-title');
       title.textContent = todo.title;
+      // Delete Elements
+      const deleteBtn = createElement('button', '.delete-btn');
+      deleteBtn.innerHTML = 'Remove';
       // Appended elements
-      li.append(label, checkbox, title);
-      ul.append(li);
+      li.append(label, checkbox, title, deleteBtn);
+      elements.todoList.append(li);
     });
+  };
+
+  /**
+   * Call handleAddTodo function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindAddTodo = (handler) => {
+    on(elements.newTodo, 'submit', handler);
+  };
+
+  /**
+   * Call handleDeleteTodo function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindDeleteTodo = (handler) => {
+    on(elements.todoList, 'click', handler);
+  };
+
+  /**
+   * Call handleToggleTodo function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindToggleTodo = (handler) => {
+    on(elements.todoList, 'change', handler);
+  };
+
+  /**
+   * Call handleAddList function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindAddList = (handler) => {
+    on(elements.newList, 'submit', handler);
   };
 
   return {
     displayList,
     displayTodos,
+    elements,
+    bindAddTodo,
+    bindDeleteTodo,
+    bindToggleTodo,
+    bindAddList,
+    empty,
   };
 };
 
