@@ -27,5 +27,6 @@ module.exports = {
     ],
     'operator-linebreak': ['off'],
     'object-curly-newline': ['off'],
+    'implicit-arrow-linebreak': ['off'],
   },
 };
