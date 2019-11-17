@@ -12,10 +12,11 @@ const todoController = (() => {
       const { id } = project;
       const name = project.getName();
       const items = project.getItems();
+      const isSelected = index === todoApp.getSelected();
 
-      view.displayList(id, name, items);
+      view.displayList(id, name, items, isSelected);
 
-      if (index === todoApp.getSelected()) view.displayTodos(items);
+      if (isSelected) view.displayTodos(items);
     });
   };
 
@@ -69,6 +70,25 @@ const todoController = (() => {
     displayLists(view);
   };
 
+  const handleSwitchList = (e) => {
+    const { target } = e;
+    const list = target.closest('.list');
+    const lists = target.closest('.lists').querySelectorAll('.list');
+    const selectedList = lists[todoApp.getSelected()];
+
+    if (!list || list === selectedList) return;
+
+    let projectIndex = null;
+    Array.from(lists).some((li, index) => {
+      projectIndex = index;
+      return li === list;
+    });
+    selectedList.classList.remove('selected');
+    todoApp.setSelected(projectIndex);
+    list.classList.add('selected');
+    view.displayTodos(todoApp.getProjects()[projectIndex].getItems());
+  };
+
   /**
    * Initialize the todo app (display default data to the user)
    */
@@ -79,6 +99,7 @@ const todoController = (() => {
     view.bindDeleteTodo(handleDeleteTodo);
     view.bindToggleTodo(handleToggleTodo);
     view.bindAddList(handleAddList);
+    view.bindSwitchList(handleSwitchList);
   };
 
   return {

@@ -55,6 +55,14 @@ describe('\n => todoView', () => {
       );
       expect(document.querySelector('.lists .list').dataset.index).toBe('1');
     });
+
+    test('should add "selected" class to list when argument is true', () => {
+      view.displayList(1, 'My awesome project', [], true);
+
+      expect(
+        document.querySelector('.lists .list').classList.contains('selected'),
+      ).toBe(true);
+    });
   });
 
   describe('\n   => displayTodos', () => {

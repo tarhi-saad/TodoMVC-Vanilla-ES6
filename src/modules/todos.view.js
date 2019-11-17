@@ -46,7 +46,7 @@ const initializeDOMElements = () => {
   // The form with our input to add a project
   const newList = createElement('form');
   const newListInput = createElement('input', '#newList');
-  const newListSubmit = createElement('input', '.submitBtn');
+  const newListSubmit = createElement('input', '.submit-btn');
   const newListLabel = createElement('label');
   newListInput.type = 'text';
   newListSubmit.type = 'submit';
@@ -98,7 +98,7 @@ const todoView = () => {
    * @param {string} name The name of the project
    * @param {Object[]} items List of todos of the project
    */
-  const displayList = (id, name, items) => {
+  const displayList = (id, name, items, isSelected) => {
     // Setup the "li" element ready for our project
     const li = createElement('li', '.list');
     li.dataset.index = id;
@@ -111,6 +111,9 @@ const todoView = () => {
     // Append elements
     li.append(projectName, todoCount);
     elements.lists.append(li);
+
+    if (isSelected) li.classList.add('selected');
+    // else li.classList.remove('selected');
   };
 
   /**
@@ -173,6 +176,14 @@ const todoView = () => {
     on(elements.newList, 'submit', handler);
   };
 
+  /**
+   * Call handleSwitchList function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSwitchList = (handler) => {
+    on(elements.lists, 'click', handler);
+  };
+
   return {
     displayList,
     displayTodos,
@@ -181,6 +192,7 @@ const todoView = () => {
     bindDeleteTodo,
     bindToggleTodo,
     bindAddList,
+    bindSwitchList,
     empty,
   };
 };

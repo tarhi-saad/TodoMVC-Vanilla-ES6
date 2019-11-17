@@ -58,5 +58,40 @@ describe('\n => todoController', () => {
         expect(document.querySelector('#todo-checkbox1').checked).toBe(false);
       });
     });
+
+    describe('\n      => Lists', () => {
+      describe('\n       => bindAddleTodo', () => {
+        test('should add a project when called', () => {
+          document.querySelector('#newList').value = 'My project';
+          document.querySelector('.lists-menu .submit-btn').click();
+          expect(document.querySelector('.lists').childElementCount).toBe(2);
+        });
+
+        test('should not add a project when title is an empty string', () => {
+          document.querySelector('#newList').value = '';
+          document.querySelector('.lists-menu .submit-btn').click();
+          expect(document.querySelector('.lists').childElementCount).toBe(2);
+        });
+      });
+
+      describe('\n       => bindSwitchList', () => {
+        test('should switch list when clicked', () => {
+          document.querySelector('#newList').value = 'My project2';
+          document.querySelector('.lists-menu .submit-btn').click();
+          document.querySelector('.lists .list').click();
+
+          expect(
+            document
+              .querySelector('.lists .list:last-child')
+              .classList.contains('selected'),
+          ).toBe(false);
+          expect(
+            document
+              .querySelector('.lists .list')
+              .classList.contains('selected'),
+          ).toBe(true);
+        });
+      });
+    });
   });
 });
