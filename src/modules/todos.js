@@ -80,7 +80,7 @@ const todoStore = (name = '') => {
 
 const todoApp = (() => {
   const defaultStore = todoStore('tasks');
-  defaultStore.id = 0;
+  defaultStore.id = 1;
   const state = {
     projects: [defaultStore],
     selected: 0,
