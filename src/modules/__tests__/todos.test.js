@@ -4,7 +4,7 @@ describe('\n => The todoApp instance', () => {
   let list = null;
 
   beforeEach(() => {
-    todoApp.getProjects().splice(0, 1);
+    todoApp.getProjects().splice(0);
   });
 
   describe('\n   => The todoStore instance', () => {
@@ -221,6 +221,34 @@ describe('\n => The todoApp instance', () => {
       expect(todoApp.getProjects()[0].id).toBe(1);
       expect(todoApp.getProjects()[1].id).toBe(2);
       expect(todoApp.getProjects()[2].id).toBe(3);
+    });
+  });
+
+  describe('\n   => removeProject', () => {
+    test('should remove project when its id is given', () => {
+      todoApp.addProject('project 1');
+      todoApp.removeProject(1);
+
+      expect(todoApp.getProjects()[0]).toBeUndefined();
+    });
+
+    test('should not remove project when id is not given or wrong', () => {
+      todoApp.addProject('project 1');
+      todoApp.removeProject();
+      todoApp.removeProject(4);
+
+      expect(todoApp.getProjects()[0]).toBeDefined();
+    });
+
+    test('should remove only one project when its id is given', () => {
+      todoApp.addProject('project 1');
+      todoApp.addProject('project 2');
+      todoApp.addProject('project 3');
+      todoApp.removeProject(1);
+
+      expect(todoApp.getProjects().length).toBe(2);
+      expect(todoApp.getProjects()[0].id).toBe(2);
+      expect(todoApp.getProjects()[1].id).toBe(3);
     });
   });
 });

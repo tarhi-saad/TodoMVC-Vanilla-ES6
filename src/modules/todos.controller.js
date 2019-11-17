@@ -89,6 +89,29 @@ const todoController = (() => {
     view.displayTodos(todoApp.getProjects()[projectIndex].getItems());
   };
 
+  const handleDeleteList = (e) => {
+    const { target } = e;
+
+    if (!target.closest('.delete-btn')) return;
+
+    const listID = Number(target.closest('.list').dataset.index);
+    todoApp.removeProject(listID);
+
+    if (target.closest('.selected')) {
+      Array.from(view.elements.lists.querySelectorAll('.list')).some(
+        (list, index) => {
+          if (list === target.closest('.selected')) {
+            index > 0 ? todoApp.setSelected(index - 1) : todoApp.setSelected(0);
+            return true;
+          }
+
+          return false;
+        },
+      );
+    }
+    displayLists(view);
+  };
+
   /**
    * Initialize the todo app (display default data to the user)
    */
@@ -100,6 +123,7 @@ const todoController = (() => {
     view.bindToggleTodo(handleToggleTodo);
     view.bindAddList(handleAddList);
     view.bindSwitchList(handleSwitchList);
+    view.bindDeleteList(handleDeleteList);
   };
 
   return {

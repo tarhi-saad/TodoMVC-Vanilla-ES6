@@ -104,9 +104,15 @@ const todoApp = (() => {
     state.projects.push(project);
   };
 
+  const removeProject = (id) => {
+    const index = getProjects().findIndex((project) => project.id === id);
+    if (index !== -1) getProjects().splice(index, 1);
+  };
+
   return {
     getProjects,
     addProject,
+    removeProject,
     getSelected,
     setSelected,
   };

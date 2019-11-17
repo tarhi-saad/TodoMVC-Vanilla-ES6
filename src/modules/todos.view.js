@@ -108,8 +108,11 @@ const todoView = () => {
     // Setup the "span" element to display todo-count per project
     const todoCount = createElement('span', '.todo-count');
     todoCount.textContent = items.length;
+    // Delete Elements
+    const deleteBtn = createElement('button', '.delete-btn');
+    deleteBtn.innerHTML = 'Remove';
     // Append elements
-    li.append(projectName, todoCount);
+    li.append(projectName, todoCount, deleteBtn);
     elements.lists.append(li);
 
     if (isSelected) li.classList.add('selected');
@@ -188,6 +191,14 @@ const todoView = () => {
     on(elements.lists, 'click', handler);
   };
 
+  /**
+   * Call handleDeleteList function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindDeleteList = (handler) => {
+    on(elements.lists, 'click', handler);
+  };
+
   return {
     displayList,
     displayTodos,
@@ -197,6 +208,7 @@ const todoView = () => {
     bindToggleTodo,
     bindAddList,
     bindSwitchList,
+    bindDeleteList,
     empty,
   };
 };
