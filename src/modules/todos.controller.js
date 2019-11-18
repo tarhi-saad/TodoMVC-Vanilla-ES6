@@ -7,8 +7,10 @@ const todoController = (() => {
    * @param {Object} view The object view created by todoView factory
    */
   const displayLists = (view) => {
-    view.empty(view.elements.lists);
-    todoApp.getProjects().forEach((project, index) => {
+    const projects = todoApp.getProjects();
+    const { lists } = view.elements;
+    view.empty(lists);
+    projects.forEach((project, index) => {
       const { id } = project;
       const name = project.getName();
       const items = project.getItems();
@@ -18,6 +20,11 @@ const todoController = (() => {
 
       if (isSelected) view.displayTodos(items);
     });
+
+    // Add "pinned" class when we get one list to style it in CSS and trigger a visual disable mode
+    projects.length === 1
+      ? lists.firstChild.classList.add('pinned')
+      : lists.firstChild.classList.remove('pinned');
   };
 
   // Instantiate todoView factory
@@ -91,23 +98,22 @@ const todoController = (() => {
 
   const handleDeleteList = (e) => {
     const { target } = e;
+    const lists = view.elements.lists.children;
 
-    if (!target.closest('.delete-btn')) return;
+    if (!target.closest('.delete-btn') || lists.length === 1) return;
 
     const listID = Number(target.closest('.list').dataset.index);
     todoApp.removeProject(listID);
 
     if (target.closest('.selected')) {
-      Array.from(view.elements.lists.querySelectorAll('.list')).some(
-        (list, index) => {
-          if (list === target.closest('.selected')) {
-            index > 0 ? todoApp.setSelected(index - 1) : todoApp.setSelected(0);
-            return true;
-          }
+      Array.from(lists).some((list, index) => {
+        if (list === target.closest('.selected')) {
+          index > 0 ? todoApp.setSelected(index - 1) : todoApp.setSelected(0);
+          return true;
+        }
 
-          return false;
-        },
-      );
+        return false;
+      });
     }
     displayLists(view);
   };

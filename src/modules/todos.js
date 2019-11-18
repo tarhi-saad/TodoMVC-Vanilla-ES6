@@ -105,8 +105,10 @@ const todoApp = (() => {
   };
 
   const removeProject = (id) => {
-    const index = getProjects().findIndex((project) => project.id === id);
-    if (index !== -1) getProjects().splice(index, 1);
+    if (getProjects().length > 1) {
+      const index = getProjects().findIndex((project) => project.id === id);
+      if (index !== -1) getProjects().splice(index, 1);
+    }
   };
 
   return {

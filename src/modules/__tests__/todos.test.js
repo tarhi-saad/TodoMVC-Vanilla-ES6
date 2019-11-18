@@ -227,9 +227,10 @@ describe('\n => The todoApp instance', () => {
   describe('\n   => removeProject', () => {
     test('should remove project when its id is given', () => {
       todoApp.addProject('project 1');
+      todoApp.addProject('project 2');
       todoApp.removeProject(1);
 
-      expect(todoApp.getProjects()[0]).toBeUndefined();
+      expect(todoApp.getProjects().length).toBe(1);
     });
 
     test('should not remove project when id is not given or wrong', () => {
@@ -249,6 +250,13 @@ describe('\n => The todoApp instance', () => {
       expect(todoApp.getProjects().length).toBe(2);
       expect(todoApp.getProjects()[0].id).toBe(2);
       expect(todoApp.getProjects()[1].id).toBe(3);
+    });
+
+    test('should not remove the last list when called', () => {
+      todoApp.addProject('project 1');
+      todoApp.removeProject(1);
+
+      expect(todoApp.getProjects()[0].id).toBe(1);
     });
   });
 });
