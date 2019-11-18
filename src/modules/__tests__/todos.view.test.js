@@ -30,7 +30,7 @@ describe('\n => todoView', () => {
     document.body.innerHTML = '<div id="root"></div>';
     view = todoView();
   });
-  //! We must check if the problem is in the view...
+
   describe('\n   => displayList', () => {
     test('should add project to "ul" element', () => {
       view.displayList(1, 'My awesome project', []);
@@ -66,6 +66,10 @@ describe('\n => todoView', () => {
   });
 
   describe('\n   => displayTodos', () => {
+    beforeEach(() => {
+      view.displayList(1, 'default project', [], true);
+    });
+
     test('should display nothing when there is no todo item', () => {
       view.displayTodos([]);
 
