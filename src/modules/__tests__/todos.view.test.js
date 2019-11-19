@@ -131,4 +131,27 @@ describe('\n => todoView', () => {
       expect(document.querySelector('.todo-list').childElementCount).toBe(2);
     });
   });
+
+  describe('\n   => toggleEditMode', () => {
+    let parent = null;
+    let displayElem = null;
+    let editElem = null;
+    const callback = () => null;
+
+    beforeEach(() => {
+      parent = document.createElement('div');
+      displayElem = document.createElement('div');
+      editElem = document.createElement('input');
+      editElem.type = 'text';
+      parent.append(displayElem);
+      document.body.append(parent);
+    });
+
+    test('should switch the two elements when called', () => {
+      view.toggleEditMode(displayElem, editElem, callback);
+
+      expect(parent.contains(editElem)).toBe(true);
+      expect(parent.contains(displayElem)).toBe(false);
+    });
+  });
 });
