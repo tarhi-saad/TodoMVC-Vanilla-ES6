@@ -21,20 +21,27 @@ const DOMHelpers = () => {
   const on = (target, type, callback) =>
     target.addEventListener(type, callback);
 
+  const off = (target, type, callback) =>
+    target.removeEventListener(type, callback);
+
   const empty = (parentNode) => {
     while (parentNode.firstChild) {
       parentNode.removeChild(parentNode.firstChild);
     }
   };
 
+  const getElement = (elem) => document.querySelector(elem);
+
   return {
     createElement,
     on,
+    off,
     empty,
+    getElement,
   };
 };
 
-const { createElement, on, empty } = DOMHelpers();
+const { createElement, on, off, empty, getElement } = DOMHelpers();
 
 const initializeDOMElements = () => {
   // the root element
@@ -69,11 +76,17 @@ const initializeDOMElements = () => {
   newTodoLabel.htmlFor = 'newTodo';
   newTodoLabel.innerHTML = 'New todo';
 
+  // Display selected list title in tasks view
+  const tasksTitleWrapper = createElement('h1');
+  const tasksTitle = createElement('span', '.tasks-title');
+  const tasksTitleInput = createElement('input', '#tasksTitleInput');
+  tasksTitleWrapper.append(tasksTitle);
+
   // Append elements
   newList.append(newListLabel, newListInput, newListSubmit);
   listsMenu.append(lists, newList);
   newTodo.append(newTodoLabel, newTodoInput, newTodoSubmit);
-  tasksView.append(newTodo, todoList);
+  tasksView.append(tasksTitleWrapper, newTodo, todoList);
 
   root.append(listsMenu, tasksView);
 
@@ -86,6 +99,8 @@ const initializeDOMElements = () => {
     newTodoInput,
     newList,
     newListInput,
+    tasksTitle,
+    tasksTitleInput,
   };
 };
 
@@ -124,6 +139,9 @@ const todoView = () => {
    * @param {Object[]} todos List of todo objects
    */
   const displayTodos = (todos) => {
+    elements.tasksTitle.textContent = getElement(
+      '.selected .project-name',
+    ).textContent;
     empty(elements.todoList);
     todos.forEach((todo) => {
       // Setup the 'li' element container of the "todo item"
@@ -149,6 +167,37 @@ const todoView = () => {
     // Update todoCount in current list
     elements.lists.querySelector('.selected .todo-count').innerHTML =
       todos.length;
+  };
+
+  /**
+   * A helper function to switch between display mode and edit mode for an element
+   * @param {HTMLElement} displayElem Displayed element
+   * @param {HTMLElement} editElem Input element
+   * @param {Function} callback A callback function to update stuff with the new value
+   */
+  const toggleEditMode = (displayElem, editElem, callback) => {
+    const handleEditEvents = (e) => {
+      if (e.code !== undefined && e.code !== 'Enter') return;
+
+      off(editElem, 'keydown', handleEditEvents);
+      off(editElem, 'blur', handleEditEvents);
+      editElem.parentNode.classList.remove('edit-mode');
+
+      if (editElem.value) {
+        displayElem.textContent = editElem.value;
+        getElement('.selected .project-name').textContent = editElem.value;
+        callback(displayElem.textContent);
+      }
+
+      editElem.replaceWith(displayElem);
+    };
+
+    displayElem.parentNode.classList.add('edit-mode');
+    editElem.value = displayElem.textContent;
+    displayElem.replaceWith(editElem);
+    editElem.focus();
+    on(editElem, 'blur', handleEditEvents);
+    on(editElem, 'keydown', handleEditEvents);
   };
 
   /**
@@ -199,6 +248,14 @@ const todoView = () => {
     on(elements.lists, 'click', handler);
   };
 
+  /**
+   * Call handleEditTasksTitle function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindEditTasksTitle = (handler) => {
+    on(elements.tasksTitle, 'click', handler);
+  };
+
   return {
     displayList,
     displayTodos,
@@ -209,7 +266,9 @@ const todoView = () => {
     bindAddList,
     bindSwitchList,
     bindDeleteList,
+    bindEditTasksTitle,
     empty,
+    toggleEditMode,
   };
 };
 

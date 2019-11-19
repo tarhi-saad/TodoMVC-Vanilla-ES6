@@ -118,6 +118,17 @@ const todoController = (() => {
     displayLists(view);
   };
 
+  const handlerEditTasksTitle = (e) => {
+    const { target } = e;
+
+    const updateProject = (value) => {
+      todoApp.getSelectedProject().setName(value);
+    };
+
+    const args = [target, view.elements.tasksTitleInput, updateProject];
+    view.toggleEditMode(...args);
+  };
+
   /**
    * Initialize the todo app (display default data to the user)
    */
@@ -130,6 +141,7 @@ const todoController = (() => {
     view.bindAddList(handleAddList);
     view.bindSwitchList(handleSwitchList);
     view.bindDeleteList(handleDeleteList);
+    view.bindEditTasksTitle(handlerEditTasksTitle);
   };
 
   return {
