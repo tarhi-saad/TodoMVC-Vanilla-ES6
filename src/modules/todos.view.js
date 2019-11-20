@@ -32,16 +32,46 @@ const DOMHelpers = () => {
 
   const getElement = (elem) => document.querySelector(elem);
 
+  const wrap = (elem, className, parentElem = 'div') => {
+    const wrapper = document.createElement(parentElem);
+    wrapper.append(elem);
+
+    if (className) wrapper.classList.add(className);
+
+    return wrapper;
+  };
+
+  const unselect = (ul) => {
+    Array.from(ul.children).some((li) => {
+      if (li.classList.contains('selected')) {
+        li.classList.remove('selected');
+        return true;
+      }
+
+      return false;
+    });
+  };
+
   return {
     createElement,
     on,
     off,
     empty,
     getElement,
+    wrap,
+    unselect,
   };
 };
 
-const { createElement, on, off, empty, getElement } = DOMHelpers();
+const {
+  createElement,
+  on,
+  off,
+  empty,
+  getElement,
+  wrap,
+  unselect,
+} = DOMHelpers();
 
 const initializeDOMElements = () => {
   // the root element
@@ -82,13 +112,16 @@ const initializeDOMElements = () => {
   const tasksTitleInput = createElement('input', '#tasksTitleInput');
   tasksTitleWrapper.append(tasksTitle);
 
+  // Details view for todo elements
+  const detailsView = createElement('div', '.details-view');
+
   // Append elements
   newList.append(newListLabel, newListInput, newListSubmit);
   listsMenu.append(lists, newList);
   newTodo.append(newTodoLabel, newTodoInput, newTodoSubmit);
   tasksView.append(tasksTitleWrapper, newTodo, todoList);
 
-  root.append(listsMenu, tasksView);
+  root.append(listsMenu, tasksView, detailsView);
 
   return {
     root,
@@ -101,6 +134,7 @@ const initializeDOMElements = () => {
     newListInput,
     tasksTitle,
     tasksTitleInput,
+    detailsView,
   };
 };
 
@@ -132,6 +166,11 @@ const todoView = () => {
 
     if (isSelected) li.classList.add('selected');
     // else li.classList.remove('selected');
+  };
+
+  const resetDetails = () => {
+    empty(elements.detailsView);
+    unselect(elements.todoList);
   };
 
   /**
@@ -201,6 +240,22 @@ const todoView = () => {
   };
 
   /**
+   * Display details of the selected todo object
+   * @param {Object} todo The selected todo object
+   */
+  const displayDetails = (todo) => {
+    // Reset display
+    resetDetails();
+    // Name block of todo
+    const name = createElement('span', '.name-details');
+    name.textContent = todo.title;
+    // Append to details block
+    elements.detailsView.append(wrap(name, 'name-block'));
+    // Add class for CSS styling
+    getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
+  };
+
+  /**
    * Call handleAddTodo function on synthetic event
    * @param {Function} handler Function called on synthetic event.
    */
@@ -256,6 +311,14 @@ const todoView = () => {
     on(elements.tasksTitle, 'click', handler);
   };
 
+  /**
+   * Call handleSwitchTodo function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSwitchTodo = (handler) => {
+    on(elements.todoList, 'click', handler);
+  };
+
   return {
     displayList,
     displayTodos,
@@ -269,6 +332,8 @@ const todoView = () => {
     bindEditTasksTitle,
     empty,
     toggleEditMode,
+    displayDetails,
+    bindSwitchTodo,
   };
 };
 

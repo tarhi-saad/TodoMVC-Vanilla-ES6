@@ -75,6 +75,7 @@ const todoStore = (name = '') => {
     removeTodo,
     toggleTodo,
     updateTodoTitle,
+    getItemByID,
   };
 };
 

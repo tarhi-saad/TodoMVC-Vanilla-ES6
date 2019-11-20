@@ -83,7 +83,12 @@ const todoController = (() => {
     const lists = target.closest('.lists').querySelectorAll('.list');
     const selectedList = lists[todoApp.getSelected()];
 
-    if (!list || list === selectedList) return;
+    if (
+      list === selectedList ||
+      (target.tagName !== 'LI' && !target.classList.contains('project-name'))
+    ) {
+      return;
+    }
 
     let projectIndex = null;
     Array.from(lists).some((li, index) => {
@@ -118,7 +123,7 @@ const todoController = (() => {
     displayLists(view);
   };
 
-  const handlerEditTasksTitle = (e) => {
+  const handleEditTasksTitle = (e) => {
     const { target } = e;
 
     const updateProject = (value) => {
@@ -127,6 +132,23 @@ const todoController = (() => {
 
     const args = [target, view.elements.tasksTitleInput, updateProject];
     view.toggleEditMode(...args);
+  };
+
+  const handleSwitchTodo = (e) => {
+    const { target } = e;
+    const selectedTodo = document.querySelector('.todo-list .selected');
+    const todoItem = target.closest('.todo-item');
+
+    if (
+      todoItem === selectedTodo ||
+      (target.tagName !== 'LI' && !target.classList.contains('todo-title'))
+    ) {
+      return;
+    }
+
+    const id = Number(target.closest('.todo-item').dataset.index);
+    const todo = todoApp.getSelectedProject().getItemByID(id);
+    view.displayDetails(todo);
   };
 
   /**
@@ -141,7 +163,8 @@ const todoController = (() => {
     view.bindAddList(handleAddList);
     view.bindSwitchList(handleSwitchList);
     view.bindDeleteList(handleDeleteList);
-    view.bindEditTasksTitle(handlerEditTasksTitle);
+    view.bindEditTasksTitle(handleEditTasksTitle);
+    view.bindSwitchTodo(handleSwitchTodo);
   };
 
   return {
