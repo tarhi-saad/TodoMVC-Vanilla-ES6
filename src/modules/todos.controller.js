@@ -37,9 +37,10 @@ const todoController = (() => {
     if (!todoTitle) return;
 
     view.elements.newTodoInput.value = '';
-    const selectedProject = todoApp.getProjects()[todoApp.getSelected()];
+    const selectedProject = todoApp.getSelectedProject();
     selectedProject.addTodo(todoTitle);
-    view.displayTodos(selectedProject.getItems());
+    const todoItems = selectedProject.getItems();
+    view.addTodo(todoItems[todoItems.length - 1]);
   };
 
   const handleDeleteTodo = (e) => {

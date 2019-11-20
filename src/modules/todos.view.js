@@ -173,6 +173,27 @@ const todoView = () => {
     unselect(elements.todoList);
   };
 
+  const addTodo = (todo) => {
+    // Setup the 'li' element container of the "todo item"
+    const li = createElement('li', '.todo-item');
+    li.dataset.index = todo.id;
+    // Setting up the checkbox to toggle "completed" state
+    const checkbox = createElement('input', `#todo-checkbox${todo.id}`);
+    const label = createElement('label');
+    checkbox.type = 'checkbox';
+    checkbox.checked = todo.isComplete;
+    label.htmlFor = `#todo-checkbox${todo.id}`;
+    // Setting up "todo" title
+    const title = createElement('span', '.todo-title');
+    title.textContent = todo.title;
+    // Delete Elements
+    const deleteBtn = createElement('button', '.delete-btn');
+    deleteBtn.innerHTML = 'Remove';
+    // Appended elements
+    li.append(label, checkbox, title, deleteBtn);
+    elements.todoList.append(li);
+  };
+
   /**
    * Display all todos in the project list
    * @param {Object[]} todos List of todo objects
@@ -183,24 +204,7 @@ const todoView = () => {
     ).textContent;
     empty(elements.todoList);
     todos.forEach((todo) => {
-      // Setup the 'li' element container of the "todo item"
-      const li = createElement('li', '.todo-item');
-      li.dataset.index = todo.id;
-      // Setting up the checkbox to toggle "completed" state
-      const checkbox = createElement('input', `#todo-checkbox${todo.id}`);
-      const label = createElement('label');
-      checkbox.type = 'checkbox';
-      checkbox.checked = todo.isComplete;
-      label.htmlFor = `#todo-checkbox${todo.id}`;
-      // Setting up "todo" title
-      const title = createElement('span', '.todo-title');
-      title.textContent = todo.title;
-      // Delete Elements
-      const deleteBtn = createElement('button', '.delete-btn');
-      deleteBtn.innerHTML = 'Remove';
-      // Appended elements
-      li.append(label, checkbox, title, deleteBtn);
-      elements.todoList.append(li);
+      addTodo(todo);
     });
 
     // Update todoCount in current list
@@ -322,6 +326,7 @@ const todoView = () => {
   return {
     displayList,
     displayTodos,
+    addTodo,
     elements,
     bindAddTodo,
     bindDeleteTodo,
