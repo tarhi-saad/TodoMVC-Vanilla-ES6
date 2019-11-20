@@ -177,6 +177,9 @@ const todoView = () => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
     li.dataset.index = todo.id;
+    todo.isComplete
+      ? li.classList.add('completed')
+      : li.classList.remove('completed');
     // Setting up the checkbox to toggle "completed" state
     const checkbox = createElement('input', `#todo-checkbox${todo.id}`);
     const label = createElement('label');
@@ -206,6 +209,15 @@ const todoView = () => {
     // Update todoCount in current list
     const todoCount = elements.lists.querySelector('.selected .todo-count');
     todoCount.textContent = Number(todoCount.textContent) - 1;
+  };
+
+  const toggleTodo = (isComplete, id) => {
+    const toggleComplete = document.getElementById(id);
+    const todoItem = toggleComplete.closest('.todo-item');
+    toggleComplete.checked = isComplete;
+    isComplete
+      ? todoItem.classList.add('completed')
+      : todoItem.classList.remove('completed');
   };
 
   /**
@@ -342,6 +354,7 @@ const todoView = () => {
     displayTodos,
     addTodo,
     removeTodo,
+    toggleTodo,
     elements,
     bindAddTodo,
     bindDeleteTodo,

@@ -58,11 +58,11 @@ const todoController = (() => {
     const { target } = e;
     const todoID = Number(target.closest('.todo-item').dataset.index);
 
-    if (!target.closest(`#todo-checkbox${todoID}`)) return;
+    if (target.id !== `todo-checkbox${todoID}`) return;
 
-    const selectedProject = todoApp.getProjects()[todoApp.getSelected()];
+    const selectedProject = todoApp.getSelectedProject();
     selectedProject.toggleTodo(todoID);
-    view.displayTodos(selectedProject.getItems());
+    view.toggleTodo(selectedProject.getItemByID(todoID).isComplete, target.id);
   };
 
   const handleAddList = (e) => {
