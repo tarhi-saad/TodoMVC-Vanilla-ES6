@@ -46,12 +46,12 @@ const todoController = (() => {
   const handleDeleteTodo = (e) => {
     const { target } = e;
 
-    if (!target.closest('.delete-btn')) return;
+    if (!target.classList.contains('delete-btn')) return;
 
-    const todoID = target.closest('.todo-item').dataset.index;
-    const selectedProject = todoApp.getProjects()[todoApp.getSelected()];
+    const todoID = Number(target.closest('.todo-item').dataset.index);
+    const selectedProject = todoApp.getSelectedProject();
     selectedProject.removeTodo(todoID);
-    view.displayTodos(selectedProject.getItems());
+    view.removeTodo(todoID);
   };
 
   const handleToggleTodo = (e) => {

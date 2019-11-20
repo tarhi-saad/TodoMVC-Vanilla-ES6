@@ -192,6 +192,20 @@ const todoView = () => {
     // Appended elements
     li.append(label, checkbox, title, deleteBtn);
     elements.todoList.append(li);
+
+    // Update todoCount in current list
+    const todoCount = elements.lists.querySelector('.selected .todo-count');
+    todoCount.textContent = Number(todoCount.textContent) + 1;
+  };
+
+  const removeTodo = (index) => {
+    elements.todoList
+      .querySelector(`.todo-item[data-index="${index}"]`)
+      .remove();
+
+    // Update todoCount in current list
+    const todoCount = elements.lists.querySelector('.selected .todo-count');
+    todoCount.textContent = Number(todoCount.textContent) - 1;
   };
 
   /**
@@ -327,6 +341,7 @@ const todoView = () => {
     displayList,
     displayTodos,
     addTodo,
+    removeTodo,
     elements,
     bindAddTodo,
     bindDeleteTodo,
