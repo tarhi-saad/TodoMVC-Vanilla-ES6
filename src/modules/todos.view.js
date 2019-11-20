@@ -202,13 +202,16 @@ const todoView = () => {
   };
 
   const removeTodo = (index) => {
-    elements.todoList
-      .querySelector(`.todo-item[data-index="${index}"]`)
-      .remove();
+    const todoItem = elements.todoList.querySelector(
+      `.todo-item[data-index="${index}"]`,
+    );
+    todoItem.remove();
 
     // Update todoCount in current list
     const todoCount = elements.lists.querySelector('.selected .todo-count');
     todoCount.textContent = Number(todoCount.textContent) - 1;
+    // Reset todo details if selected
+    if (todoItem.classList.contains('selected')) resetDetails();
   };
 
   const toggleTodo = (isComplete, id) => {
@@ -236,6 +239,8 @@ const todoView = () => {
     // Update todoCount in current list
     elements.lists.querySelector('.selected .todo-count').innerHTML =
       todos.length;
+    // Reset todo details
+    resetDetails();
   };
 
   /**
