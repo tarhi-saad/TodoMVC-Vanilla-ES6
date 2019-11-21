@@ -163,9 +163,13 @@ const todoView = () => {
     // Append elements
     li.append(projectName, todoCount, deleteBtn);
     elements.lists.append(li);
+    // Remove "pinned" class when adding a new list
+    const { lists } = elements;
+    lists.firstChild.classList.remove('pinned');
+    // Reset selected list
+    unselect(lists);
 
     if (isSelected) li.classList.add('selected');
-    // else li.classList.remove('selected');
   };
 
   const resetDetails = () => {

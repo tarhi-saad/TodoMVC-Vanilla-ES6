@@ -75,7 +75,12 @@ const todoController = (() => {
     todoApp.addProject(listTitle);
     const index = todoApp.getProjects().length - 1;
     todoApp.setSelected(index);
-    displayLists(view);
+    const project = todoApp.getProjects()[index];
+    const { id } = project;
+    const name = project.getName();
+    const items = project.getItems();
+    view.displayList(id, name, items, true);
+    view.displayTodos(items);
   };
 
   const handleSwitchList = (e) => {
