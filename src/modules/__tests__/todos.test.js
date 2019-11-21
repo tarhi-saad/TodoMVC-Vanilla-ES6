@@ -69,13 +69,6 @@ describe('\n => The todoApp instance', () => {
           },
         ]);
       });
-
-      test('should remove todo when string id is given', () => {
-        list.addTodo('saad');
-        list.removeTodo('1');
-
-        expect(list.getItems().length).toBe(0);
-      });
     });
 
     describe('\n     => toggleTodo', () => {
