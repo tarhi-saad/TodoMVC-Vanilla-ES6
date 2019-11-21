@@ -111,22 +111,30 @@ const todoController = (() => {
     const { target } = e;
     const lists = view.elements.lists.children;
 
-    if (!target.closest('.delete-btn') || lists.length === 1) return;
+    if (!target.classList.contains('delete-btn') || lists.length === 1) return;
 
     const listID = Number(target.closest('.list').dataset.index);
     todoApp.removeProject(listID);
 
+    // transfer selected class and selected project when deleting list
     if (target.closest('.selected')) {
-      Array.from(lists).some((list, index) => {
-        if (list === target.closest('.selected')) {
-          index > 0 ? todoApp.setSelected(index - 1) : todoApp.setSelected(0);
-          return true;
-        }
+      const listIndex = Array.from(lists).indexOf(
+        view.elements.lists.querySelector('.selected'),
+      );
 
-        return false;
-      });
+      if (listIndex !== -1) {
+        if (listIndex > 0) {
+          todoApp.setSelected(listIndex - 1);
+          lists[listIndex - 1].classList.add('selected');
+        } else if (listIndex === 0) {
+          todoApp.setSelected(0);
+          lists[1].classList.add('selected');
+        }
+      }
     }
-    displayLists(view);
+
+    view.removeProject(listID);
+    view.displayTodos(todoApp.getSelectedProject().getItems());
   };
 
   const handleEditTasksTitle = (e) => {

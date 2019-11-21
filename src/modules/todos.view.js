@@ -227,6 +227,14 @@ const todoView = () => {
       : todoItem.classList.remove('completed');
   };
 
+  const removeProject = (id) => {
+    getElement(`.list[data-index="${id}"]`).remove();
+    // Add "pinned" class when only one list remains
+    const { lists } = elements;
+
+    if (lists.children.length === 1) lists.firstChild.classList.add('pinned');
+  };
+
   /**
    * Display all todos in the project list
    * @param {Object[]} todos List of todo objects
@@ -360,6 +368,7 @@ const todoView = () => {
 
   return {
     displayList,
+    removeProject,
     displayTodos,
     addTodo,
     removeTodo,
