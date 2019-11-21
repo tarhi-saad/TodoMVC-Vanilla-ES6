@@ -91,6 +91,11 @@ const todoApp = (() => {
 
   const getSelected = () => state.selected;
 
+  /**
+   * We use index of the array instead of the ID of the project, to easily switch selection
+   * to the next project (above or below). Using ID isn't convenient in this case
+   * @param {Number} index An index of "projects" array
+   */
   const setSelected = (index) => {
     state.selected = index;
   };
