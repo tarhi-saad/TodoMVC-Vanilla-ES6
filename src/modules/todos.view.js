@@ -294,12 +294,23 @@ const todoView = () => {
     // Reset display
     resetDetails();
     // Name block of todo
-    const name = createElement('span', '.name-details');
-    name.textContent = todo.title;
+    const name = createElement('textarea', '.name-details');
+    name.value = todo.title;
     // Append to details block
     elements.detailsView.append(wrap(name, 'name-block'));
     // Add class for CSS styling
     getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
+
+    // Set handlers on synthetic event
+    const handleChange = (e) => {
+      const { target } = e;
+      todo.title = target.value;
+      elements.todoList.querySelector('.selected .todo-title').textContent =
+        todo.title;
+    };
+
+    // Set event listeners
+    on(name, 'input', handleChange);
   };
 
   /**
