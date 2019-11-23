@@ -1,0 +1,30 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  list-style: none;
+}
+
+button,
+input[type='submit'],
+input[type='checkbox'] {
+  cursor: pointer;
+}
+
+input[type='submit'] {
+  &:focus {
+    outline: none;
+  }
+}

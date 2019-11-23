@@ -1,0 +1,78 @@
+.lists-menu {
+  background: $second-color;
+  border-right: 1px solid $second-color-dark;
+  padding: 10px 0;
+
+  .lists {
+    .list {
+      padding: 0 10px;
+
+      &:hover {
+        background: $second-color-light;
+      }
+
+      .list-icon {
+        margin-right: 5px;
+        width: 15px;
+
+        .list-svg {
+          fill: $base-color;
+        }
+      }
+
+      .project-name {
+      }
+
+      .todo-count {
+        background: $second-color-darker;
+        border-radius: 50%;
+        color: #fff;
+        margin-left: 5px;
+        padding: 0px 5px;
+      }
+
+      .delete-btn {
+      }
+    }
+
+    .selected {
+    }
+
+    .pinned {
+    }
+  }
+
+  form {
+    align-items: center;
+    position: relative;
+
+    #newList {
+      background: none;
+      border: none;
+      padding: 0 10px;
+      min-height: 2.6rem;
+      width: 100%;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    .submit-btn {
+      background: $base-color-light;
+      border: none;
+      border-radius: 5px;
+      color: #f4f4f4;
+      right: 10px;
+      @include vertical-center-absolute;
+
+      &:focus:active {
+        background: $base-color-dark;
+      }
+
+      &:hover {
+        background: $base-color;
+      }
+    }
+  }
+}

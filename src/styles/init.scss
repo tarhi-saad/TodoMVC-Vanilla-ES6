@@ -1,0 +1,22 @@
+// Variables
+$base-color: #0080ff;
+$base-color-light: lighten($base-color, 15%);
+$base-color-dark: darken($base-color, 15%);
+// Main text color
+$text-color: #4a4a4a;
+// Secondary color
+$second-color: #f4f4f4;
+$second-color-light: lighten($second-color, 3%);
+$second-color-dark: darken($second-color, 3%);
+$second-color-darker: darken($second-color, 15%);
+// Danger color
+$danger-color: #f44336;
+$danger-color-light: lighten($danger-color, 15%);
+$danger-color-dark: darken($danger-color, 15%);
+
+// Mixins
+@mixin vertical-center-absolute {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}

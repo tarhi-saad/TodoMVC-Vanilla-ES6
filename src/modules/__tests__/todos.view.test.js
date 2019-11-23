@@ -49,7 +49,9 @@ describe('\n => todoView', () => {
     test('should display project data (name/todoCount) correctly when called', () => {
       view.displayList(1, 'Proj 1', []);
 
-      expect(document.querySelector('.lists span').innerHTML).toBe('Proj 1');
+      expect(document.querySelector('.lists .project-name').innerHTML).toBe(
+        'Proj 1',
+      );
       expect(document.querySelector('.lists span.todo-count').innerHTML).toBe(
         '0',
       );

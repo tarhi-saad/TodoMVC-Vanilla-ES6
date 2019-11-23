@@ -1,0 +1,56 @@
+body {
+  color: $text-color;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 15px;
+}
+
+#root {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 360px auto 360px;
+  grid-column-gap: 20px;
+
+  li {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    min-height: 2.6rem;
+    position: relative;
+
+    .delete-btn {
+      background: none;
+      border: none;
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 12px;
+      width: 24px;
+
+      &:focus {
+        outline: none;
+      }
+
+      .delete-svg {
+        fill: $danger-color-light;
+      }
+
+      &:focus:active .delete-svg {
+        fill: $danger-color-dark;
+      }
+
+      &:hover .delete-svg {
+        fill: $danger-color;
+      }
+    }
+
+    &:hover .delete-btn {
+      display: block;
+    }
+  }
+
+  li.selected {
+    background: $second-color-dark;
+    color: $base-color;
+    font-weight: bold;
+  }
+}

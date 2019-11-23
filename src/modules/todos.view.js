@@ -1,3 +1,6 @@
+import deleteSVG from '../images/delete.svg';
+import listSVG from '../images/list.svg';
+
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
     let elem = null;
@@ -84,11 +87,10 @@ const initializeDOMElements = () => {
   const newList = createElement('form');
   const newListInput = createElement('input', '#newList');
   const newListSubmit = createElement('input', '.submit-btn');
-  const newListLabel = createElement('label');
   newListInput.type = 'text';
+  newListInput.placeholder = '+ New list';
+  newListInput.autocomplete = 'off';
   newListSubmit.type = 'submit';
-  newListLabel.htmlFor = 'newList';
-  newListLabel.innerHTML = 'New list';
   newListSubmit.value = 'Add';
 
   // The center block which will display our todos/tasks
@@ -101,6 +103,7 @@ const initializeDOMElements = () => {
   const newTodoLabel = createElement('label');
   const newTodoSubmit = createElement('input', '.submit-btn');
   newTodoInput.type = 'text';
+  newTodoInput.autocomplete = 'off';
   newTodoSubmit.type = 'submit';
   newTodoSubmit.value = 'Add';
   newTodoLabel.htmlFor = 'newTodo';
@@ -116,7 +119,7 @@ const initializeDOMElements = () => {
   const detailsView = createElement('div', '.details-view');
 
   // Append elements
-  newList.append(newListLabel, newListInput, newListSubmit);
+  newList.append(newListInput, newListSubmit);
   listsMenu.append(lists, newList);
   newTodo.append(newTodoLabel, newTodoInput, newTodoSubmit);
   tasksView.append(tasksTitleWrapper, newTodo, todoList);
@@ -159,9 +162,12 @@ const todoView = () => {
     todoCount.textContent = items.length;
     // Delete Elements
     const deleteBtn = createElement('button', '.delete-btn');
-    deleteBtn.innerHTML = 'Remove';
+    deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+    // List icon
+    const listIcon = createElement('span', '.list-icon');
+    listIcon.insertAdjacentHTML('beforeEnd', listSVG);
     // Append elements
-    li.append(projectName, todoCount, deleteBtn);
+    li.append(listIcon, projectName, todoCount, deleteBtn);
     elements.lists.append(li);
     // Remove "pinned" class when adding a new list
     const { lists } = elements;
@@ -195,7 +201,7 @@ const todoView = () => {
     title.textContent = todo.title;
     // Delete Elements
     const deleteBtn = createElement('button', '.delete-btn');
-    deleteBtn.innerHTML = 'Remove';
+    deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
     // Appended elements
     li.append(label, checkbox, title, deleteBtn);
     elements.todoList.append(li);
