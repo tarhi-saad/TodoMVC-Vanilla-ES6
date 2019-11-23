@@ -111,17 +111,17 @@ const todoController = (() => {
     const { target } = e;
     const lists = view.elements.lists.children;
 
-    if (!target.classList.contains('delete-btn') || lists.length === 1) return;
+    if (!target.closest('.delete-btn') || lists.length === 1) return;
 
     const listID = Number(target.closest('.list').dataset.index);
     todoApp.removeProject(listID);
+    // Get the index of the selected list
+    const listIndex = Array.from(lists).indexOf(
+      view.elements.lists.querySelector('.selected'),
+    );
 
     // transfer selected class and selected project when deleting list
     if (target.closest('.selected')) {
-      const listIndex = Array.from(lists).indexOf(
-        view.elements.lists.querySelector('.selected'),
-      );
-
       if (listIndex !== -1) {
         if (listIndex > 0) {
           todoApp.setSelected(listIndex - 1);
@@ -130,11 +130,20 @@ const todoController = (() => {
           todoApp.setSelected(0);
           lists[1].classList.add('selected');
         }
+
+        // Update todo view
+        view.displayTodos(todoApp.getSelectedProject().getItems());
       }
     }
 
     view.removeProject(listID);
-    view.displayTodos(todoApp.getSelectedProject().getItems());
+    // Get the new selected list after deletion
+    const listIndexUpdate = Array.from(lists).indexOf(
+      view.elements.lists.querySelector('.selected'),
+    );
+
+    // If the value did change, let's update it in the model
+    if (listIndex !== listIndexUpdate) todoApp.setSelected(listIndexUpdate);
   };
 
   const handleEditTasksTitle = (e) => {
