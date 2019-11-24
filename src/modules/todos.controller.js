@@ -46,7 +46,7 @@ const todoController = (() => {
   const handleDeleteTodo = (e) => {
     const { target } = e;
 
-    if (!target.classList.contains('delete-btn')) return;
+    if (!target.closest('.delete-btn')) return;
 
     const todoID = Number(target.closest('.todo-item').dataset.index);
     const selectedProject = todoApp.getSelectedProject();
