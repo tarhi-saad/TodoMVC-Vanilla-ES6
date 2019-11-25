@@ -9,14 +9,34 @@ $second-color: #f4f4f4;
 $second-color-light: lighten($second-color, 3%);
 $second-color-dark: darken($second-color, 3%);
 $second-color-darker: darken($second-color, 15%);
+$second-color-darkest: darken($second-color, 30%);
+$second-color-darkness: darken($second-color, 45%);
 // Danger color
 $danger-color: #f44336;
 $danger-color-light: lighten($danger-color, 15%);
 $danger-color-dark: darken($danger-color, 15%);
+// Font size
+$font-size: 15px;
+$small-font-size: 13px;
+// Transition
+$transition: all 0.4s ease;
 
 // Mixins
+@mixin center-absolute {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
 @mixin vertical-center-absolute {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+}
+
+@mixin horizontal-center-absolute {
+  position: absolute;
+  right: 50%;
+  transform: translateX(-50%);
 }

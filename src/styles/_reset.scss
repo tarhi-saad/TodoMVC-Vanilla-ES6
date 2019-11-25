@@ -23,7 +23,8 @@ input[type='checkbox'] {
   cursor: pointer;
 }
 
-input[type='submit'] {
+button,
+input {
   &:focus {
     outline: none;
   }

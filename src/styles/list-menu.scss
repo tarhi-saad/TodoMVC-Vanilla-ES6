@@ -32,10 +32,24 @@
       }
 
       .delete-btn {
+        .delete-svg {
+          fill: $base-color-light;
+        }
+
+        &:focus:active .delete-svg {
+          fill: $base-color-dark;
+        }
+
+        &:hover .delete-svg {
+          fill: $base-color;
+        }
       }
     }
 
-    .selected {
+    .list.selected {
+      background: $second-color-dark;
+      color: $base-color;
+      font-weight: bold;
     }
 
     .pinned {

@@ -1,7 +1,23 @@
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: $second-color-darker;
+  border-radius: 8px;
+}
+
 body {
   color: $text-color;
   font-family: Verdana, Geneva, sans-serif;
-  font-size: 15px;
+  font-size: $font-size;
 }
 
 #root {
@@ -15,42 +31,31 @@ body {
     display: flex;
     align-items: center;
     min-height: 2.6rem;
+    overflow: hidden;
     position: relative;
 
     .delete-btn {
       background: none;
       border: none;
-      display: none;
       position: absolute;
       right: 0;
       top: 12px;
-      width: 24px;
+      width: 30px;
+      opacity: 0;
+      transform: translateX(27px);
+      transition: transform 0.3s ease, opacity 0.3s;
 
       &:focus {
         outline: none;
       }
-
-      .delete-svg {
-        fill: $danger-color-light;
-      }
-
-      &:focus:active .delete-svg {
-        fill: $danger-color-dark;
-      }
-
-      &:hover .delete-svg {
-        fill: $danger-color;
-      }
     }
 
     &:hover .delete-btn {
-      display: block;
+      transform: translateX(0);
+      opacity: 1;
     }
   }
 
   li.selected {
-    background: $second-color-dark;
-    color: $base-color;
-    font-weight: bold;
   }
 }

@@ -1,5 +1,7 @@
 import deleteSVG from '../images/delete.svg';
 import listSVG from '../images/list.svg';
+import arrowSVG from '../images/arrow.svg';
+import checkSVG from '../images/check.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -100,14 +102,12 @@ const initializeDOMElements = () => {
   // The form with the input to add a Todo
   const newTodo = createElement('form');
   const newTodoInput = createElement('input', '#newTodo');
-  const newTodoLabel = createElement('label');
-  const newTodoSubmit = createElement('input', '.submit-btn');
+  const newTodoSubmit = createElement('button', '.submit-btn');
   newTodoInput.type = 'text';
+  newTodoInput.placeholder = '+ Add task';
   newTodoInput.autocomplete = 'off';
   newTodoSubmit.type = 'submit';
-  newTodoSubmit.value = 'Add';
-  newTodoLabel.htmlFor = 'newTodo';
-  newTodoLabel.innerHTML = 'New todo';
+  newTodoSubmit.insertAdjacentHTML('beforeEnd', arrowSVG);
 
   // Display selected list title in tasks view
   const tasksTitleWrapper = createElement('h1');
@@ -121,8 +121,8 @@ const initializeDOMElements = () => {
   // Append elements
   newList.append(newListInput, newListSubmit);
   listsMenu.append(lists, newList);
-  newTodo.append(newTodoLabel, newTodoInput, newTodoSubmit);
-  tasksView.append(tasksTitleWrapper, newTodo, todoList);
+  newTodo.append(newTodoInput, newTodoSubmit);
+  tasksView.append(tasksTitleWrapper, todoList, newTodo);
 
   root.append(listsMenu, tasksView, detailsView);
 
@@ -193,9 +193,12 @@ const todoView = () => {
     // Setting up the checkbox to toggle "completed" state
     const checkbox = createElement('input', `#todo-checkbox${todo.id}`);
     const label = createElement('label');
+    const span = createElement('span');
+    span.insertAdjacentHTML('beforeEnd', checkSVG);
     checkbox.type = 'checkbox';
     checkbox.checked = todo.isComplete;
-    label.htmlFor = `#todo-checkbox${todo.id}`;
+    label.htmlFor = `todo-checkbox${todo.id}`;
+    label.append(span);
     // Setting up "todo" title
     const title = createElement('span', '.todo-title');
     title.textContent = todo.title;
