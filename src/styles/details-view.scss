@@ -15,7 +15,8 @@
       resize: none;
       width: 100%;
 
-      &:hover {
+      &:hover,
+      &:focus {
         background: #f5f5f5;
       }
     }
