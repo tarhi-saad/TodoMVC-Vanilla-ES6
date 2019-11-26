@@ -304,6 +304,9 @@ const todoView = () => {
     resetDetails();
     // Name block of todo
     const name = createElement('textarea', '.name-details');
+    name.maxLength = 255;
+    name.style.height =
+      name.scrollHeight <= 30 ? '30px' : `${name.scrollHeight}px`;
     name.value = todo.title;
     // Append to details block
     elements.detailsView.append(wrap(name, 'name-block'));
@@ -316,6 +319,10 @@ const todoView = () => {
       todo.title = target.value;
       elements.todoList.querySelector('.selected .todo-title').textContent =
         todo.title;
+      // Change the height of textarea
+      name.style.height = '30px'; // Reset height to make it responsive also when deleting
+      name.style.height =
+        name.scrollHeight <= 30 ? '30px' : `${name.scrollHeight}px`;
     };
 
     // Set event listeners

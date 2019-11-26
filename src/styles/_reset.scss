@@ -24,7 +24,8 @@ input[type='checkbox'] {
 }
 
 button,
-input {
+input,
+textarea {
   &:focus {
     outline: none;
   }
