@@ -6,6 +6,35 @@ $line-spacing: 48px;
   flex-direction: column;
   overflow: hidden;
 
+  h1 {
+    margin: 20px 10px;
+    font-weight: bold;
+
+    span,
+    input {
+      padding: 6px 10px;
+      width: 100%;
+    }
+
+    span {
+      display: block;
+
+      &:hover {
+        background: #f5f5f5;
+        cursor: text;
+      }
+    }
+
+    input {
+      border: none;
+      font-weight: bold;
+
+      &:focus {
+        background: #f5f5f5;
+      }
+    }
+  }
+
   .todo-list {
     overflow-x: hidden;
     padding: 0 20px;

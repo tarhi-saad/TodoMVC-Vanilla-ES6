@@ -113,6 +113,7 @@ const initializeDOMElements = () => {
   const tasksTitleWrapper = createElement('h1');
   const tasksTitle = createElement('span', '.tasks-title');
   const tasksTitleInput = createElement('input', '#tasksTitleInput');
+  tasksTitleInput.autocomplete = 'off';
   tasksTitleWrapper.append(tasksTitle);
 
   // Details view for todo elements
