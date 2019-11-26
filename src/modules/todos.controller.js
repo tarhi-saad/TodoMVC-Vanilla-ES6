@@ -41,6 +41,10 @@ const todoController = (() => {
     selectedProject.addTodo(todoTitle);
     const todoItems = selectedProject.getItems();
     view.addTodo(todoItems[todoItems.length - 1]);
+
+    // Scroll to bottom of the todo list, only when adding a new item
+    const { todoList } = view.elements;
+    todoList.scrollTo(0, todoList.scrollHeight);
   };
 
   const handleDeleteTodo = (e) => {
