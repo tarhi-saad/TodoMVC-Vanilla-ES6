@@ -88,6 +88,10 @@ const todoController = (() => {
 
     // Hide "Add" button After submit
     view.hideElement(view.elements.newListSubmit);
+
+    // Scroll to bottom of the list of projects, only when adding a new list
+    const { lists } = view.elements;
+    lists.scrollTo(0, lists.scrollHeight);
   };
 
   const handleSwitchList = (e) => {
