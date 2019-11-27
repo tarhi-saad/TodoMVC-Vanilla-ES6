@@ -87,7 +87,7 @@ const todoController = (() => {
     view.displayTodos(items);
 
     // Hide "Add" button After submit
-    view.hideAddButton();
+    view.hideElement(view.elements.newListSubmit);
   };
 
   const handleSwitchList = (e) => {

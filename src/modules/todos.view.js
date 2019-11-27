@@ -61,6 +61,14 @@ const DOMHelpers = () => {
 
   const removeClass = (elem, className) => elem.classList.remove(className);
 
+  const hideElement = (elem) => {
+    addClass(elem, 'hide');
+  };
+
+  const showElement = (elem) => {
+    removeClass(elem, 'hide');
+  };
+
   return {
     createElement,
     on,
@@ -70,7 +78,8 @@ const DOMHelpers = () => {
     wrap,
     unselect,
     addClass,
-    removeClass,
+    hideElement,
+    showElement,
   };
 };
 
@@ -83,7 +92,8 @@ const {
   wrap,
   unselect,
   addClass,
-  removeClass,
+  hideElement,
+  showElement,
 } = DOMHelpers();
 
 const initializeDOMElements = () => {
@@ -171,6 +181,7 @@ const todoView = () => {
     // Setup the "span" element to display todo-count per project
     const todoCount = createElement('span', '.todo-count');
     todoCount.textContent = items.length;
+    addClass(todoCount, 'hide');
     // Delete Elements
     const deleteBtn = createElement('button', '.delete-btn');
     deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
@@ -223,6 +234,9 @@ const todoView = () => {
     // Update todoCount in current list
     const todoCount = elements.lists.querySelector('.selected .todo-count');
     todoCount.textContent = Number(todoCount.textContent) + 1;
+
+    // Show todo count if it's todo list is not empty
+    if (todoCount.textContent === '1') showElement(todoCount);
   };
 
   const removeTodo = (index) => {
@@ -234,6 +248,10 @@ const todoView = () => {
     // Update todoCount in current list
     const todoCount = elements.lists.querySelector('.selected .todo-count');
     todoCount.textContent = Number(todoCount.textContent) - 1;
+
+    // Show todo count if it's todo list is not empty
+    if (todoCount.textContent === '0') hideElement(todoCount);
+
     // Reset todo details if selected
     if (todoItem.classList.contains('selected')) resetDetails();
   };
@@ -341,16 +359,11 @@ const todoView = () => {
   };
 
   // Listen to add list Input/Submit events to hide/show "Add" button
-  const hideAddButton = () => {
-    addClass(elements.newListSubmit, 'hide');
-  };
-
   const handleInput = (e) => {
     const { target } = e;
+    const addButton = elements.newListSubmit;
 
-    target.value
-      ? removeClass(elements.newListSubmit, 'hide')
-      : hideAddButton();
+    target.value ? showElement(addButton) : hideElement(addButton);
   };
 
   on(elements.newListInput, 'input', handleInput);
@@ -438,7 +451,7 @@ const todoView = () => {
     toggleEditMode,
     displayDetails,
     bindSwitchTodo,
-    hideAddButton,
+    hideElement,
   };
 };
 
