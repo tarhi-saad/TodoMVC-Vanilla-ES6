@@ -57,6 +57,10 @@ const DOMHelpers = () => {
     });
   };
 
+  const addClass = (elem, className) => elem.classList.add(className);
+
+  const removeClass = (elem, className) => elem.classList.remove(className);
+
   return {
     createElement,
     on,
@@ -65,6 +69,8 @@ const DOMHelpers = () => {
     getElement,
     wrap,
     unselect,
+    addClass,
+    removeClass,
   };
 };
 
@@ -76,6 +82,8 @@ const {
   getElement,
   wrap,
   unselect,
+  addClass,
+  removeClass,
 } = DOMHelpers();
 
 const initializeDOMElements = () => {
@@ -93,7 +101,8 @@ const initializeDOMElements = () => {
   newListInput.placeholder = '+ New list';
   newListInput.autocomplete = 'off';
   newListSubmit.type = 'submit';
-  newListSubmit.value = 'Add';
+  newListSubmit.value = '+ Add';
+  addClass(newListSubmit, 'hide');
 
   // The center block which will display our todos/tasks
   const tasksView = createElement('div', '.tasks-view');
@@ -139,6 +148,7 @@ const initializeDOMElements = () => {
     tasksTitle,
     tasksTitleInput,
     detailsView,
+    newListSubmit,
   };
 };
 
@@ -330,6 +340,21 @@ const todoView = () => {
     on(name, 'input', handleChange);
   };
 
+  // Listen to add list Input/Submit events to hide/show "Add" button
+  const hideAddButton = () => {
+    addClass(elements.newListSubmit, 'hide');
+  };
+
+  const handleInput = (e) => {
+    const { target } = e;
+
+    target.value
+      ? removeClass(elements.newListSubmit, 'hide')
+      : hideAddButton();
+  };
+
+  on(elements.newListInput, 'input', handleInput);
+
   /**
    * Call handleAddTodo function on synthetic event
    * @param {Function} handler Function called on synthetic event.
@@ -413,6 +438,7 @@ const todoView = () => {
     toggleEditMode,
     displayDetails,
     bindSwitchTodo,
+    hideAddButton,
   };
 };
 

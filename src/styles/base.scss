@@ -15,9 +15,18 @@
 }
 
 body {
+  background: $white-smoke;
   color: $text-color;
   font-family: Verdana, Geneva, sans-serif;
   font-size: $font-size;
+}
+
+.show {
+  display: block !important;
+}
+
+.hide {
+  display: none !important;
 }
 
 #root {

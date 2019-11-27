@@ -1,22 +1,26 @@
 .lists-menu {
-  background: $second-color;
+  background: #fff;
   border-right: 1px solid $second-color-dark;
+  box-shadow: 0 2px 10px 0 $shadow-color;
   padding: 10px 0;
 
   .lists {
     .list {
+      border-radius: 5px;
+      font-weight: bold;
+      margin: 0 8px;
       padding: 0 10px;
 
       &:hover {
-        background: $second-color-light;
+        background: $white-smoke;
       }
 
       .list-icon {
-        margin-right: 5px;
-        width: 15px;
+        margin-right: 12px;
+        width: 18px;
 
         .list-svg {
-          fill: $base-color;
+          fill: $grey-color;
         }
       }
 
@@ -24,11 +28,39 @@
       }
 
       .todo-count {
-        background: $second-color-darker;
-        border-radius: 50%;
-        color: #fff;
+        color: $grey-color;
+        font-size: $small-font-size;
         margin-left: 5px;
         padding: 0px 5px;
+      }
+
+      .delete-btn {
+        .delete-svg {
+          fill: $second-color-darker;
+        }
+
+        &:focus:active .delete-svg {
+          fill: $second-color-darkness;
+        }
+
+        &:hover .delete-svg {
+          fill: $second-color-darkest;
+        }
+      }
+    }
+
+    .list.selected {
+      background: $base-color-transparent;
+      color: $base-color;
+
+      .list-icon {
+        .list-svg {
+          fill: $base-color;
+        }
+      }
+
+      .todo-count {
+        color: $base-color-light;
       }
 
       .delete-btn {
@@ -44,12 +76,6 @@
           fill: $base-color;
         }
       }
-    }
-
-    .list.selected {
-      background: $second-color-dark;
-      color: $base-color;
-      font-weight: bold;
     }
 
     .pinned {
@@ -73,19 +99,22 @@
     }
 
     .submit-btn {
-      background: $base-color-light;
+      background: #fff;
       border: none;
       border-radius: 5px;
-      color: #f4f4f4;
+      color: $base-color-light;
+      font-size: 13px;
+      font-weight: bold;
       right: 10px;
+      text-transform: uppercase;
       @include vertical-center-absolute;
 
       &:focus:active {
-        background: $base-color-dark;
+        color: $base-color-dark;
       }
 
       &:hover {
-        background: $base-color;
+        color: $base-color;
       }
     }
   }

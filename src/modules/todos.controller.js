@@ -85,6 +85,9 @@ const todoController = (() => {
     const items = project.getItems();
     view.displayList(id, name, items, true);
     view.displayTodos(items);
+
+    // Hide "Add" button After submit
+    view.hideAddButton();
   };
 
   const handleSwitchList = (e) => {

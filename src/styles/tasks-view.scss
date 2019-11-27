@@ -2,9 +2,15 @@
 $line-spacing: 48px;
 
 .tasks-view {
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px 0 $shadow-color;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin: 25px 25px;
+  padding-bottom: 60px;
+  position: relative;
 
   h1 {
     margin: 20px 10px;
@@ -39,7 +45,7 @@ $line-spacing: 48px;
 
   .todo-list {
     overflow-x: hidden;
-    padding: 0 20px;
+    padding: 0 20px 15px;
 
     .todo-item {
       border: 1px solid $second-color-darker;
@@ -105,10 +111,10 @@ $line-spacing: 48px;
             width: 100%;
             height: 100%;
             background: $base-color;
+            border-radius: 50%;
             display: block;
             transform: scale(0);
             opacity: 1;
-            border-radius: 50%;
           }
 
           svg {
@@ -204,6 +210,7 @@ $line-spacing: 48px;
 
     .todo-item.selected {
       border-color: $base-color;
+      box-shadow: 0 2px 5px 0 $shadow-color;
       transform: scale(1.005);
       transition-duration: 0.1s;
     }
@@ -211,11 +218,15 @@ $line-spacing: 48px;
 
   form {
     align-items: center;
+    background: #fff;
+    bottom: -15px;
+    box-shadow: 0 -4px 10px 0 rgba(0, 0, 0, 0.1);
     display: flex;
     padding: 0 20px;
-    margin: 0 20px 15px;
+    margin: 15px 0;
     padding: 10px 10px;
-    box-shadow: 0 -4px 10px 0 #cecece;
+    position: absolute;
+    width: 100%;
 
     #newTodo {
       border: 1px solid $second-color-darker;

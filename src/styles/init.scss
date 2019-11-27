@@ -2,6 +2,7 @@
 $base-color: #0080ff;
 $base-color-light: lighten($base-color, 15%);
 $base-color-dark: darken($base-color, 15%);
+$base-color-transparent: #b3d9ff9e;
 // Main text color
 $text-color: #4a4a4a;
 // Secondary color
@@ -15,6 +16,12 @@ $second-color-darkness: darken($second-color, 45%);
 $danger-color: #f44336;
 $danger-color-light: lighten($danger-color, 15%);
 $danger-color-dark: darken($danger-color, 15%);
+// New colors
+$grey-color: #757575;
+// Background
+$white-smoke: #f5f5f5;
+// Shadow colors
+$shadow-color: rgba(0, 0, 0, 0.1);
 // Font size
 $font-size: 15px;
 $small-font-size: 13px;
