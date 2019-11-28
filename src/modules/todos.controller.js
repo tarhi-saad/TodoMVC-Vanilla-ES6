@@ -44,7 +44,7 @@ const todoController = (() => {
 
     // Scroll to bottom of the todo list, only when adding a new item
     const { todoList } = view.elements;
-    todoList.scrollTo(0, todoList.scrollHeight);
+    todoList.scrollTop = todoList.scrollHeight;
   };
 
   const handleDeleteTodo = (e) => {
@@ -91,7 +91,7 @@ const todoController = (() => {
 
     // Scroll to bottom of the list of projects, only when adding a new list
     const { lists } = view.elements;
-    lists.scrollTo(0, lists.scrollHeight);
+    lists.scrollTop = lists.scrollHeight;
   };
 
   const handleSwitchList = (e) => {
