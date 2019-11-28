@@ -2,6 +2,7 @@ import deleteSVG from '../images/delete.svg';
 import listSVG from '../images/list.svg';
 import arrowSVG from '../images/arrow.svg';
 import checkSVG from '../images/check.svg';
+import emptyStateSVG from '../images/empty-state.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -78,6 +79,7 @@ const DOMHelpers = () => {
     wrap,
     unselect,
     addClass,
+    removeClass,
     hideElement,
     showElement,
   };
@@ -92,6 +94,7 @@ const {
   wrap,
   unselect,
   addClass,
+  removeClass,
   hideElement,
   showElement,
 } = DOMHelpers();
@@ -127,6 +130,12 @@ const initializeDOMElements = () => {
   newTodoInput.autocomplete = 'off';
   newTodoSubmit.type = 'submit';
   newTodoSubmit.insertAdjacentHTML('beforeEnd', arrowSVG);
+  // Empty state block
+  const emptyState = createElement('div', '#empty-state');
+  emptyState.insertAdjacentHTML('beforeEnd', emptyStateSVG);
+  const emptyStateText = createElement('p');
+  emptyStateText.textContent = 'What tasks are on your mind?';
+  emptyState.append(emptyStateText);
 
   // Display selected list title in tasks view
   const tasksTitleWrapper = createElement('h1');
@@ -142,7 +151,7 @@ const initializeDOMElements = () => {
   newList.append(newListInput, newListSubmit);
   listsMenu.append(lists, newList);
   newTodo.append(newTodoInput, newTodoSubmit);
-  tasksView.append(tasksTitleWrapper, todoList, newTodo);
+  tasksView.append(tasksTitleWrapper, todoList, emptyState, newTodo);
 
   root.append(listsMenu, tasksView, detailsView);
 
@@ -159,6 +168,7 @@ const initializeDOMElements = () => {
     tasksTitleInput,
     detailsView,
     newListSubmit,
+    emptyState,
   };
 };
 
@@ -235,8 +245,11 @@ const todoView = () => {
     const todoCount = elements.lists.querySelector('.selected .todo-count');
     todoCount.textContent = Number(todoCount.textContent) + 1;
 
-    // Show todo count if it's todo list is not empty
-    if (todoCount.textContent === '1') showElement(todoCount);
+    // Show todo count if it's todo list is not empty & hide "Empty state" block
+    if (todoCount.textContent === '1') {
+      showElement(todoCount);
+      addClass(elements.emptyState, 'hide-empty-state');
+    }
   };
 
   const removeTodo = (index) => {
@@ -249,8 +262,11 @@ const todoView = () => {
     const todoCount = elements.lists.querySelector('.selected .todo-count');
     todoCount.textContent = Number(todoCount.textContent) - 1;
 
-    // Show todo count if it's todo list is not empty
-    if (todoCount.textContent === '0') hideElement(todoCount);
+    // Hide todo count if it's todo list is empty & show the "Empty state" block
+    if (todoCount.textContent === '0') {
+      hideElement(todoCount);
+      removeClass(elements.emptyState, 'hide-empty-state');
+    }
 
     // Reset todo details if selected
     if (todoItem.classList.contains('selected')) resetDetails();
@@ -289,6 +305,10 @@ const todoView = () => {
     // Update todoCount in current list
     elements.lists.querySelector('.selected .todo-count').innerHTML =
       todos.length;
+    // Check if list is empty or not to Show/Hide "Empty State"
+    todos.length === 0
+      ? removeClass(elements.emptyState, 'hide-empty-state')
+      : addClass(elements.emptyState, 'hide-empty-state');
     // Reset todo details
     resetDetails();
   };

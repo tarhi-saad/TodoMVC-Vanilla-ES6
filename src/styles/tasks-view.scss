@@ -1,5 +1,10 @@
 // local variables
 $line-spacing: 48px;
+// local classes
+.hide-empty-state {
+  visibility: hidden;
+  opacity: 0;
+}
 
 .tasks-view {
   background: #fff;
@@ -13,7 +18,7 @@ $line-spacing: 48px;
   position: relative;
 
   h1 {
-    margin: 20px 10px;
+    margin: 10px 10px 20px;
     font-weight: bold;
 
     span,
@@ -216,6 +221,29 @@ $line-spacing: 48px;
     }
   }
 
+  #empty-state {
+    align-items: center;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: visibility 0s, opacity 0.17s ease-in;
+    width: 350px;
+
+    svg {
+      order: 1;
+      width: 200px;
+
+      @media screen and (min-height: $breakpoint-landscape) {
+        order: 0;
+        width: 100%;
+      }
+    }
+  }
+
   form {
     align-items: center;
     background: #fff;
@@ -227,6 +255,7 @@ $line-spacing: 48px;
     padding: 10px 10px;
     position: absolute;
     width: 100%;
+    z-index: 1;
 
     #newTodo {
       border: 1px solid $second-color-darker;

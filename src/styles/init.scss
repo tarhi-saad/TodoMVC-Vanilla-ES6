@@ -22,11 +22,14 @@ $grey-color: #757575;
 $white-smoke: #f5f5f5;
 // Shadow colors
 $shadow-color: rgba(0, 0, 0, 0.1);
+$shadow-color-grey: #e5e5e5;
 // Font size
 $font-size: 15px;
 $small-font-size: 13px;
 // Transition
 $transition: all 0.4s ease;
+// Responsive breakpoints
+$breakpoint-landscape: 460px;
 
 // Mixins
 @mixin center-absolute {

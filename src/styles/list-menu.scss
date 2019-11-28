@@ -88,6 +88,9 @@
 
   form {
     align-items: center;
+    box-shadow: 0 -17px 0 -16px $shadow-color;
+    box-shadow: 0 -17px 0 -16px $shadow-color-grey;
+    margin: 0px 10px;
     position: relative;
 
     #newList {
