@@ -147,13 +147,31 @@ const initializeDOMElements = () => {
   // Details view for todo elements
   const detailsView = createElement('div', '.details-view');
 
+  // Confirm Modal
+  const modal = createElement('div', '#modal');
+  addClass(modal, 'close');
+  const modalTitle = createElement('h2');
+  modalTitle.innerHTML = 'Are you sure?';
+  const modalText = createElement('p');
+  modalText.innerHTML = 'Are you sure to delete this item?';
+  const modalOk = createElement('button', '.confirm-btn');
+  modalOk.textContent = 'Ok';
+  const modalCancel = createElement('button', '.cancel-btn');
+  modalCancel.textContent = 'Cancel';
+  const modalFooter = createElement('footer');
+  modalFooter.append(modalOk, modalCancel);
+  modal.append(modalTitle, modalText, modalFooter);
+  // Modal backdrop
+  const modalBackdrop = createElement('div', '.modal-backdrop');
+  document.body.append(modalBackdrop);
+
   // Append elements
   newList.append(newListInput, newListSubmit);
   listsMenu.append(lists, newList);
   newTodo.append(newTodoInput, newTodoSubmit);
   tasksView.append(tasksTitleWrapper, todoList, emptyState, newTodo);
 
-  root.append(listsMenu, tasksView, detailsView);
+  root.append(listsMenu, tasksView, detailsView, modal);
 
   return {
     root,
@@ -169,11 +187,32 @@ const initializeDOMElements = () => {
     detailsView,
     newListSubmit,
     emptyState,
+    modal,
+    modalBackdrop,
+    modalOk,
+    modalCancel,
+    modalText,
   };
 };
 
 const todoView = () => {
   const elements = initializeDOMElements();
+
+  // Toggle modal helpers
+  const showModal = () => {
+    removeClass(elements.modal, 'close');
+    addClass(elements.modalBackdrop, 'fade-in');
+  };
+
+  const hideModal = () => {
+    addClass(elements.modal, 'close');
+    removeClass(elements.modalBackdrop, 'fade-in');
+  };
+  // Toggle modal
+  const toggleModal = () => {
+    if (elements.modal.classList.contains('close')) showModal();
+    else hideModal();
+  };
 
   /**
    *  Display the project by name in an HTML list element
@@ -378,6 +417,30 @@ const todoView = () => {
     on(name, 'input', handleChange);
   };
 
+  // Listen to modal
+  const confirmRemoval = (callback, msg) => {
+    const { modalOk, modalCancel, modalBackdrop, modalText } = elements;
+    modalText.innerHTML = msg;
+    toggleModal();
+
+    const handleClick = (e) => {
+      const { target } = e;
+      toggleModal();
+      off(modalOk, 'click', handleClick);
+      off(modalCancel, 'click', handleClick);
+      off(modalBackdrop, 'click', handleClick);
+
+      if (target === modalOk) {
+        callback();
+      }
+    };
+
+    on(modalOk, 'click', handleClick);
+    on(modalCancel, 'click', handleClick);
+    // Hide modal on modalBackdrop click
+    on(modalBackdrop, 'click', handleClick);
+  };
+
   // Listen to add list Input/Submit events to hide/show "Add" button
   const handleInput = (e) => {
     const { target } = e;
@@ -472,6 +535,7 @@ const todoView = () => {
     displayDetails,
     bindSwitchTodo,
     hideElement,
+    confirmRemoval,
   };
 };
 

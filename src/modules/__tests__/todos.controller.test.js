@@ -45,6 +45,8 @@ describe('\n => todoController', () => {
       test('should delete todo when button is clicked', () => {
         document.querySelector('#newTodo').value = 'simple task';
         document.querySelector('.tasks-view .submit-btn').click();
+        // Set task to completed
+        document.querySelector('.tasks-view label').click();
         document.querySelector('.tasks-view .delete-btn').click();
         expect(document.querySelector('.todo-list').childElementCount).toBe(0);
       });
@@ -56,8 +58,23 @@ describe('\n => todoController', () => {
         document.querySelector('.tasks-view .submit-btn').click();
         document.querySelector('#newTodo').value = 'simple task 3';
         document.querySelector('.tasks-view .submit-btn').click();
+        // Set task to completed
+        document.querySelector('.tasks-view li:nth-child(2) label').click();
         document.querySelector('ul li:nth-child(2) .delete-btn').click();
         expect(document.querySelector('.todo-item[data-index="2"]')).toBeNull();
+      });
+
+      test('should not delete todo when task in not completed', () => {
+        document.querySelector('#newTodo').value = 'simple task';
+        document.querySelector('.tasks-view .submit-btn').click();
+        const { index } = document.querySelector(
+          '.tasks-view li:first-child',
+        ).dataset;
+        document.querySelector('.tasks-view .delete-btn').click();
+        expect(
+          document.querySelector(`.todo-item[data-index="${index}"]`)
+            .childElementCount,
+        ).not.toBeNull();
       });
     });
 

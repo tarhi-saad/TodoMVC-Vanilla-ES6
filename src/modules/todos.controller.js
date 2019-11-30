@@ -52,10 +52,26 @@ const todoController = (() => {
 
     if (!target.closest('.delete-btn')) return;
 
-    const todoID = Number(target.closest('.todo-item').dataset.index);
-    const selectedProject = todoApp.getSelectedProject();
-    selectedProject.removeTodo(todoID);
-    view.removeTodo(todoID);
+    const removeTodo = () => {
+      const todoID = Number(target.closest('.todo-item').dataset.index);
+      const selectedProject = todoApp.getSelectedProject();
+      selectedProject.removeTodo(todoID);
+      view.removeTodo(todoID);
+    };
+
+    // Confirm deletion of incomplete task
+    if (!target.closest('.completed')) {
+      const name = target.closest('.todo-item').querySelector('.todo-title')
+        .textContent;
+      const msg = `
+        You didn't complete this task!<br>
+        Delete <span class="name">"${name}"</span> anyway?
+      `;
+      view.confirmRemoval(removeTodo, msg);
+      return;
+    }
+
+    removeTodo();
   };
 
   const handleToggleTodo = (e) => {
@@ -125,36 +141,61 @@ const todoController = (() => {
     if (!target.closest('.delete-btn') || lists.length === 1) return;
 
     const listID = Number(target.closest('.list').dataset.index);
-    todoApp.removeProject(listID);
-    // Get the index of the selected list
-    const listIndex = Array.from(lists).indexOf(
-      view.elements.lists.querySelector('.selected'),
-    );
 
-    // transfer selected class and selected project when deleting list
-    if (target.closest('.selected')) {
-      if (listIndex !== -1) {
-        if (listIndex > 0) {
-          todoApp.setSelected(listIndex - 1);
-          lists[listIndex - 1].classList.add('selected');
-        } else if (listIndex === 0) {
-          todoApp.setSelected(0);
-          lists[1].classList.add('selected');
+    const removeList = () => {
+      todoApp.removeProject(listID);
+      // Get the index of the selected list
+      const listIndex = Array.from(lists).indexOf(
+        view.elements.lists.querySelector('.selected'),
+      );
+
+      // transfer selected class and selected project when deleting list
+      if (target.closest('.selected')) {
+        if (listIndex !== -1) {
+          if (listIndex > 0) {
+            todoApp.setSelected(listIndex - 1);
+            lists[listIndex - 1].classList.add('selected');
+          } else if (listIndex === 0) {
+            todoApp.setSelected(0);
+            lists[1].classList.add('selected');
+          }
+
+          // Update todo view
+          view.displayTodos(todoApp.getSelectedProject().getItems());
         }
-
-        // Update todo view
-        view.displayTodos(todoApp.getSelectedProject().getItems());
       }
+
+      view.removeProject(listID);
+      // Get the new selected list after deletion
+      const listIndexUpdate = Array.from(lists).indexOf(
+        view.elements.lists.querySelector('.selected'),
+      );
+
+      // If the value did change, let's update it in the model
+      if (listIndex !== listIndexUpdate) todoApp.setSelected(listIndexUpdate);
+    };
+
+    // Confirm removal if list is not empty
+    const todoCount = Number(
+      target.closest('.list').querySelector('.todo-count').textContent,
+    );
+    const isAllTasksComplete = !todoApp
+      .getProjectByID(listID)
+      .getItems()
+      .some((todo) => !todo.isComplete);
+
+    if (todoCount > 0 && !isAllTasksComplete) {
+      const name = target.closest('.list').querySelector('.project-name')
+        .textContent;
+      const msg = `
+        This list still contains some tasks to do!<br>
+        Delete <span class="name">"${name}"</span> anyway?
+      `;
+      view.confirmRemoval(removeList, msg);
+      return;
     }
 
-    view.removeProject(listID);
-    // Get the new selected list after deletion
-    const listIndexUpdate = Array.from(lists).indexOf(
-      view.elements.lists.querySelector('.selected'),
-    );
-
-    // If the value did change, let's update it in the model
-    if (listIndex !== listIndexUpdate) todoApp.setSelected(listIndexUpdate);
+    removeList();
   };
 
   const handleEditTasksTitle = (e) => {
