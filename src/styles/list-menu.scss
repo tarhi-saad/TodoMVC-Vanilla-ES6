@@ -82,7 +82,10 @@
       }
     }
 
-    .pinned {
+    .list.pinned {
+      .delete-btn {
+        display: none;
+      }
     }
   }
 
