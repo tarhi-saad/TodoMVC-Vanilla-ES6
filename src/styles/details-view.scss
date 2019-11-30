@@ -3,12 +3,14 @@
   padding: 10px;
   padding-left: 0;
 
-  .name-block {
+  div {
     background: #fff;
     border: 1px solid $second-color-dark;
     padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
 
-    textarea.name-details {
+    textarea {
       border: none;
       font-weight: 600;
       overflow: hidden;

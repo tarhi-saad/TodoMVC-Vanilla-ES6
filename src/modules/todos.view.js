@@ -396,13 +396,20 @@ const todoView = () => {
     name.style.height =
       name.scrollHeight <= 30 ? '30px' : `${name.scrollHeight}px`;
     name.value = todo.title;
+    // Note block of todo
+    const note = createElement('textarea', '.note-details');
+    note.value = todo.note;
+    note.placeholder = 'Add note';
     // Append to details block
-    elements.detailsView.append(wrap(name, 'name-block'));
+    elements.detailsView.append(
+      wrap(name, 'name-block'),
+      wrap(note, 'note-block'),
+    );
     // Add class for CSS styling
     getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
 
     // Set handlers on synthetic event
-    const handleChange = (e) => {
+    const handleNameChange = (e) => {
       const { target } = e;
       todo.title = target.value;
       elements.todoList.querySelector('.selected .todo-title').textContent =
@@ -413,8 +420,14 @@ const todoView = () => {
         name.scrollHeight <= 30 ? '30px' : `${name.scrollHeight}px`;
     };
 
+    const handleNoteChange = (e) => {
+      const { target } = e;
+      todo.note = target.value;
+    };
+
     // Set event listeners
-    on(name, 'input', handleChange);
+    on(name, 'input', handleNameChange);
+    on(note, 'input', handleNoteChange);
   };
 
   // Listen to modal
