@@ -3,6 +3,7 @@ import listSVG from '../images/list.svg';
 import arrowSVG from '../images/arrow.svg';
 import checkSVG from '../images/check.svg';
 import emptyStateSVG from '../images/empty-state.svg';
+import removeDateSVG from '../images/remove-date.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -383,6 +384,37 @@ const todoView = () => {
     on(editElem, 'keydown', handleEditEvents);
   };
 
+  // Helper function - Date converter
+  const getFriendlyDate = (stringDate) => {
+    const currentDate = new Date();
+    const dateObj = new Date(stringDate);
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const day = days[dateObj.getDay()];
+    const month = months[dateObj.getMonth()];
+    const dayNumber = dateObj.getDate();
+    const year = dateObj.getFullYear();
+
+    if (year !== currentDate.getFullYear()) {
+      return `Due ${day}, ${month} ${dayNumber}, ${year}`;
+    }
+
+    return `Due ${day}, ${month} ${dayNumber}`;
+  };
+
   /**
    * Display details of the selected todo object
    * @param {Object} todo The selected todo object
@@ -400,10 +432,30 @@ const todoView = () => {
     const note = createElement('textarea', '.note-details');
     note.value = todo.note;
     note.placeholder = 'Add note';
+    // Date block of todo
+    const date = createElement('input', '#date');
+    date.type = 'date';
+    // date.value = todo.date;
+    const dateLabel = createElement('label');
+    dateLabel.htmlFor = 'date';
+    const dateMessage = createElement('span', '.date-message');
+    const removeDate = createElement('span', '.remove-date');
+    removeDate.insertAdjacentHTML('beforeEnd', removeDateSVG);
+
+    if (todo.date) {
+      dateMessage.innerHTML = getFriendlyDate(todo.date);
+      addClass(dateLabel, 'is-set');
+      dateLabel.append(removeDate);
+    } else {
+      dateMessage.innerHTML = 'Add due date';
+    }
+
+    dateLabel.append(date, dateMessage);
     // Append to details block
     elements.detailsView.append(
       wrap(name, 'name-block'),
       wrap(note, 'note-block'),
+      wrap(dateLabel, 'date-block'),
     );
     // Add class for CSS styling
     getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
@@ -425,9 +477,28 @@ const todoView = () => {
       todo.note = target.value;
     };
 
+    const handleDateChange = (e) => {
+      const { target } = e;
+      todo.date = target.value;
+      dateMessage.innerHTML = getFriendlyDate(todo.date);
+      addClass(dateLabel, 'is-set');
+
+      if (!dateLabel.contains(removeDate)) dateLabel.append(removeDate);
+    };
+
+    const handleRemoveDateClick = () => {
+      date.value = '';
+      todo.date = date.value;
+      dateMessage.innerHTML = 'Add due date';
+      removeClass(dateLabel, 'is-set');
+      removeDate.remove();
+    };
+
     // Set event listeners
     on(name, 'input', handleNameChange);
     on(note, 'input', handleNoteChange);
+    on(date, 'change', handleDateChange);
+    on(removeDate, 'click', handleRemoveDateClick);
   };
 
   // Listen to modal

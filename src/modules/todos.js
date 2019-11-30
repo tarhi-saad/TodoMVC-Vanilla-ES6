@@ -1,7 +1,7 @@
 const todoItem = (title) => ({
   title,
   description: '',
-  dueDate: '',
+  date: '',
   priority: '',
   note: '',
   isComplete: false,
