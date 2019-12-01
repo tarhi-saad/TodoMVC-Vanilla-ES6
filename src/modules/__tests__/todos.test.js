@@ -21,11 +21,11 @@ describe('\n => The todoApp instance', () => {
 
       test('should add a todo object with the given title and all the default values when called', () => {
         list.addTodo('test');
-        const [{ description, dueDate, note, priority }] = list.getItems();
+        const [{ description, date, note, priority }] = list.getItems();
         expect(list.getItems()).toEqual([
           {
             description,
-            dueDate,
+            date,
             id: 1,
             isComplete: false,
             note,
@@ -54,13 +54,13 @@ describe('\n => The todoApp instance', () => {
       test('should not alter the todoStore when a non-existing id is given', () => {
         list.addTodo('saad');
         const [
-          { description, dueDate, id, isComplete, note, priority, title },
+          { description, date, id, isComplete, note, priority, title },
         ] = list.getItems();
         list.removeTodo(0);
         expect(list.getItems()).toEqual([
           {
             description,
-            dueDate,
+            date,
             id,
             isComplete,
             note,
@@ -83,7 +83,7 @@ describe('\n => The todoApp instance', () => {
         list.addTodo('some other todo');
         const {
           description,
-          dueDate,
+          date,
           id,
           isComplete,
           note,
@@ -93,7 +93,7 @@ describe('\n => The todoApp instance', () => {
         list.toggleTodo(1);
         expect(list.getItems()[0]).toEqual({
           description,
-          dueDate,
+          date,
           id,
           isComplete: !isComplete,
           note,
@@ -109,7 +109,7 @@ describe('\n => The todoApp instance', () => {
         const [
           {
             description: description1,
-            dueDate: dueDate1,
+            date: date1,
             id: id1,
             isComplete: isComplete1,
             note: note1,
@@ -118,7 +118,7 @@ describe('\n => The todoApp instance', () => {
           },
           {
             description: description2,
-            dueDate: dueDate2,
+            date: date2,
             id: id2,
             isComplete: isComplete2,
             note: note2,
@@ -127,7 +127,7 @@ describe('\n => The todoApp instance', () => {
           },
           {
             description: description3,
-            dueDate: dueDate3,
+            date: date3,
             id: id3,
             isComplete: isComplete3,
             note: note3,
@@ -140,7 +140,7 @@ describe('\n => The todoApp instance', () => {
         expect(list.getItems()).toEqual([
           {
             description: description1,
-            dueDate: dueDate1,
+            date: date1,
             id: id1,
             isComplete: isComplete1,
             note: note1,
@@ -149,7 +149,7 @@ describe('\n => The todoApp instance', () => {
           },
           {
             description: description2,
-            dueDate: dueDate2,
+            date: date2,
             id: id2,
             isComplete: !isComplete2,
             note: note2,
@@ -158,7 +158,7 @@ describe('\n => The todoApp instance', () => {
           },
           {
             description: description3,
-            dueDate: dueDate3,
+            date: date3,
             id: id3,
             isComplete: isComplete3,
             note: note3,
