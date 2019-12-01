@@ -7,6 +7,7 @@
     background: #fff;
     border: 1px solid $second-color-dark;
     padding: 12px;
+    position: relative;
     margin-bottom: 10px;
     border-radius: 4px;
 
@@ -23,6 +24,15 @@
         background: $white-smoke;
       }
     }
+
+    & > svg {
+      width: 16px;
+      fill: $grey-color;
+      left: 22px;
+      position: absolute;
+      z-index: 1;
+      @include vertical-center-absolute;
+    }
   }
 
   .name-details {
@@ -34,9 +44,20 @@
     padding: 0;
 
     textarea {
+      border: 1px solid transparent;
       color: $grey-color;
       font-weight: 400;
       padding: 18px 22px;
+
+      &:hover {
+        background: #fff;
+        border-color: $second-color-darker;
+      }
+
+      &:focus {
+        background: #fff;
+        border-color: $base-color;
+      }
     }
   }
 
@@ -63,7 +84,7 @@
 
       .date-message {
         color: $grey-color;
-        left: 20px;
+        left: 50px;
         pointer-events: none;
         @include vertical-center-absolute;
       }
@@ -89,10 +110,18 @@
       }
     }
 
+    label.is-set + svg {
+      fill: $base-color;
+    }
+
     label.overdue {
       .date-message {
         color: $high-color;
       }
+    }
+
+    label.overdue + svg {
+      fill: $high-color;
     }
   }
 

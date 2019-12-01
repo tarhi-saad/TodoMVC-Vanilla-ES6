@@ -5,6 +5,7 @@ import checkSVG from '../images/check.svg';
 import emptyStateSVG from '../images/empty-state.svg';
 import removeDateSVG from '../images/remove-date.svg';
 import prioritySVG from '../images/priority.svg';
+import calendarSVG from '../images/calendar.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -468,7 +469,7 @@ const todoView = () => {
     // Date block of todo
     const date = createElement('input', '#date');
     date.type = 'date';
-    // date.value = todo.date;
+    date.value = todo.date;
     const dateLabel = createElement('label');
     dateLabel.htmlFor = 'date';
     const dateMessage = createElement('span', '.date-message');
@@ -484,6 +485,9 @@ const todoView = () => {
     }
 
     dateLabel.append(date, dateMessage);
+    const dateBlock = wrap(dateLabel, 'date-block');
+    dateBlock.append();
+    dateBlock.insertAdjacentHTML('beforeEnd', calendarSVG);
     // Priority block of todo
     const priorityBlock = createElement('div', '.priority-block');
     const priorityTitle = createElement('h2');
@@ -505,7 +509,7 @@ const todoView = () => {
     elements.detailsView.append(
       wrap(name, 'name-block'),
       wrap(note, 'note-block'),
-      wrap(dateLabel, 'date-block'),
+      dateBlock,
       priorityBlock,
     );
     // Add class for CSS styling
