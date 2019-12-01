@@ -4,6 +4,7 @@ import arrowSVG from '../images/arrow.svg';
 import checkSVG from '../images/check.svg';
 import emptyStateSVG from '../images/empty-state.svg';
 import removeDateSVG from '../images/remove-date.svg';
+import prioritySVG from '../images/priority.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -71,6 +72,13 @@ const DOMHelpers = () => {
     removeClass(elem, 'hide');
   };
 
+  // Helper function to change priority class (low, medium & high)
+  const resetClassList = (elem, classList) => {
+    Array.from(elem.classList).map((className) => {
+      if (classList.includes(className)) removeClass(elem, className);
+    });
+  };
+
   return {
     createElement,
     on,
@@ -83,6 +91,7 @@ const DOMHelpers = () => {
     removeClass,
     hideElement,
     showElement,
+    resetClassList,
   };
 };
 
@@ -98,6 +107,7 @@ const {
   removeClass,
   hideElement,
   showElement,
+  resetClassList,
 } = DOMHelpers();
 
 const initializeDOMElements = () => {
@@ -259,9 +269,10 @@ const todoView = () => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
     li.dataset.index = todo.id;
-    todo.isComplete
-      ? li.classList.add('completed')
-      : li.classList.remove('completed');
+    todo.isComplete ? addClass(li, 'completed') : removeClass(li, 'completed');
+    const priorityClass = `${todo.priority.toLowerCase()}`;
+    resetClassList(li, ['low', 'medium', 'high']);
+    addClass(li, priorityClass);
     // Setting up the checkbox to toggle "completed" state
     const checkbox = createElement('input', `#todo-checkbox${todo.id}`);
     const label = createElement('label');
@@ -473,11 +484,29 @@ const todoView = () => {
     }
 
     dateLabel.append(date, dateMessage);
+    // Priority block of todo
+    const priorityBlock = createElement('div', '.priority-block');
+    const priorityTitle = createElement('h2');
+    priorityTitle.innerHTML = 'Priority';
+    const priorityList = createElement('ul');
+    const priorityLow = createElement('li', '.low');
+    const priorityMedium = createElement('li', '.medium');
+    const priorityHigh = createElement('li', '.high');
+    priorityLow.insertAdjacentHTML('beforeEnd', prioritySVG);
+    priorityMedium.insertAdjacentHTML('beforeEnd', prioritySVG);
+    priorityHigh.insertAdjacentHTML('beforeEnd', prioritySVG);
+    priorityList.append(priorityLow, priorityMedium, priorityHigh);
+    addClass(
+      priorityList.querySelector(`.${todo.priority.toLowerCase()}`),
+      'selected',
+    );
+    priorityBlock.append(priorityTitle, priorityList);
     // Append to details block
     elements.detailsView.append(
       wrap(name, 'name-block'),
       wrap(note, 'note-block'),
       wrap(dateLabel, 'date-block'),
+      priorityBlock,
     );
     // Add class for CSS styling
     getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
@@ -517,11 +546,28 @@ const todoView = () => {
       removeDate.remove();
     };
 
+    const handlePriorityClick = (e) => {
+      const { target } = e;
+      const flag = target.closest('li');
+
+      if (!flag) return;
+
+      const list = target.closest('ul');
+      unselect(list);
+      [todo.priority] = flag.classList;
+      addClass(flag, 'selected');
+      const selectedTodo = elements.todoList.querySelector('li.selected');
+      const priorityClass = `${todo.priority.toLowerCase()}`;
+      resetClassList(selectedTodo, ['low', 'medium', 'high']);
+      addClass(selectedTodo, priorityClass);
+    };
+
     // Set event listeners
     on(name, 'input', handleNameChange);
     on(note, 'input', handleNoteChange);
     on(date, 'change', handleDateChange);
     on(removeDate, 'click', handleRemoveDateClick);
+    on(priorityList, 'click', handlePriorityClick);
   };
 
   // Listen to modal

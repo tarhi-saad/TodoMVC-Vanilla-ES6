@@ -93,6 +93,7 @@ $line-spacing: 48px;
 
         &:hover span {
           border-color: $base-color;
+          background: $base-color-transparent;
 
           svg {
             stroke-dashoffset: 0;
@@ -218,6 +219,31 @@ $line-spacing: 48px;
       box-shadow: 0 2px 5px 0 $shadow-color;
       transform: scale(1.005);
       transition-duration: 0.1s;
+    }
+
+    li.low {
+    }
+
+    li.medium {
+      label {
+        span {
+          background: $medium-color-transparent;
+          border-color: $medium-color;
+          border-width: 2px;
+          transition: all 0.2s ease;
+        }
+      }
+    }
+
+    li.high {
+      label {
+        span {
+          background: $high-color-transparent;
+          border-color: $high-color;
+          border-width: 2px;
+          transition: all 0.2s ease;
+        }
+      }
     }
   }
 

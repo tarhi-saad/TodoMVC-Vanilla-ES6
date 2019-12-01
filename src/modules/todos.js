@@ -2,7 +2,7 @@ const todoItem = (title) => ({
   title,
   description: '',
   date: '',
-  priority: '',
+  priority: 'Low',
   note: '',
   isComplete: false,
 });

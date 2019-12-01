@@ -2,7 +2,7 @@
 $base-color: #0080ff;
 $base-color-light: lighten($base-color, 15%);
 $base-color-dark: darken($base-color, 15%);
-$base-color-transparent: #b3d9ff9e;
+$base-color-transparent: rgba(0, 128, 255, 0.1);
 // Main text color
 $text-color: #4a4a4a;
 // Secondary color
@@ -23,6 +23,12 @@ $white-smoke: #f5f5f5;
 // Shadow colors
 $shadow-color: rgba(0, 0, 0, 0.1);
 $shadow-color-grey: #e5e5e5;
+// Priority colors
+$low-color: #cecece;
+$medium-color: #ff9f1a;
+$medium-color-transparent: rgba(255, 159, 26, 0.1);
+$high-color: #eb5a46;
+$high-color-transparent: rgba(235, 90, 70, 0.1);
 // Font size
 $font-size: 16px;
 $small-font-size: 13px;
