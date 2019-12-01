@@ -385,7 +385,7 @@ const todoView = () => {
   };
 
   // Helper function - Date converter
-  const getFriendlyDate = (stringDate) => {
+  const getFriendlyDate = (stringDate, dateLabel) => {
     const currentDate = new Date();
     const dateObj = new Date(stringDate);
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -408,11 +408,33 @@ const todoView = () => {
     const dayNumber = dateObj.getDate();
     const year = dateObj.getFullYear();
 
-    if (year !== currentDate.getFullYear()) {
-      return `Due ${day}, ${month} ${dayNumber}, ${year}`;
+    // Today, Tomorrow
+    const initialDate = new Date(
+      `${currentDate.getFullYear()}-${currentDate.getMonth() +
+        1}-0${currentDate.getDate()}`,
+    );
+    const coefficientMSDay = 1000 * 60 * 60 * 24;
+    const numberOfDays = (dateObj - initialDate) / coefficientMSDay;
+    let timeMSG = 'Due';
+    removeClass(dateLabel, 'overdue');
+
+    if (numberOfDays < 0) {
+      timeMSG = 'Overdue,';
+      addClass(dateLabel, 'overdue');
     }
 
-    return `Due ${day}, ${month} ${dayNumber}`;
+    switch (numberOfDays) {
+      case 0:
+        return 'Due Today';
+      case 1:
+        return 'Due Tomorrow';
+      default:
+        if (year !== currentDate.getFullYear()) {
+          return `${timeMSG} ${day}, ${month} ${dayNumber}, ${year}`;
+        }
+
+        return `${timeMSG} ${day}, ${month} ${dayNumber}`;
+    }
   };
 
   /**
@@ -443,7 +465,7 @@ const todoView = () => {
     removeDate.insertAdjacentHTML('beforeEnd', removeDateSVG);
 
     if (todo.date) {
-      dateMessage.innerHTML = getFriendlyDate(todo.date);
+      dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
       addClass(dateLabel, 'is-set');
       dateLabel.append(removeDate);
     } else {
@@ -480,7 +502,7 @@ const todoView = () => {
     const handleDateChange = (e) => {
       const { target } = e;
       todo.date = target.value;
-      dateMessage.innerHTML = getFriendlyDate(todo.date);
+      dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
       addClass(dateLabel, 'is-set');
 
       if (!dateLabel.contains(removeDate)) dateLabel.append(removeDate);
@@ -491,6 +513,7 @@ const todoView = () => {
       todo.date = date.value;
       dateMessage.innerHTML = 'Add due date';
       removeClass(dateLabel, 'is-set');
+      removeClass(dateLabel, 'overdue');
       removeDate.remove();
     };
 

@@ -72,5 +72,11 @@
         opacity: 1;
       }
     }
+
+    label.overdue {
+      .date-message {
+        color: $danger-color;
+      }
+    }
   }
 }
