@@ -80,7 +80,12 @@ describe('\n => todoView', () => {
 
     test('should add todo to list', () => {
       view.displayTodos([
-        { id: 1, title: 'awesome todo title', isComplete: true },
+        {
+          id: 1,
+          title: 'awesome todo title',
+          isComplete: true,
+          priority: 'Low',
+        },
       ]);
 
       expect(document.querySelector('.todo-list').childElementCount).toBe(1);
@@ -88,9 +93,9 @@ describe('\n => todoView', () => {
 
     test('should display all todos in the list when called', () => {
       const todos = [
-        { id: 1, title: 'Todo 1', isComplete: true },
-        { id: 2, title: 'Todo 2', isComplete: true },
-        { id: 3, title: 'Todo 3', isComplete: true },
+        { id: 1, title: 'Todo 1', isComplete: true, priority: 'Low' },
+        { id: 2, title: 'Todo 2', isComplete: true, priority: 'Low' },
+        { id: 3, title: 'Todo 3', isComplete: true, priority: 'Low' },
       ];
       view.displayTodos(todos);
 
@@ -99,7 +104,7 @@ describe('\n => todoView', () => {
 
     test('should display task data (title/complete/id) correctly when called', () => {
       view.displayTodos([
-        { id: 1, title: 'My awesome todo', isComplete: true },
+        { id: 1, title: 'My awesome todo', isComplete: true, priority: 'Low' },
       ]);
 
       expect(document.querySelector('.todo-list .todo-title').innerHTML).toBe(
@@ -111,6 +116,11 @@ describe('\n => todoView', () => {
       expect(
         document.querySelector('.todo-list .todo-item').dataset.index,
       ).toBe('1');
+      expect(
+        document
+          .querySelector('.todo-list .todo-item')
+          .classList.contains('low'),
+      ).toBe(true);
     });
 
     test('should display only one list when called multiple times', () => {
@@ -122,12 +132,17 @@ describe('\n => todoView', () => {
 
     test('should replace old list with the new one when called again', () => {
       view.displayTodos([
-        { id: 1, title: 'My awesome todo', isComplete: true },
+        { id: 1, title: 'My awesome todo', isComplete: true, priority: 'Low' },
       ]);
 
       view.displayTodos([
-        { id: 1, title: 'My awesome todo', isComplete: true },
-        { id: 2, title: 'My second awesome todo', isComplete: false },
+        { id: 1, title: 'My awesome todo', isComplete: true, priority: 'Low' },
+        {
+          id: 2,
+          title: 'My second awesome todo',
+          isComplete: false,
+          priority: 'Low',
+        },
       ]);
 
       expect(document.querySelector('.todo-list').childElementCount).toBe(2);
