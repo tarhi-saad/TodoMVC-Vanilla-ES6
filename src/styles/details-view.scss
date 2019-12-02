@@ -35,7 +35,8 @@
     }
   }
 
-  .name-details {
+  textarea.name-details {
+    height: 30px;
     font-weight: 500;
   }
 
@@ -47,6 +48,7 @@
       border: 1px solid transparent;
       color: $grey-color;
       font-weight: 400;
+      height: 86px;
       padding: 18px 22px;
 
       &:hover {

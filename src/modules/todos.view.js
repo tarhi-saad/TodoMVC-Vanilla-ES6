@@ -80,6 +80,9 @@ const DOMHelpers = () => {
     });
   };
 
+  // Pixel to Number
+  const pxToNum = (value) => Number(value.match(/[0-9]/g).join(''));
+
   return {
     createElement,
     on,
@@ -93,6 +96,7 @@ const DOMHelpers = () => {
     hideElement,
     showElement,
     resetClassList,
+    pxToNum,
   };
 };
 
@@ -109,6 +113,7 @@ const {
   hideElement,
   showElement,
   resetClassList,
+  pxToNum,
 } = DOMHelpers();
 
 const initializeDOMElements = () => {
@@ -459,8 +464,6 @@ const todoView = () => {
     // Name block of todo
     const name = createElement('textarea', '.name-details');
     name.maxLength = 255;
-    name.style.height =
-      name.scrollHeight <= 30 ? '30px' : `${name.scrollHeight}px`;
     name.value = todo.title;
     // Note block of todo
     const note = createElement('textarea', '.note-details');
@@ -516,20 +519,37 @@ const todoView = () => {
     getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
 
     // Set handlers on synthetic event
+    const nameHeight = getComputedStyle(name).height;
+    name.style.height =
+      name.scrollHeight <= pxToNum(nameHeight)
+        ? nameHeight
+        : `${name.scrollHeight}px`;
     const handleNameChange = (e) => {
       const { target } = e;
       todo.title = target.value;
       elements.todoList.querySelector('.selected .todo-title').textContent =
         todo.title;
       // Change the height of textarea
-      name.style.height = '30px'; // Reset height to make it responsive also when deleting
+      name.style.height = nameHeight; // Reset height to make it responsive also when deleting
       name.style.height =
-        name.scrollHeight <= 30 ? '30px' : `${name.scrollHeight}px`;
+        name.scrollHeight <= pxToNum(nameHeight)
+          ? nameHeight
+          : `${name.scrollHeight}px`;
     };
 
+    const noteHeight = getComputedStyle(note).height;
+    note.style.height =
+      note.scrollHeight <= pxToNum(noteHeight)
+        ? noteHeight
+        : `${note.scrollHeight}px`;
     const handleNoteChange = (e) => {
       const { target } = e;
       todo.note = target.value;
+      note.style.height = noteHeight; // Reset height to make it responsive also when deleting
+      note.style.height =
+        note.scrollHeight <= pxToNum(noteHeight)
+          ? noteHeight
+          : `${note.scrollHeight}px`;
     };
 
     const handleDateChange = (e) => {
