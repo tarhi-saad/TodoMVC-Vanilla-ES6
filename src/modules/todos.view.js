@@ -511,9 +511,9 @@ const todoView = () => {
     // Append to details block
     elements.detailsView.append(
       wrap(name, 'name-block'),
-      wrap(note, 'note-block'),
       dateBlock,
       priorityBlock,
+      wrap(note, 'note-block'),
     );
     // Add class for CSS styling
     getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
