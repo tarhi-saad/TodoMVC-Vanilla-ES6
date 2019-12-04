@@ -35,9 +35,244 @@
     }
   }
 
-  textarea.name-details {
-    height: 30px;
-    font-weight: 500;
+  .name-block {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+
+    textarea.name-details {
+      height: 30px;
+      font-weight: 500;
+    }
+  }
+
+  .subtask-block {
+    border-top: none;
+
+    .subtasks-list {
+      padding-bottom: 5px;
+
+      .subtask {
+        border: 1px solid $second-color-darker;
+        margin-bottom: 10px;
+        padding: 10px;
+        transition: $transition;
+
+        &:hover {
+          border-color: $base-color;
+        }
+
+        .subtask-name {
+          margin-left: 15px;
+          transition: color 0.3s ease;
+
+          &::before {
+            background: $second-color-darker;
+            content: '';
+            height: 1px;
+            left: $line-spacing;
+            position: absolute;
+            @include vertical-center-absolute;
+            transform: scaleX(0) translateY(-50%);
+            transform-origin: 0 0;
+            transition: transform 0.3s ease;
+            width: calc(100% - (#{$line-spacing} * 2));
+          }
+        }
+
+        #subtaskNameInput {
+          margin: 0;
+          margin-left: 15px;
+          padding: 0;
+          border: none;
+          color: inherit;
+        }
+
+        input[type='checkbox'] {
+          height: 0;
+          opacity: 0;
+          width: 0;
+        }
+
+        label {
+          cursor: pointer;
+          height: 18px;
+          width: 18px;
+
+          &:hover span {
+            border-color: $base-color;
+            background: $base-color-transparent;
+
+            svg {
+              stroke-dashoffset: 0;
+              stroke: $base-color;
+            }
+          }
+
+          span {
+            border-radius: 50%;
+            display: inline-block;
+            transform: translate3d(0, 0, 0);
+            position: relative;
+            width: 18px;
+            height: 18px;
+            transform: scale(1);
+            border: 1px solid $second-color-darker;
+            transition: all 0.2s ease;
+
+            &:before {
+              content: '';
+              width: 100%;
+              height: 100%;
+              background: $base-color;
+              border-radius: 50%;
+              display: block;
+              transform: scale(0);
+              opacity: 1;
+            }
+
+            svg {
+              position: absolute;
+              fill: none;
+              stroke: #fff;
+              stroke-width: 2;
+              stroke-linecap: round;
+              stroke-linejoin: round;
+              stroke-dasharray: 16px;
+              stroke-dashoffset: 16px;
+              transition: all 0.3s ease;
+              transition-delay: 0.1s;
+              transform: translate3d(0, 0, 0);
+              @include center-absolute;
+            }
+          }
+        }
+
+        @keyframes wave {
+          50% {
+            transform: scale(0.9);
+          }
+        }
+
+        .delete-btn {
+          .delete-svg {
+            fill: $second-color-darker;
+            transition: fill 0.3s ease;
+          }
+
+          &:focus:active .delete-svg {
+            fill: $second-color-darkness;
+          }
+
+          &:hover .delete-svg {
+            fill: $second-color-darkest;
+          }
+        }
+      }
+
+      .subtask.completed {
+        .subtask-name {
+          color: $second-color-darker;
+
+          &::before {
+            transform: scaleX(1);
+          }
+        }
+
+        label {
+          span {
+            background: $base-color;
+            border-color: $base-color;
+            animation: wave 0.4s ease;
+
+            &:before {
+              transform: scale(3.5);
+              opacity: 0;
+              transition: all 0.6s ease;
+            }
+
+            svg {
+              stroke-dashoffset: 0;
+            }
+          }
+
+          &:hover span {
+            svg {
+              stroke: #fff;
+              transition-duration: 0.2s;
+            }
+          }
+        }
+
+        .delete-btn {
+          transform: translateX(0) !important;
+          opacity: 1 !important;
+
+          .delete-svg {
+            fill: $base-color-light;
+          }
+
+          &:focus:active .delete-svg {
+            fill: $base-color-dark;
+          }
+
+          &:hover .delete-svg {
+            fill: $base-color;
+          }
+        }
+      }
+
+      .subtask.selected {
+        border-color: $base-color;
+        box-shadow: 0 2px 5px 0 $shadow-color;
+        transform: scale(1.005);
+        transition-duration: 0.1s;
+      }
+
+      .subtask.selected:not(.completed) {
+        cursor: text !important;
+      }
+    }
+
+    form {
+      align-items: center;
+      box-shadow: 0 -17px 0 -16px $shadow-color;
+      box-shadow: 0 -17px 0 -16px $shadow-color-grey;
+      margin: 0 10px;
+      position: relative;
+
+      #newSubTask {
+        background: none;
+        border: none;
+        padding: 0 10px;
+        min-height: 2.6rem;
+        width: 100%;
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      .submit-btn {
+        background: #fff;
+        border: none;
+        border-radius: 5px;
+        color: $base-color-light;
+        font-size: 13px;
+        font-weight: bold;
+        right: 10px;
+        text-transform: uppercase;
+        @include vertical-center-absolute;
+
+        &:focus:active {
+          color: $base-color-dark;
+        }
+
+        &:hover {
+          color: $base-color;
+        }
+      }
+    }
   }
 
   .note-block {

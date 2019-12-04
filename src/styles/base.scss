@@ -45,10 +45,11 @@ body {
     .delete-btn {
       background: none;
       border: none;
+      padding: 0;
       position: absolute;
-      right: 0;
-      top: 12px;
-      width: 30px;
+      right: 9px;
+      top: calc(50% - 9px);
+      width: 18px;
       opacity: 0;
       transform: translateX(27px);
       transition: transform 0.3s ease, opacity 0.3s;

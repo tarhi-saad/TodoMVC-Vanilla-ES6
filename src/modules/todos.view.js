@@ -75,7 +75,7 @@ const DOMHelpers = () => {
 
   // Helper function to change priority class (low, medium & high)
   const resetClassList = (elem, classList) => {
-    Array.from(elem.classList).map((className) => {
+    Array.from(elem.classList).forEach((className) => {
       if (classList.includes(className)) removeClass(elem, className);
     });
   };
@@ -386,7 +386,6 @@ const todoView = () => {
 
       if (editElem.value) {
         displayElem.textContent = editElem.value;
-        getElement('.selected .project-name').textContent = editElem.value;
         callback(displayElem.textContent);
       }
 
@@ -465,6 +464,46 @@ const todoView = () => {
     const name = createElement('textarea', '.name-details');
     name.maxLength = 255;
     name.value = todo.title;
+    // Sub Tasks block
+    const subTasksForm = createElement('form');
+    const subTasksInput = createElement('input', '#newSubTask');
+    subTasksInput.type = 'text';
+    subTasksInput.placeholder = '+ Add new subtask';
+    const subTasksSubmit = createElement('input', '.submit-btn');
+    subTasksSubmit.type = 'submit';
+    subTasksSubmit.value = '+ Add';
+    addClass(subTasksSubmit, 'hide');
+    subTasksForm.append(subTasksInput, subTasksSubmit);
+    const subTasksBlock = wrap(subTasksForm, 'subtask-block');
+    const subtasksList = createElement('ul', '.subtasks-list');
+    subTasksBlock.prepend(subtasksList);
+    todo.getSubTasks().forEach((subTask) => {
+      const li = createElement('li', '.subtask');
+      li.dataset.index = subTask.id;
+
+      if (subTask.isComplete) addClass(li, 'completed');
+
+      // Setting up the checkbox to toggle "completed" state
+      const checkbox = createElement('input', `#subtask-checkbox${subTask.id}`);
+      const label = createElement('label');
+      const span = createElement('span');
+      span.insertAdjacentHTML('beforeEnd', checkSVG);
+      checkbox.type = 'checkbox';
+      checkbox.checked = subTask.isComplete;
+      label.htmlFor = `subtask-checkbox${subTask.id}`;
+      label.append(span);
+      // Setting up "subTask" name
+      const subTaskName = createElement('span', '.subtask-name');
+      subTaskName.textContent = subTask.name;
+      // Delete Elements
+      const deleteBtn = createElement('button', '.delete-btn');
+      deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+      // Appended elements
+      li.append(label, checkbox, subTaskName, deleteBtn);
+      subtasksList.append(li);
+    });
+    const subtaskNameInput = createElement('input', '#subtaskNameInput');
+    subtaskNameInput.autocomplete = 'off';
     // Note block of todo
     const note = createElement('textarea', '.note-details');
     note.value = todo.note;
@@ -511,6 +550,7 @@ const todoView = () => {
     // Append to details block
     elements.detailsView.append(
       wrap(name, 'name-block'),
+      subTasksBlock,
       dateBlock,
       priorityBlock,
       wrap(note, 'note-block'),
@@ -586,12 +626,118 @@ const todoView = () => {
       addClass(selectedTodo, priorityClass);
     };
 
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      const { target } = e;
+      const input = target.elements.newSubTask;
+
+      if (input.value === '') return;
+
+      todo.addSubTask(input.value);
+      input.value = '';
+      const subTask = todo.getSubTasks()[todo.getSubTasks().length - 1];
+      const li = createElement('li', '.subtask');
+      li.dataset.index = subTask.id;
+      // Setting up the checkbox to toggle "completed" state
+      const checkbox = createElement('input', `#subtask-checkbox${subTask.id}`);
+      const label = createElement('label');
+      const span = createElement('span');
+      span.insertAdjacentHTML('beforeEnd', checkSVG);
+      checkbox.type = 'checkbox';
+      checkbox.checked = subTask.isComplete;
+      label.htmlFor = `subtask-checkbox${subTask.id}`;
+      label.append(span);
+      // Setting up "subTask" name
+      const subTaskName = createElement('span', '.subtask-name');
+      subTaskName.textContent = subTask.name;
+      // Delete Elements
+      const deleteBtn = createElement('button', '.delete-btn');
+      deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+      // Appended elements
+      li.append(label, checkbox, subTaskName, deleteBtn);
+      subtasksList.append(li);
+
+      // Hide "Add" button After submit
+      hideElement(subTasksSubmit);
+    };
+
+    const handleDeleteSubtask = (e) => {
+      const { target } = e;
+      const deleteButton = target.closest('.delete-btn');
+
+      if (!deleteButton) return;
+
+      const li = target.closest('.subtask');
+      const id = Number(li.dataset.index);
+      todo.removeSubTask(id);
+      li.remove();
+    };
+
+    const handleToggleSubtask = (e) => {
+      const { target } = e;
+      const li = target.closest('.subtask');
+
+      if (!li) return;
+
+      const id = Number(li.dataset.index);
+
+      if (target.id !== `subtask-checkbox${id}`) return;
+
+      todo.toggleSubTask(id);
+      const subTask = todo.getSubTasks().find((subtask) => subtask.id === id);
+      const { isComplete } = subTask;
+      target.checked = isComplete;
+      isComplete ? addClass(li, 'completed') : removeClass(li, 'completed');
+    };
+
+    const handleSwitchSubtask = (e) => {
+      const { target } = e;
+      const selectedSubtask = target.closest('.subtask');
+
+      if (
+        !selectedSubtask ||
+        (target !== selectedSubtask && !target.closest('.subtask-name'))
+      ) {
+        return;
+      }
+
+      const subtaskName = selectedSubtask.querySelector('.subtask-name');
+
+      if (!selectedSubtask.classList.contains('selected')) {
+        unselect(subtasksList);
+        addClass(selectedSubtask, 'selected');
+      }
+
+      if (selectedSubtask.classList.contains('completed')) return;
+
+      const id = Number(selectedSubtask.dataset.index);
+
+      const updateName = (value) => {
+        todo.editSubTaskName(id, value);
+      };
+
+      const args = [subtaskName, subtaskNameInput, updateName];
+      toggleEditMode(...args);
+    };
+
+    const handleInput = (e) => {
+      const { target } = e;
+      const addButton = subTasksSubmit;
+
+      target.value ? showElement(addButton) : hideElement(addButton);
+    };
+
     // Set event listeners
     on(name, 'input', handleNameChange);
     on(note, 'input', handleNoteChange);
     on(date, 'change', handleDateChange);
     on(removeDate, 'click', handleRemoveDateClick);
     on(priorityList, 'click', handlePriorityClick);
+    on(subTasksForm, 'submit', handleSubmit);
+    on(subtasksList, 'click', handleDeleteSubtask);
+    on(subtasksList, 'click', handleToggleSubtask);
+    on(subtasksList, 'click', handleSwitchSubtask);
+    on(subTasksInput, 'input', handleInput);
   };
 
   // Listen to modal

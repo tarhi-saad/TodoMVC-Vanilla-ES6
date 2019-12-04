@@ -203,6 +203,9 @@ const todoController = (() => {
 
     const updateProject = (value) => {
       todoApp.getSelectedProject().setName(value);
+      view.elements.lists.querySelector(
+        'li.selected .project-name',
+      ).textContent = value;
     };
 
     const args = [target, view.elements.tasksTitleInput, updateProject];
