@@ -21,7 +21,19 @@ describe('\n => The todoApp instance', () => {
 
       test('should add a todo object with the given title and all the default values when called', () => {
         list.addTodo('test');
-        const [{ description, date, note, priority }] = list.getItems();
+        const [
+          {
+            description,
+            date,
+            note,
+            priority,
+            getSubTasks,
+            addSubTask,
+            editSubTaskName,
+            removeSubTask,
+            toggleSubTask,
+          },
+        ] = list.getItems();
         expect(list.getItems()).toEqual([
           {
             description,
@@ -31,6 +43,11 @@ describe('\n => The todoApp instance', () => {
             note,
             priority,
             title: 'test',
+            getSubTasks,
+            addSubTask,
+            editSubTaskName,
+            removeSubTask,
+            toggleSubTask,
           },
         ]);
       });
@@ -54,18 +71,36 @@ describe('\n => The todoApp instance', () => {
       test('should not alter the todoStore when a non-existing id is given', () => {
         list.addTodo('saad');
         const [
-          { description, date, id, isComplete, note, priority, title },
+          {
+            description,
+            date,
+            note,
+            id,
+            isComplete,
+            title,
+            priority,
+            getSubTasks,
+            addSubTask,
+            editSubTaskName,
+            removeSubTask,
+            toggleSubTask,
+          },
         ] = list.getItems();
         list.removeTodo(0);
         expect(list.getItems()).toEqual([
           {
             description,
             date,
+            note,
             id,
             isComplete,
-            note,
-            priority,
             title,
+            priority,
+            getSubTasks,
+            addSubTask,
+            editSubTaskName,
+            removeSubTask,
+            toggleSubTask,
           },
         ]);
       });
@@ -84,21 +119,31 @@ describe('\n => The todoApp instance', () => {
         const {
           description,
           date,
+          note,
           id,
           isComplete,
-          note,
-          priority,
           title,
+          priority,
+          getSubTasks,
+          addSubTask,
+          editSubTaskName,
+          removeSubTask,
+          toggleSubTask,
         } = list.getItems()[0];
         list.toggleTodo(1);
         expect(list.getItems()[0]).toEqual({
           description,
           date,
+          note,
           id,
           isComplete: !isComplete,
-          note,
-          priority,
           title,
+          priority,
+          getSubTasks,
+          addSubTask,
+          editSubTaskName,
+          removeSubTask,
+          toggleSubTask,
         });
       });
 
@@ -115,6 +160,11 @@ describe('\n => The todoApp instance', () => {
             note: note1,
             priority: priority1,
             title: title1,
+            getSubTasks: getSubTasks1,
+            addSubTask: addSubTask1,
+            editSubTaskName: editSubTaskName1,
+            removeSubTask: removeSubTask1,
+            toggleSubTask: toggleSubTask1,
           },
           {
             description: description2,
@@ -124,6 +174,11 @@ describe('\n => The todoApp instance', () => {
             note: note2,
             priority: priority2,
             title: title2,
+            getSubTasks: getSubTasks2,
+            addSubTask: addSubTask2,
+            editSubTaskName: editSubTaskName2,
+            removeSubTask: removeSubTask2,
+            toggleSubTask: toggleSubTask2,
           },
           {
             description: description3,
@@ -133,6 +188,11 @@ describe('\n => The todoApp instance', () => {
             note: note3,
             priority: priority3,
             title: title3,
+            getSubTasks: getSubTasks3,
+            addSubTask: addSubTask3,
+            editSubTaskName: editSubTaskName3,
+            removeSubTask: removeSubTask3,
+            toggleSubTask: toggleSubTask3,
           },
         ] = list.getItems();
         list.toggleTodo(2);
@@ -146,6 +206,11 @@ describe('\n => The todoApp instance', () => {
             note: note1,
             priority: priority1,
             title: title1,
+            getSubTasks: getSubTasks1,
+            addSubTask: addSubTask1,
+            editSubTaskName: editSubTaskName1,
+            removeSubTask: removeSubTask1,
+            toggleSubTask: toggleSubTask1,
           },
           {
             description: description2,
@@ -155,6 +220,11 @@ describe('\n => The todoApp instance', () => {
             note: note2,
             priority: priority2,
             title: title2,
+            getSubTasks: getSubTasks2,
+            addSubTask: addSubTask2,
+            editSubTaskName: editSubTaskName2,
+            removeSubTask: removeSubTask2,
+            toggleSubTask: toggleSubTask2,
           },
           {
             description: description3,
@@ -164,6 +234,11 @@ describe('\n => The todoApp instance', () => {
             note: note3,
             priority: priority3,
             title: title3,
+            getSubTasks: getSubTasks3,
+            addSubTask: addSubTask3,
+            editSubTaskName: editSubTaskName3,
+            removeSubTask: removeSubTask3,
+            toggleSubTask: toggleSubTask3,
           },
         ]);
       });
