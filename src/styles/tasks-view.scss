@@ -118,10 +118,10 @@ $line-spacing: 48px;
           }
 
           .date-indicator {
-            color: $base-color;
+            color: $grey-color;
 
             svg {
-              fill: $base-color;
+              fill: $grey-color;
             }
           }
 
@@ -130,6 +130,14 @@ $line-spacing: 48px;
 
             svg {
               fill: $high-color;
+            }
+          }
+
+          .date-indicator.today {
+            color: $base-color;
+
+            svg {
+              fill: $base-color;
             }
           }
 
@@ -251,6 +259,7 @@ $line-spacing: 48px;
           .note-indicator,
           .date-indicator,
           .date-indicator.overdue,
+          .date-indicator.today,
           .subtask-indicator {
             color: $second-color-darker;
 

@@ -344,11 +344,12 @@ const todoView = () => {
     const numberOfDays = (dateObj - initialDate) / coefficientMSDay;
     let timeMSG = 'Due';
     removeClass(dateLabel, 'overdue');
+    removeClass(dateLabel, 'today');
 
     if (numberOfDays < 0) {
       timeMSG = 'Overdue,';
       addClass(dateLabel, 'overdue');
-    }
+    } else if (numberOfDays === 0) addClass(dateLabel, 'today');
 
     switch (numberOfDays) {
       case 0:
@@ -732,12 +733,9 @@ const todoView = () => {
           ? addClass(dateIndicator, 'overdue')
           : removeClass(dateIndicator, 'overdue');
       } else if (todo.date) {
-        liveDateIndicator.querySelector('.date-indicator-label').innerHTML =
-          dateMessage.innerHTML;
-
-        dateLabel.classList.contains('overdue')
-          ? addClass(liveDateIndicator, 'overdue')
-          : removeClass(liveDateIndicator, 'overdue');
+        liveDateIndicator.querySelector(
+          '.date-indicator-label',
+        ).innerHTML = getFriendlyDate(todo.date, liveDateIndicator);
       }
 
       if (!dateLabel.contains(removeDate)) dateLabel.append(removeDate);

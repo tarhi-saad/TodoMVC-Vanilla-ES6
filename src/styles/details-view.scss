@@ -338,7 +338,7 @@
 
     label.is-set {
       .date-message {
-        color: $base-color;
+        color: $grey-color;
       }
 
       &:hover .remove-date {
@@ -348,7 +348,7 @@
     }
 
     label.is-set + svg {
-      fill: $base-color;
+      fill: $grey-color;
     }
 
     label.overdue {
@@ -359,6 +359,16 @@
 
     label.overdue + svg {
       fill: $high-color;
+    }
+
+    label.today {
+      .date-message {
+        color: $base-color;
+      }
+    }
+
+    label.today + svg {
+      fill: $base-color;
     }
   }
 
