@@ -6,6 +6,8 @@ import emptyStateSVG from '../images/empty-state.svg';
 import removeDateSVG from '../images/remove-date.svg';
 import prioritySVG from '../images/priority.svg';
 import calendarSVG from '../images/calendar.svg';
+import noteSVG from '../images/note.svg';
+import checkMarkSVG from '../images/check-mark.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -182,6 +184,41 @@ const initializeDOMElements = () => {
   const modalBackdrop = createElement('div', '.modal-backdrop');
   document.body.append(modalBackdrop);
 
+  // Indicators
+  /* Note indicator */
+  const noteIndicatorFn = () => {
+    const noteIndicator = createElement('span', '.note-indicator');
+    const noteIndicatorLabel = createElement('span', '.note-indicator-label');
+    noteIndicatorLabel.innerHTML = 'Note';
+    noteIndicator.insertAdjacentHTML('beforeEnd', noteSVG);
+    noteIndicator.append(noteIndicatorLabel);
+
+    return noteIndicator;
+  };
+
+  /* Date indicator */
+  const dateIndicatorFn = () => {
+    const dateIndicator = createElement('span', '.date-indicator');
+    const dateIndicatorLabel = createElement('span', '.date-indicator-label');
+    dateIndicator.insertAdjacentHTML('beforeEnd', calendarSVG);
+    dateIndicator.append(dateIndicatorLabel);
+
+    return dateIndicator;
+  };
+
+  /* Note indicator */
+  const subtaskIndicatorFn = () => {
+    const subtaskIndicator = createElement('span', '.subtask-indicator');
+    const subtaskIndicatorLabel = createElement(
+      'span',
+      '.subtask-indicator-label',
+    );
+    subtaskIndicator.insertAdjacentHTML('beforeEnd', checkMarkSVG);
+    subtaskIndicator.append(subtaskIndicatorLabel);
+
+    return subtaskIndicator;
+  };
+
   // Append elements
   newList.append(newListInput, newListSubmit);
   listsMenu.append(lists, newList);
@@ -209,6 +246,9 @@ const initializeDOMElements = () => {
     modalOk,
     modalCancel,
     modalText,
+    noteIndicatorFn,
+    dateIndicatorFn,
+    subtaskIndicatorFn,
   };
 };
 
@@ -271,6 +311,59 @@ const todoView = () => {
     unselect(elements.todoList);
   };
 
+  // Helper function - Date converter
+  const getFriendlyDate = (stringDate, dateLabel) => {
+    const currentDate = new Date();
+    const dateObj = new Date(stringDate);
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const day = days[dateObj.getDay()];
+    const month = months[dateObj.getMonth()];
+    const dayNumber = dateObj.getDate();
+    const year = dateObj.getFullYear();
+
+    // Today, Tomorrow
+    const initialDate = new Date(
+      `${currentDate.getFullYear()}-${currentDate.getMonth() +
+        1}-0${currentDate.getDate()}`,
+    );
+    const coefficientMSDay = 1000 * 60 * 60 * 24;
+    const numberOfDays = (dateObj - initialDate) / coefficientMSDay;
+    let timeMSG = 'Due';
+    removeClass(dateLabel, 'overdue');
+
+    if (numberOfDays < 0) {
+      timeMSG = 'Overdue,';
+      addClass(dateLabel, 'overdue');
+    }
+
+    switch (numberOfDays) {
+      case 0:
+        return 'Due Today';
+      case 1:
+        return 'Due Tomorrow';
+      default:
+        if (year !== currentDate.getFullYear()) {
+          return `${timeMSG} ${day}, ${month} ${dayNumber}, ${year}`;
+        }
+
+        return `${timeMSG} ${day}, ${month} ${dayNumber}`;
+    }
+  };
+
   const addTodo = (todo) => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
@@ -294,8 +387,46 @@ const todoView = () => {
     // Delete Elements
     const deleteBtn = createElement('button', '.delete-btn');
     deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+    // title-block
+    const titleBlock = createElement('span', '.title-block');
+    // Indicators block
+    const indicators = createElement('div', '.indicators');
+
+    if (todo.note !== '') indicators.append(elements.noteIndicatorFn());
+
+    if (todo.date !== '') {
+      const dateIndicator = elements.dateIndicatorFn();
+      const dateIndicatorLabel = dateIndicator.querySelector(
+        '.date-indicator-label',
+      );
+      indicators.append(dateIndicator);
+      dateIndicatorLabel.innerHTML = getFriendlyDate(todo.date, dateIndicator);
+    }
+
+    const totalSubtasks = todo.getSubTasks().length;
+
+    if (totalSubtasks) {
+      const subtaskIndicator = elements.subtaskIndicatorFn();
+      const subtaskIndicatorLabel = subtaskIndicator.querySelector(
+        '.subtask-indicator-label',
+      );
+      let completedSubtasks = 0;
+      todo.getSubTasks().forEach((subtask) => {
+        if (subtask.isComplete) completedSubtasks = completedSubtasks + 1;
+      });
+
+      subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+      indicators.append(subtaskIndicator);
+
+      if (totalSubtasks === completedSubtasks)
+        addClass(subtaskIndicator, 'completed');
+    }
+
+    if (indicators.children.length > 0) addClass(titleBlock, 'indicator-on');
+
+    titleBlock.append(title, indicators);
     // Appended elements
-    li.append(label, checkbox, title, deleteBtn);
+    li.append(label, checkbox, titleBlock, deleteBtn);
     elements.todoList.append(li);
 
     // Update todoCount in current list
@@ -400,59 +531,6 @@ const todoView = () => {
     on(editElem, 'keydown', handleEditEvents);
   };
 
-  // Helper function - Date converter
-  const getFriendlyDate = (stringDate, dateLabel) => {
-    const currentDate = new Date();
-    const dateObj = new Date(stringDate);
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    const day = days[dateObj.getDay()];
-    const month = months[dateObj.getMonth()];
-    const dayNumber = dateObj.getDate();
-    const year = dateObj.getFullYear();
-
-    // Today, Tomorrow
-    const initialDate = new Date(
-      `${currentDate.getFullYear()}-${currentDate.getMonth() +
-        1}-0${currentDate.getDate()}`,
-    );
-    const coefficientMSDay = 1000 * 60 * 60 * 24;
-    const numberOfDays = (dateObj - initialDate) / coefficientMSDay;
-    let timeMSG = 'Due';
-    removeClass(dateLabel, 'overdue');
-
-    if (numberOfDays < 0) {
-      timeMSG = 'Overdue,';
-      addClass(dateLabel, 'overdue');
-    }
-
-    switch (numberOfDays) {
-      case 0:
-        return 'Due Today';
-      case 1:
-        return 'Due Tomorrow';
-      default:
-        if (year !== currentDate.getFullYear()) {
-          return `${timeMSG} ${day}, ${month} ${dayNumber}, ${year}`;
-        }
-
-        return `${timeMSG} ${day}, ${month} ${dayNumber}`;
-    }
-  };
-
   /**
    * Display details of the selected todo object
    * @param {Object} todo The selected todo object
@@ -460,6 +538,8 @@ const todoView = () => {
   const displayDetails = (todo) => {
     // Reset display
     resetDetails();
+    // Add class for CSS styling
+    getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
     // Name block of todo
     const name = createElement('textarea', '.name-details');
     name.maxLength = 255;
@@ -517,11 +597,22 @@ const todoView = () => {
     const dateMessage = createElement('span', '.date-message');
     const removeDate = createElement('span', '.remove-date');
     removeDate.insertAdjacentHTML('beforeEnd', removeDateSVG);
+    const indicators = getElement('.todo-list .selected .indicators');
 
     if (todo.date) {
       dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
       addClass(dateLabel, 'is-set');
       dateLabel.append(removeDate);
+      // Set date indicator text
+      const dateIndicator = indicators.querySelector('.date-indicator');
+      const dateIndicatorLabel = indicators.querySelector(
+        '.date-indicator-label',
+      );
+      dateIndicatorLabel.innerHTML = dateMessage.innerHTML;
+
+      if (dateMessage.classList.contains('overdue')) {
+        addClass(dateIndicator, 'overdue');
+      }
     } else {
       dateMessage.innerHTML = 'Add due date';
     }
@@ -555,8 +646,14 @@ const todoView = () => {
       priorityBlock,
       wrap(note, 'note-block'),
     );
-    // Add class for CSS styling
-    getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
+
+    // Helper functions for handlers
+    const toggleIndicatorClass = () => {
+      const titleBlock = getElement('.todo-list .selected .title-block');
+      indicators.children.length > 0
+        ? addClass(titleBlock, 'indicator-on')
+        : removeClass(titleBlock, 'indicator-on');
+    };
 
     // Set handlers on synthetic event
     const nameHeight = getComputedStyle(name).height;
@@ -564,6 +661,7 @@ const todoView = () => {
       name.scrollHeight <= pxToNum(nameHeight)
         ? nameHeight
         : `${name.scrollHeight}px`;
+
     const handleNameChange = (e) => {
       const { target } = e;
       todo.title = target.value;
@@ -582,6 +680,7 @@ const todoView = () => {
       note.scrollHeight <= pxToNum(noteHeight)
         ? noteHeight
         : `${note.scrollHeight}px`;
+
     const handleNoteChange = (e) => {
       const { target } = e;
       todo.note = target.value;
@@ -590,6 +689,18 @@ const todoView = () => {
         note.scrollHeight <= pxToNum(noteHeight)
           ? noteHeight
           : `${note.scrollHeight}px`;
+
+      const liveNoteIndicator = getElement(
+        '.todo-list .selected .note-indicator',
+      );
+
+      if (target.value !== '' && !liveNoteIndicator) {
+        indicators.append(elements.noteIndicatorFn());
+        toggleIndicatorClass();
+      } else if (target.value === '' && liveNoteIndicator) {
+        liveNoteIndicator.remove();
+        toggleIndicatorClass();
+      }
     };
 
     const handleDateChange = (e) => {
@@ -597,6 +708,30 @@ const todoView = () => {
       todo.date = target.value;
       dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
       addClass(dateLabel, 'is-set');
+
+      // Set date indicator
+      const liveDateIndicator = getElement(
+        '.todo-list .selected .date-indicator',
+      );
+
+      if (todo.date && !liveDateIndicator) {
+        const dateIndicator = elements.dateIndicatorFn();
+        indicators.append(dateIndicator);
+        dateIndicator.querySelector('.date-indicator-label').innerHTML =
+          dateMessage.innerHTML;
+        toggleIndicatorClass();
+
+        dateLabel.classList.contains('overdue')
+          ? addClass(dateIndicator, 'overdue')
+          : removeClass(dateIndicator, 'overdue');
+      } else if (todo.date) {
+        liveDateIndicator.querySelector('.date-indicator-label').innerHTML =
+          dateMessage.innerHTML;
+
+        dateLabel.classList.contains('overdue')
+          ? addClass(liveDateIndicator, 'overdue')
+          : removeClass(liveDateIndicator, 'overdue');
+      }
 
       if (!dateLabel.contains(removeDate)) dateLabel.append(removeDate);
     };
@@ -608,6 +743,13 @@ const todoView = () => {
       removeClass(dateLabel, 'is-set');
       removeClass(dateLabel, 'overdue');
       removeDate.remove();
+
+      // Set date indicator
+      const liveDateIndicator = getElement(
+        '.todo-list .selected .date-indicator',
+      );
+      liveDateIndicator.remove();
+      toggleIndicatorClass();
     };
 
     const handlePriorityClick = (e) => {
@@ -659,6 +801,28 @@ const todoView = () => {
 
       // Hide "Add" button After submit
       hideElement(subTasksSubmit);
+
+      // Indicator
+      const liveSubtaskIndicatorLabel = getElement(
+        '.todo-list .selected .subtask-indicator-label',
+      );
+      const totalSubtasks = todo.getSubTasks().length;
+      let completedSubtasks = 0;
+      todo.getSubTasks().forEach((subtask) => {
+        if (subtask.isComplete) completedSubtasks = completedSubtasks + 1;
+      });
+
+      if (totalSubtasks && !liveSubtaskIndicatorLabel) {
+        const subtaskIndicator = elements.subtaskIndicatorFn();
+        const subtaskIndicatorLabel = subtaskIndicator.querySelector(
+          '.subtask-indicator-label',
+        );
+        subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+        indicators.append(subtaskIndicator);
+        toggleIndicatorClass();
+      } else if (totalSubtasks) {
+        liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+      }
     };
 
     const handleDeleteSubtask = (e) => {
@@ -671,6 +835,23 @@ const todoView = () => {
       const id = Number(li.dataset.index);
       todo.removeSubTask(id);
       li.remove();
+
+      // Indicator
+      const liveSubtaskIndicatorLabel = getElement(
+        '.todo-list .selected .subtask-indicator-label',
+      );
+      const totalSubtasks = todo.getSubTasks().length;
+      let completedSubtasks = 0;
+      todo.getSubTasks().forEach((subtask) => {
+        if (subtask.isComplete) completedSubtasks = completedSubtasks + 1;
+      });
+
+      if (totalSubtasks) {
+        liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+      } else if (!totalSubtasks) {
+        liveSubtaskIndicatorLabel.closest('.subtask-indicator').remove();
+        toggleIndicatorClass();
+      }
     };
 
     const handleToggleSubtask = (e) => {
@@ -688,6 +869,27 @@ const todoView = () => {
       const { isComplete } = subTask;
       target.checked = isComplete;
       isComplete ? addClass(li, 'completed') : removeClass(li, 'completed');
+
+      // Indicator
+      const subtaskIndicator = getElement(
+        '.todo-list .selected .subtask-indicator',
+      );
+      const liveSubtaskIndicatorLabel = subtaskIndicator.querySelector(
+        '.subtask-indicator-label',
+      );
+      const totalSubtasks = todo.getSubTasks().length;
+      let completedSubtasks = 0;
+      todo.getSubTasks().forEach((subtask) => {
+        if (subtask.isComplete) completedSubtasks = completedSubtasks + 1;
+      });
+
+      liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+
+      if (totalSubtasks === completedSubtasks) {
+        addClass(subtaskIndicator, 'completed');
+      } else {
+        removeClass(subtaskIndicator, 'completed');
+      }
     };
 
     const handleSwitchSubtask = (e) => {

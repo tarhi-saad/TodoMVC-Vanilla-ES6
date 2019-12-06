@@ -219,7 +219,7 @@ const todoController = (() => {
 
     if (
       todoItem === selectedTodo ||
-      (target.tagName !== 'LI' && !target.classList.contains('todo-title'))
+      (target.tagName !== 'LI' && !target.closest('.title-block'))
     ) {
       return;
     }

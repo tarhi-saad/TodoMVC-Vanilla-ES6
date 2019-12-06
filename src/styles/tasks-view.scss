@@ -55,28 +55,103 @@ $line-spacing: 48px;
     .todo-item {
       border: 1px solid $second-color-darker;
       margin-bottom: 10px;
-      padding: 13px 11px;
+      min-height: 3.13rem !important;
+      padding: 6px 11px;
       transition: $transition;
 
       &:hover {
         border-color: $base-color;
       }
 
-      .todo-title {
+      .title-block {
         padding-left: 15px;
-        transition: color 0.3s ease;
 
-        &::before {
-          background: $second-color-darker;
-          content: '';
-          height: 1px;
-          left: $line-spacing;
-          position: absolute;
-          @include vertical-center-absolute;
-          transform: scaleX(0) translateY(-50%);
-          transform-origin: 0 0;
-          transition: transform 0.3s ease;
-          width: calc(100% - (#{$line-spacing} * 2));
+        .todo-title {
+          transition: color 0.3s ease;
+
+          &::before {
+            background: $second-color-darker;
+            content: '';
+            height: 1px;
+            left: $line-spacing;
+            position: absolute;
+            @include vertical-center-absolute;
+            transform: scaleX(0) translateY(-50%);
+            transform-origin: 0 0;
+            transition: transform 0.3s ease;
+            width: calc(100% - (#{$line-spacing} * 2));
+          }
+        }
+
+        .indicators {
+          display: flex;
+          flex-wrap: wrap;
+          line-height: 1.5;
+
+          .note-indicator,
+          .date-indicator,
+          .subtask-indicator {
+            color: $grey-color;
+            display: flex;
+            font-size: 12px;
+            margin-right: 6px;
+            transition: color 0.3s ease;
+
+            &::before {
+              content: '•';
+              color: $second-color-darker;
+              margin-right: 6px;
+            }
+
+            svg {
+              fill: $grey-color;
+              margin-right: 5px;
+              width: 10px;
+              transition: fill 0.3s ease;
+            }
+          }
+
+          span:first-child {
+            &::before {
+              display: none;
+            }
+          }
+
+          .date-indicator {
+            color: $base-color;
+
+            svg {
+              fill: $base-color;
+            }
+          }
+
+          .date-indicator.overdue {
+            color: $high-color;
+
+            svg {
+              fill: $high-color;
+            }
+          }
+
+          .subtask-indicator {
+            svg {
+              display: none;
+            }
+          }
+
+          .subtask-indicator.completed {
+            svg {
+              display: inherit;
+            }
+          }
+        }
+      }
+
+      .title-block.indicator-on {
+        .todo-title {
+          &::before {
+            top: 15px;
+          }
         }
       }
 
@@ -163,11 +238,26 @@ $line-spacing: 48px;
     }
 
     .todo-item.completed {
-      .todo-title {
-        color: $second-color-darker;
+      .title-block {
+        .todo-title {
+          color: $second-color-darker;
 
-        &::before {
-          transform: scaleX(1);
+          &::before {
+            transform: scaleX(1);
+          }
+        }
+
+        .indicators {
+          .note-indicator,
+          .date-indicator,
+          .date-indicator.overdue,
+          .subtask-indicator {
+            color: $second-color-darker;
+
+            svg {
+              fill: $second-color-darker;
+            }
+          }
         }
       }
 
