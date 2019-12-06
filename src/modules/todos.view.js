@@ -399,7 +399,9 @@ const todoView = () => {
       const dateIndicatorLabel = dateIndicator.querySelector(
         '.date-indicator-label',
       );
-      indicators.append(dateIndicator);
+      todo.note
+        ? indicators.querySelector('.note-indicator').before(dateIndicator)
+        : indicators.append(dateIndicator);
       dateIndicatorLabel.innerHTML = getFriendlyDate(todo.date, dateIndicator);
     }
 
@@ -416,7 +418,7 @@ const todoView = () => {
       });
 
       subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
-      indicators.append(subtaskIndicator);
+      indicators.prepend(subtaskIndicator);
 
       if (totalSubtasks === completedSubtasks) {
         addClass(subtaskIndicator, 'completed');
@@ -717,7 +719,11 @@ const todoView = () => {
 
       if (todo.date && !liveDateIndicator) {
         const dateIndicator = elements.dateIndicatorFn();
-        indicators.append(dateIndicator);
+
+        todo.note
+          ? indicators.querySelector('.note-indicator').before(dateIndicator)
+          : indicators.append(dateIndicator);
+
         dateIndicator.querySelector('.date-indicator-label').innerHTML =
           dateMessage.innerHTML;
         toggleIndicatorClass();
@@ -819,7 +825,7 @@ const todoView = () => {
           '.subtask-indicator-label',
         );
         subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
-        indicators.append(subtaskIndicator);
+        indicators.prepend(subtaskIndicator);
         toggleIndicatorClass();
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
