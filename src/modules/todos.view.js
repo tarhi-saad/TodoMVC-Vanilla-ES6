@@ -412,14 +412,15 @@ const todoView = () => {
       );
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
-        if (subtask.isComplete) completedSubtasks = completedSubtasks + 1;
+        if (subtask.isComplete) completedSubtasks += 1;
       });
 
       subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
       indicators.append(subtaskIndicator);
 
-      if (totalSubtasks === completedSubtasks)
+      if (totalSubtasks === completedSubtasks) {
         addClass(subtaskIndicator, 'completed');
+      }
     }
 
     if (indicators.children.length > 0) addClass(titleBlock, 'indicator-on');
@@ -809,7 +810,7 @@ const todoView = () => {
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
-        if (subtask.isComplete) completedSubtasks = completedSubtasks + 1;
+        if (subtask.isComplete) completedSubtasks += 1;
       });
 
       if (totalSubtasks && !liveSubtaskIndicatorLabel) {
@@ -843,7 +844,7 @@ const todoView = () => {
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
-        if (subtask.isComplete) completedSubtasks = completedSubtasks + 1;
+        if (subtask.isComplete) completedSubtasks += 1;
       });
 
       if (totalSubtasks) {
@@ -880,7 +881,7 @@ const todoView = () => {
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
-        if (subtask.isComplete) completedSubtasks = completedSubtasks + 1;
+        if (subtask.isComplete) completedSubtasks += 1;
       });
 
       liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
