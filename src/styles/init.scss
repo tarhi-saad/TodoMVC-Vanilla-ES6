@@ -36,6 +36,7 @@ $small-font-size: 13px;
 $transition: all 0.4s ease;
 // Responsive breakpoints
 $breakpoint-landscape: 460px;
+$breakpoint-md: 1010px;
 
 // Mixins
 @mixin center-absolute {

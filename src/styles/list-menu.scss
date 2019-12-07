@@ -4,8 +4,12 @@
   box-shadow: 0 2px 10px 0 $shadow-color;
   overflow: hidden;
   padding: 10px 0 42px;
-  width: 290px;
+  width: 200px;
   transition: $transition;
+
+  @media screen and (min-width: $breakpoint-md) {
+    width: 290px;
+  }
 
   .lists {
     max-height: 100%;

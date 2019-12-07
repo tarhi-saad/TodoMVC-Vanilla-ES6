@@ -257,8 +257,23 @@ const initializeDOMElements = () => {
     }
   };
 
+  // Close list sidebar menu on mobile flip if width screen size is smaller
+  let screeSize = document.body.offsetWidth;
+  const handleResize = () => {
+    if (
+      document.body.offsetWidth < 920 &&
+      document.body.offsetWidth < screeSize
+    ) {
+      menuButton.dataset.state = 'closed';
+      addClass(listsMenu, 'mobile');
+    }
+
+    screeSize = document.body.offsetWidth;
+  };
+
   on(menuButton, 'click', handleClick);
   on(newListLabel, 'click', handleNewListClick);
+  on(window, 'resize', handleResize);
 
   return {
     root,
