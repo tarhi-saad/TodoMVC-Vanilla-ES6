@@ -85,6 +85,7 @@ describe('\n => todoView', () => {
           title: 'awesome todo title',
           isComplete: true,
           priority: 'Low',
+          getSubTasks: () => [],
         },
       ]);
 
@@ -93,10 +94,29 @@ describe('\n => todoView', () => {
 
     test('should display all todos in the list when called', () => {
       const todos = [
-        { id: 1, title: 'Todo 1', isComplete: true, priority: 'Low' },
-        { id: 2, title: 'Todo 2', isComplete: true, priority: 'Low' },
-        { id: 3, title: 'Todo 3', isComplete: true, priority: 'Low' },
+        {
+          id: 1,
+          title: 'Todo 1',
+          isComplete: true,
+          priority: 'Low',
+          getSubTasks: () => [],
+        },
+        {
+          id: 2,
+          title: 'Todo 2',
+          isComplete: true,
+          priority: 'Low',
+          getSubTasks: () => [],
+        },
+        {
+          id: 3,
+          title: 'Todo 3',
+          isComplete: true,
+          priority: 'Low',
+          getSubTasks: () => [],
+        },
       ];
+
       view.displayTodos(todos);
 
       expect(document.querySelector('.todo-list').childElementCount).toBe(3);
@@ -104,7 +124,13 @@ describe('\n => todoView', () => {
 
     test('should display task data (title/complete/id) correctly when called', () => {
       view.displayTodos([
-        { id: 1, title: 'My awesome todo', isComplete: true, priority: 'Low' },
+        {
+          id: 1,
+          title: 'My awesome todo',
+          isComplete: true,
+          priority: 'Low',
+          getSubTasks: () => [],
+        },
       ]);
 
       expect(document.querySelector('.todo-list .todo-title').innerHTML).toBe(
@@ -132,16 +158,29 @@ describe('\n => todoView', () => {
 
     test('should replace old list with the new one when called again', () => {
       view.displayTodos([
-        { id: 1, title: 'My awesome todo', isComplete: true, priority: 'Low' },
+        {
+          id: 1,
+          title: 'My awesome todo',
+          isComplete: true,
+          priority: 'Low',
+          getSubTasks: () => [],
+        },
       ]);
 
       view.displayTodos([
-        { id: 1, title: 'My awesome todo', isComplete: true, priority: 'Low' },
+        {
+          id: 1,
+          title: 'My awesome todo',
+          isComplete: true,
+          priority: 'Low',
+          getSubTasks: () => [],
+        },
         {
           id: 2,
           title: 'My second awesome todo',
           isComplete: false,
           priority: 'Low',
+          getSubTasks: () => [],
         },
       ]);
 
