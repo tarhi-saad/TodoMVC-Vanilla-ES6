@@ -4,6 +4,8 @@
   box-shadow: 0 2px 10px 0 $shadow-color;
   overflow: hidden;
   padding: 10px 0 42px;
+  width: 360px;
+  transition: $transition;
 
   .lists {
     max-height: 100%;
@@ -23,8 +25,12 @@
         margin-right: 12px;
         width: 18px;
 
-        .list-svg {
-          fill: $grey-color;
+        svg {
+          width: 18px;
+
+          .list-svg {
+            fill: $grey-color;
+          }
         }
       }
 
@@ -127,5 +133,13 @@
         color: $base-color;
       }
     }
+  }
+}
+
+.lists-menu.mobile {
+  width: 55px;
+
+  .delete-btn {
+    display: none;
   }
 }

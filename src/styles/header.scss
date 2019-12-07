@@ -1,0 +1,23 @@
+header {
+  grid-area: header;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  background: $base-color;
+  padding: 0 20px;
+
+  .menu-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 18px;
+    }
+  }
+}

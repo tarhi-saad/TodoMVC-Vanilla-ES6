@@ -8,6 +8,7 @@ import prioritySVG from '../images/priority.svg';
 import calendarSVG from '../images/calendar.svg';
 import noteSVG from '../images/note.svg';
 import checkMarkSVG from '../images/check-mark.svg';
+import menuSVG from '../images/menu.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -121,6 +122,12 @@ const {
 const initializeDOMElements = () => {
   // the root element
   const root = document.getElementById('root');
+  // Header
+  const header = createElement('header');
+  const menuButton = createElement('button', '.menu-btn');
+  menuButton.dataset.state = 'open';
+  menuButton.insertAdjacentHTML('beforeEnd', menuSVG);
+  header.append(menuButton);
   // The left block containing all projects
   const listsMenu = createElement('div', '.lists-menu');
   // UL element with our list of projects
@@ -225,7 +232,20 @@ const initializeDOMElements = () => {
   newTodo.append(newTodoInput, newTodoSubmit);
   tasksView.append(tasksTitleWrapper, todoList, emptyState, newTodo);
 
-  root.append(listsMenu, tasksView, detailsView, modal);
+  root.append(header, listsMenu, tasksView, detailsView, modal);
+
+  // Events
+  const handleClick = () => {
+    if (menuButton.dataset.state === 'open') {
+      menuButton.dataset.state = 'closed';
+      addClass(listsMenu, 'mobile');
+    } else {
+      menuButton.dataset.state = 'open';
+      removeClass(listsMenu, 'mobile');
+    }
+  };
+
+  on(menuButton, 'click', handleClick);
 
   return {
     root,
@@ -503,6 +523,9 @@ const todoView = () => {
       : addClass(elements.emptyState, 'hide-empty-state');
     // Reset todo details
     resetDetails();
+
+    // Hide view details on list switch & on add list
+    removeClass(elements.detailsView, 'show');
   };
 
   /**
@@ -544,6 +567,8 @@ const todoView = () => {
     resetDetails();
     // Add class for CSS styling
     getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
+    // Add class to show component
+    addClass(elements.detailsView, 'show');
     // Name block of todo
     const name = createElement('textarea', '.name-details');
     name.maxLength = 255;

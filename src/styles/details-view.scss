@@ -1,7 +1,6 @@
 .details-view {
   background: $white-smoke;
-  padding: 10px;
-  padding-left: 0;
+  width: 0;
 
   div {
     background: #fff;
@@ -426,4 +425,10 @@
       }
     }
   }
+}
+
+.details-view.show {
+  padding: 10px;
+  padding-left: 0;
+  width: 360px;
 }

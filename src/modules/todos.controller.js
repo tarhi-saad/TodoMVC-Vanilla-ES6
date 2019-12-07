@@ -118,7 +118,8 @@ const todoController = (() => {
 
     if (
       list === selectedList ||
-      (target.tagName !== 'LI' && !target.classList.contains('project-name'))
+      !list ||
+      target.classList.contains('delete-btn')
     ) {
       return;
     }

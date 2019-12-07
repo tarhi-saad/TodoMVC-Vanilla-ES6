@@ -32,7 +32,9 @@ body {
 #root {
   height: 100vh;
   display: grid;
-  grid-template-columns: 360px auto 360px;
+  grid-template-areas: 'header header header';
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto 1fr;
 
   li {
     cursor: pointer;
