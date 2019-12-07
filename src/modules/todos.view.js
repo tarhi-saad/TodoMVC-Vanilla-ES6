@@ -9,6 +9,7 @@ import calendarSVG from '../images/calendar.svg';
 import noteSVG from '../images/note.svg';
 import checkMarkSVG from '../images/check-mark.svg';
 import menuSVG from '../images/menu.svg';
+import plusSVG from '../images/plus.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -135,9 +136,12 @@ const initializeDOMElements = () => {
   // The form with our input to add a project
   const newList = createElement('form');
   const newListInput = createElement('input', '#newList');
+  const newListLabel = createElement('label');
   const newListSubmit = createElement('input', '.submit-btn');
+  newListLabel.insertAdjacentHTML('beforeEnd', plusSVG);
+  newListLabel.htmlFor = 'newList';
   newListInput.type = 'text';
-  newListInput.placeholder = '+ New list';
+  newListInput.placeholder = 'New list';
   newListInput.autocomplete = 'off';
   newListSubmit.type = 'submit';
   newListSubmit.value = '+ Add';
@@ -227,7 +231,7 @@ const initializeDOMElements = () => {
   };
 
   // Append elements
-  newList.append(newListInput, newListSubmit);
+  newList.append(newListLabel, newListInput, newListSubmit);
   listsMenu.append(lists, newList);
   newTodo.append(newTodoInput, newTodoSubmit);
   tasksView.append(tasksTitleWrapper, todoList, emptyState, newTodo);
@@ -245,7 +249,16 @@ const initializeDOMElements = () => {
     }
   };
 
+  // Open lists sidebar if + icon is clicked to add a new list
+  const handleNewListClick = () => {
+    if (menuButton.dataset.state === 'closed') {
+      menuButton.dataset.state = 'open';
+      removeClass(listsMenu, 'mobile');
+    }
+  };
+
   on(menuButton, 'click', handleClick);
+  on(newListLabel, 'click', handleNewListClick);
 
   return {
     root,
