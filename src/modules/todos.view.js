@@ -488,9 +488,14 @@ const todoView = () => {
     const toggleComplete = document.getElementById(id);
     const todoItem = toggleComplete.closest('.todo-item');
     toggleComplete.checked = isComplete;
-    isComplete
-      ? todoItem.classList.add('completed')
-      : todoItem.classList.remove('completed');
+
+    if (isComplete) {
+      addClass(todoItem, 'completed');
+      addClass(elements.detailsView, 'disabled');
+    } else {
+      removeClass(todoItem, 'completed');
+      removeClass(elements.detailsView, 'disabled');
+    }
   };
 
   const removeProject = (id) => {
@@ -569,6 +574,9 @@ const todoView = () => {
     getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
     // Add class to show component
     addClass(elements.detailsView, 'show');
+    // If todo is completed, let's disable its details
+    if (todo.isComplete) addClass(elements.detailsView, 'disabled');
+    else removeClass(elements.detailsView, 'disabled');
     // Name block of todo
     const name = createElement('textarea', '.name-details');
     name.maxLength = 255;
