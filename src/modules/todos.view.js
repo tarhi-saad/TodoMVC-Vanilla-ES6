@@ -494,10 +494,11 @@ const todoView = () => {
     }
 
     // Reset todo details if selected
-    if (todoItem.classList.contains('selected')) resetDetails();
-
-    // Hide view details on delete todo
-    removeClass(elements.detailsView, 'show');
+    if (todoItem.classList.contains('selected')) {
+      resetDetails();
+      // Hide view details on delete selected todo
+      removeClass(elements.detailsView, 'show');
+    }
   };
 
   const toggleTodo = (isComplete, id) => {
@@ -507,10 +508,16 @@ const todoView = () => {
 
     if (isComplete) {
       addClass(todoItem, 'completed');
-      addClass(elements.detailsView, 'disabled');
+
+      if (todoItem.classList.contains('selected')) {
+        addClass(elements.detailsView, 'disabled');
+      }
     } else {
       removeClass(todoItem, 'completed');
-      removeClass(elements.detailsView, 'disabled');
+
+      if (todoItem.classList.contains('selected')) {
+        removeClass(elements.detailsView, 'disabled');
+      }
     }
   };
 
