@@ -482,6 +482,9 @@ const todoView = () => {
 
     // Reset todo details if selected
     if (todoItem.classList.contains('selected')) resetDetails();
+
+    // Hide view details on delete todo
+    removeClass(elements.detailsView, 'show');
   };
 
   const toggleTodo = (isComplete, id) => {
