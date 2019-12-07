@@ -116,11 +116,7 @@ const todoController = (() => {
     const lists = target.closest('.lists').querySelectorAll('.list');
     const selectedList = lists[todoApp.getSelected()];
 
-    if (
-      list === selectedList ||
-      !list ||
-      target.classList.contains('delete-btn')
-    ) {
+    if (list === selectedList || !list || target.closest('.delete-btn')) {
       return;
     }
 
