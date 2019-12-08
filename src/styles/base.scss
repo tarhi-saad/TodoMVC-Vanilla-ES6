@@ -32,9 +32,17 @@ body {
 #root {
   height: 100vh;
   display: grid;
-  grid-template-areas: 'header header header';
-  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'header';
+  grid-template-columns: auto;
+  margin-left: 55px;
   grid-template-rows: auto 1fr;
+  position: relative;
+
+  @media screen and (min-width: $breakpoint-sm) {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'header header header';
+    margin-left: 0;
+  }
 
   li {
     cursor: pointer;

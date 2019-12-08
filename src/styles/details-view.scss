@@ -429,13 +429,27 @@
 
 .details-view.show {
   padding: 10px;
-  padding-left: 0;
   width: 360px;
+  z-index: 70;
+  position: absolute;
+  right: 0;
+  top: 48px;
+  height: calc(100% - 48px);
+  max-width: 100%;
+
+  @media screen and (min-width: $breakpoint-sm) {
+    padding-left: 0;
+    position: relative;
+    height: auto;
+    top: 0;
+  }
 }
 
 .details-view.disabled {
-  cursor: not-allowed;
-  opacity: 0.65;
-  pointer-events: none;
-  user-select: none;
+  div {
+    cursor: not-allowed;
+    opacity: 0.65;
+    pointer-events: none;
+    user-select: none;
+  }
 }

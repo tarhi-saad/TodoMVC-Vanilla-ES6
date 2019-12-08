@@ -5,6 +5,12 @@ header {
   align-items: center;
   background: $base-color;
   padding: 0 20px;
+  z-index: 70;
+  margin-left: -55px;
+
+  @media screen and (min-width: $breakpoint-sm) {
+    margin-left: 0;
+  }
 
   .menu-btn {
     width: 24px;

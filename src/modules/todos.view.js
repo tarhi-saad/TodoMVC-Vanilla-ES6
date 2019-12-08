@@ -239,13 +239,30 @@ const initializeDOMElements = () => {
   root.append(header, listsMenu, tasksView, detailsView, modal);
 
   // Events
+  const handleBackdropClick = () => {
+    menuButton.dataset.state = 'closed';
+    addClass(listsMenu, 'mobile');
+    removeClass(modalBackdrop, 'fade-in');
+    off(modalBackdrop, 'click', handleBackdropClick);
+  };
+
   const handleClick = () => {
     if (menuButton.dataset.state === 'open') {
       menuButton.dataset.state = 'closed';
       addClass(listsMenu, 'mobile');
+
+      if (document.body.offsetWidth < 770) {
+        removeClass(modalBackdrop, 'fade-in');
+        on(modalBackdrop, 'click', handleBackdropClick);
+      }
     } else {
       menuButton.dataset.state = 'open';
       removeClass(listsMenu, 'mobile');
+
+      if (document.body.offsetWidth < 770) {
+        addClass(modalBackdrop, 'fade-in');
+        on(modalBackdrop, 'click', handleBackdropClick);
+      }
     }
   };
 
@@ -254,6 +271,11 @@ const initializeDOMElements = () => {
     if (menuButton.dataset.state === 'closed') {
       menuButton.dataset.state = 'open';
       removeClass(listsMenu, 'mobile');
+
+      if (document.body.offsetWidth < 770) {
+        addClass(modalBackdrop, 'fade-in');
+        on(modalBackdrop, 'click', handleBackdropClick);
+      }
     }
   };
 
@@ -266,6 +288,11 @@ const initializeDOMElements = () => {
     ) {
       menuButton.dataset.state = 'closed';
       addClass(listsMenu, 'mobile');
+      removeClass(modalBackdrop, 'fade-in');
+    }
+
+    if (document.body.offsetWidth >= 770) {
+      removeClass(modalBackdrop, 'fade-in');
     }
 
     screeSize = document.body.offsetWidth;
@@ -297,6 +324,7 @@ const initializeDOMElements = () => {
     noteIndicatorFn,
     dateIndicatorFn,
     subtaskIndicatorFn,
+    menuButton,
   };
 };
 
@@ -354,9 +382,19 @@ const todoView = () => {
     if (isSelected) li.classList.add('selected');
   };
 
+  // Handle event on window to check width screen and show/hide backdrop
+  const handleResize = () => {
+    if (document.body.offsetWidth < 770) {
+      addClass(elements.modalBackdrop, 'fade-in');
+    } else {
+      removeClass(elements.modalBackdrop, 'fade-in');
+    }
+  };
+
   const resetDetails = () => {
     empty(elements.detailsView);
     unselect(elements.todoList);
+    off(window, 'resize', handleResize);
   };
 
   // Helper function - Date converter
@@ -722,6 +760,11 @@ const todoView = () => {
       wrap(note, 'note-block'),
     );
 
+    // Show Backdrop on mobile
+    if (document.body.offsetWidth < 770) {
+      addClass(elements.modalBackdrop, 'fade-in');
+    }
+
     // Helper functions for handlers
     const toggleIndicatorClass = () => {
       const titleBlock = getElement('.todo-list .selected .title-block');
@@ -1005,6 +1048,29 @@ const todoView = () => {
       target.value ? showElement(addButton) : hideElement(addButton);
     };
 
+    const handleBackdropClick = () => {
+      // Reset todo details
+      resetDetails();
+
+      // Hide view details on backdrop click
+      removeClass(elements.detailsView, 'show');
+      removeClass(elements.modalBackdrop, 'fade-in');
+
+      off(elements.modalBackdrop, 'click', handleBackdropClick);
+    };
+
+    // close details view on menu click
+    const handleMenuClick = () => {
+      // Reset todo details
+      resetDetails();
+
+      // Hide view details on backdrop click
+      removeClass(elements.detailsView, 'show');
+
+      off(elements.menuButton, 'click', handleMenuClick);
+      off(elements.modalBackdrop, 'click', handleBackdropClick);
+    };
+
     // Set event listeners
     on(name, 'input', handleNameChange);
     on(note, 'input', handleNoteChange);
@@ -1016,6 +1082,9 @@ const todoView = () => {
     on(subtasksList, 'click', handleToggleSubtask);
     on(subtasksList, 'click', handleSwitchSubtask);
     on(subTasksInput, 'input', handleInput);
+    on(elements.modalBackdrop, 'click', handleBackdropClick);
+    on(window, 'resize', handleResize);
+    on(elements.menuButton, 'click', handleMenuClick);
   };
 
   // Listen to modal

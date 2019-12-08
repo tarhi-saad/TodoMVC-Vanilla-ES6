@@ -37,6 +37,7 @@ $transition: all 0.4s ease;
 // Responsive breakpoints
 $breakpoint-landscape: 460px;
 $breakpoint-md: 1010px;
+$breakpoint-sm: 770px;
 
 // Mixins
 @mixin center-absolute {
