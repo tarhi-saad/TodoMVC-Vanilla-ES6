@@ -191,9 +191,10 @@ const initializeDOMElements = () => {
   const modalFooter = createElement('footer');
   modalFooter.append(modalOk, modalCancel);
   modal.append(modalTitle, modalText, modalFooter);
-  // Modal backdrop
+  // Modal backdrop & overlay
   const modalBackdrop = createElement('div', '.modal-backdrop');
-  document.body.append(modalBackdrop);
+  const overlay = createElement('div', '.overlay');
+  document.body.append(modalBackdrop, overlay);
 
   // Indicators
   /* Note indicator */
@@ -239,11 +240,11 @@ const initializeDOMElements = () => {
   root.append(header, listsMenu, tasksView, detailsView, modal);
 
   // Events
-  const handleBackdropClick = () => {
+  const handleOverlayClick = () => {
     menuButton.dataset.state = 'closed';
     addClass(listsMenu, 'mobile');
-    removeClass(modalBackdrop, 'fade-in');
-    off(modalBackdrop, 'click', handleBackdropClick);
+    removeClass(overlay, 'fade-in');
+    off(overlay, 'click', handleOverlayClick);
   };
 
   const handleClick = () => {
@@ -252,16 +253,16 @@ const initializeDOMElements = () => {
       addClass(listsMenu, 'mobile');
 
       if (document.body.offsetWidth < 770) {
-        removeClass(modalBackdrop, 'fade-in');
-        on(modalBackdrop, 'click', handleBackdropClick);
+        removeClass(overlay, 'fade-in');
+        on(overlay, 'click', handleOverlayClick);
       }
     } else {
       menuButton.dataset.state = 'open';
       removeClass(listsMenu, 'mobile');
 
       if (document.body.offsetWidth < 770) {
-        addClass(modalBackdrop, 'fade-in');
-        on(modalBackdrop, 'click', handleBackdropClick);
+        addClass(overlay, 'fade-in');
+        on(overlay, 'click', handleOverlayClick);
       }
     }
   };
@@ -273,8 +274,8 @@ const initializeDOMElements = () => {
       removeClass(listsMenu, 'mobile');
 
       if (document.body.offsetWidth < 770) {
-        addClass(modalBackdrop, 'fade-in');
-        on(modalBackdrop, 'click', handleBackdropClick);
+        addClass(overlay, 'fade-in');
+        on(overlay, 'click', handleOverlayClick);
       }
     }
   };
@@ -288,11 +289,11 @@ const initializeDOMElements = () => {
     ) {
       menuButton.dataset.state = 'closed';
       addClass(listsMenu, 'mobile');
-      removeClass(modalBackdrop, 'fade-in');
+      removeClass(overlay, 'fade-in');
     }
 
     if (document.body.offsetWidth >= 770) {
-      removeClass(modalBackdrop, 'fade-in');
+      removeClass(overlay, 'fade-in');
     }
 
     screeSize = document.body.offsetWidth;
@@ -325,6 +326,7 @@ const initializeDOMElements = () => {
     dateIndicatorFn,
     subtaskIndicatorFn,
     menuButton,
+    overlay,
   };
 };
 
@@ -382,12 +384,12 @@ const todoView = () => {
     if (isSelected) li.classList.add('selected');
   };
 
-  // Handle event on window to check width screen and show/hide backdrop
+  // Handle event on window to check width screen and show/hide overlay
   const handleResize = () => {
     if (document.body.offsetWidth < 770) {
-      addClass(elements.modalBackdrop, 'fade-in');
+      addClass(elements.overlay, 'fade-in');
     } else {
-      removeClass(elements.modalBackdrop, 'fade-in');
+      removeClass(elements.overlay, 'fade-in');
     }
   };
 
@@ -760,9 +762,9 @@ const todoView = () => {
       wrap(note, 'note-block'),
     );
 
-    // Show Backdrop on mobile
+    // Show overlay on mobile
     if (document.body.offsetWidth < 770) {
-      addClass(elements.modalBackdrop, 'fade-in');
+      addClass(elements.overlay, 'fade-in');
     }
 
     // Helper functions for handlers
@@ -1048,15 +1050,15 @@ const todoView = () => {
       target.value ? showElement(addButton) : hideElement(addButton);
     };
 
-    const handleBackdropClick = () => {
+    const handleOverlayClick = () => {
       // Reset todo details
       resetDetails();
 
-      // Hide view details on backdrop click
+      // Hide view details on overlay click
       removeClass(elements.detailsView, 'show');
-      removeClass(elements.modalBackdrop, 'fade-in');
+      removeClass(elements.overlay, 'fade-in');
 
-      off(elements.modalBackdrop, 'click', handleBackdropClick);
+      off(elements.overlay, 'click', handleOverlayClick);
     };
 
     // close details view on menu click
@@ -1064,11 +1066,11 @@ const todoView = () => {
       // Reset todo details
       resetDetails();
 
-      // Hide view details on backdrop click
+      // Hide view details on overlay click
       removeClass(elements.detailsView, 'show');
 
       off(elements.menuButton, 'click', handleMenuClick);
-      off(elements.modalBackdrop, 'click', handleBackdropClick);
+      off(elements.overlay, 'click', handleOverlayClick);
     };
 
     // Set event listeners
@@ -1082,7 +1084,7 @@ const todoView = () => {
     on(subtasksList, 'click', handleToggleSubtask);
     on(subtasksList, 'click', handleSwitchSubtask);
     on(subTasksInput, 'input', handleInput);
-    on(elements.modalBackdrop, 'click', handleBackdropClick);
+    on(elements.overlay, 'click', handleOverlayClick);
     on(window, 'resize', handleResize);
     on(elements.menuButton, 'click', handleMenuClick);
   };

@@ -4,7 +4,7 @@
   border-radius: 4px;
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
     0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
-  left: 50%;
+  left: calc(50% - 27.5px);
   position: absolute;
   transform: translate(-50%, -50%);
   visibility: visible;
@@ -13,6 +13,13 @@
   transition: visibility 0s, opacity 0.15s linear 0.1s,
     transform 0.3s ease-out 0.1s;
   z-index: 99;
+  width: 100%;
+  width: fit-content;
+
+  @media screen and (min-width: $breakpoint-sm) {
+    left: 50%;
+    width: auto;
+  }
 
   h2 {
     color: rgba(0, 0, 0, 0.87);
@@ -71,7 +78,8 @@
 }
 
 // transparent black background
-.modal-backdrop {
+.modal-backdrop,
+.overlay {
   background: #000;
   height: 100%;
   left: 0;
@@ -81,10 +89,15 @@
   transition: visibility 0.15s 0.2s, opacity 0.15s linear 0.2s;
   visibility: hidden;
   width: 100%;
+  z-index: 80;
+}
+
+.overlay {
   z-index: 50;
 }
 
-.modal-backdrop.fade-in {
+.modal-backdrop.fade-in,
+.overlay.fade-in {
   opacity: 0.5;
   transition: visibility 0s, opacity 0.15s linear;
   visibility: visible;
