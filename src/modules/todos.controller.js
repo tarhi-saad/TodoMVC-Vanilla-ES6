@@ -40,7 +40,7 @@ const todoController = (() => {
     const selectedProject = todoApp.getSelectedProject();
     selectedProject.addTodo(todoTitle);
     const todoItems = selectedProject.getItems();
-    view.addTodo(todoItems[todoItems.length - 1]);
+    view.addTodo(todoItems[todoItems.length - 1], true);
 
     // Scroll to bottom of the todo list, only when adding a new item
     const { todoList } = view.elements;

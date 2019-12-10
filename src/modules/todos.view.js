@@ -364,8 +364,12 @@ const todoView = () => {
     projectName.textContent = name;
     // Setup the "span" element to display todo-count per project
     const todoCount = createElement('span', '.todo-count');
-    todoCount.textContent = items.length;
-    addClass(todoCount, 'hide');
+    let count = 0;
+    items.forEach((todo) => {
+      if (!todo.isComplete) count += 1;
+    });
+    todoCount.textContent = count;
+    if (count === 0) hideElement(todoCount);
     // Delete Elements
     const deleteBtn = createElement('button', '.delete-btn');
     deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
@@ -453,7 +457,7 @@ const todoView = () => {
     }
   };
 
-  const addTodo = (todo) => {
+  const addTodo = (todo, isNew = false) => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
     li.dataset.index = todo.id;
@@ -521,13 +525,19 @@ const todoView = () => {
     li.append(label, checkbox, titleBlock, deleteBtn);
     elements.todoList.append(li);
 
-    // Update todoCount in current list
-    const todoCount = elements.lists.querySelector('.selected .todo-count');
-    todoCount.textContent = Number(todoCount.textContent) + 1;
+    if (isNew) {
+      // Update todoCount in current list
+      if (!todo.isComplete) {
+        const todoCount = elements.lists.querySelector('.selected .todo-count');
+        todoCount.textContent = Number(todoCount.textContent) + 1;
 
-    // Show todo count if it's todo list is not empty & hide "Empty state" block
-    if (todoCount.textContent === '1') {
-      showElement(todoCount);
+        // Show todo count if it's todo list is not empty
+        if (todoCount.textContent === '1') showElement(todoCount);
+      }
+    }
+
+    // hide "Empty state" block if todo list is not empty anymore
+    if (elements.todoList.children === 1) {
       addClass(elements.emptyState, 'hide-empty-state');
     }
   };
@@ -538,13 +548,17 @@ const todoView = () => {
     );
     todoItem.remove();
 
-    // Update todoCount in current list
-    const todoCount = elements.lists.querySelector('.selected .todo-count');
-    todoCount.textContent = Number(todoCount.textContent) - 1;
+    // Update todoCount in current list if todo is not completed
+    if (!todoItem.classList.contains('completed')) {
+      const todoCount = elements.lists.querySelector('.selected .todo-count');
+      todoCount.textContent = Number(todoCount.textContent) - 1;
 
-    // Hide todo count if it's todo list is empty & show the "Empty state" block
-    if (todoCount.textContent === '0') {
-      hideElement(todoCount);
+      // Hide todo count if it's todo list is empty
+      if (todoCount.textContent === '0') hideElement(todoCount);
+    }
+
+    // Show the "Empty state" block if list is empty
+    if (elements.todoList.children === 0) {
       removeClass(elements.emptyState, 'hide-empty-state');
     }
 
@@ -559,16 +573,24 @@ const todoView = () => {
   const toggleTodo = (isComplete, id) => {
     const toggleComplete = document.getElementById(id);
     const todoItem = toggleComplete.closest('.todo-item');
+    const todoCount = elements.lists.querySelector('li.selected .todo-count');
+    const prevTodoCount = Number(todoCount.textContent);
     toggleComplete.checked = isComplete;
 
     if (isComplete) {
       addClass(todoItem, 'completed');
+      todoCount.textContent = Number(todoCount.textContent) - 1;
+
+      if (prevTodoCount === 1) hideElement(todoCount);
 
       if (todoItem.classList.contains('selected')) {
         addClass(elements.detailsView, 'disabled');
       }
     } else {
       removeClass(todoItem, 'completed');
+      todoCount.textContent = Number(todoCount.textContent) + 1;
+
+      if (prevTodoCount === 0) showElement(todoCount);
 
       if (todoItem.classList.contains('selected')) {
         removeClass(elements.detailsView, 'disabled');
@@ -597,9 +619,6 @@ const todoView = () => {
       addTodo(todo);
     });
 
-    // Update todoCount in current list
-    elements.lists.querySelector('.selected .todo-count').innerHTML =
-      todos.length;
     // Check if list is empty or not to Show/Hide "Empty State"
     todos.length === 0
       ? removeClass(elements.emptyState, 'hide-empty-state')
