@@ -142,6 +142,7 @@
               transition: all 0.3s ease;
               transition-delay: 0.1s;
               transform: translate3d(0, 0, 0);
+              width: 9px;
               @include center-absolute;
             }
           }
