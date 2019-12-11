@@ -278,6 +278,7 @@
   .note-block {
     display: flex;
     padding: 0;
+    margin-bottom: 0;
 
     textarea {
       border: 1px solid transparent;
@@ -438,6 +439,7 @@
 }
 
 .details-view.show {
+  overflow-x: hidden;
   padding: 10px;
   width: 360px;
   z-index: 70;
