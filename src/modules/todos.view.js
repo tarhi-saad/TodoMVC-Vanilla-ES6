@@ -1082,6 +1082,7 @@ const todoView = () => {
 
     // close details view on menu click
     const handleMenuClick = () => {
+      if (document.body.offsetWidth >= 770) return;
       // Reset todo details
       resetDetails();
 
