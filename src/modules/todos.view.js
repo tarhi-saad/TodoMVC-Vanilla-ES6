@@ -1116,6 +1116,7 @@ const todoView = () => {
     const { modalOk, modalCancel, modalBackdrop, modalText } = elements;
     modalText.innerHTML = msg;
     toggleModal();
+    modalCancel.focus();
 
     const handleClick = (e) => {
       const { target } = e;
