@@ -527,17 +527,15 @@ const todoView = () => {
 
     if (isNew) {
       // Update todoCount in current list
-      if (!todo.isComplete) {
-        const todoCount = elements.lists.querySelector('.selected .todo-count');
-        todoCount.textContent = Number(todoCount.textContent) + 1;
+      const todoCount = elements.lists.querySelector('.selected .todo-count');
+      todoCount.textContent = Number(todoCount.textContent) + 1;
 
-        // Show todo count if it's todo list is not empty
-        if (todoCount.textContent === '1') showElement(todoCount);
-      }
+      // Show todo count if it's todo list is not empty
+      if (todoCount.textContent === '1') showElement(todoCount);
     }
 
     // hide "Empty state" block if todo list is not empty anymore
-    if (elements.todoList.children === 1) {
+    if (elements.todoList.children.length === 1) {
       addClass(elements.emptyState, 'hide-empty-state');
     }
   };
@@ -558,7 +556,7 @@ const todoView = () => {
     }
 
     // Show the "Empty state" block if list is empty
-    if (elements.todoList.children === 0) {
+    if (elements.todoList.children.length === 0) {
       removeClass(elements.emptyState, 'hide-empty-state');
     }
 
