@@ -428,9 +428,11 @@ const todoView = () => {
     const year = dateObj.getFullYear();
 
     // Today, Tomorrow
+    let initialDay = currentDate.getDate();
+    initialDay = `${initialDay}`.length > 1 ? initialDay : `0${initialDay}`;
     const initialDate = new Date(
       `${currentDate.getFullYear()}-${currentDate.getMonth() +
-        1}-0${currentDate.getDate()}`,
+        1}-${initialDay}`,
     );
     const coefficientMSDay = 1000 * 60 * 60 * 24;
     const numberOfDays = (dateObj - initialDate) / coefficientMSDay;
@@ -858,8 +860,9 @@ const todoView = () => {
           ? indicators.querySelector('.note-indicator').before(dateIndicator)
           : indicators.append(dateIndicator);
 
-        dateIndicator.querySelector('.date-indicator-label').innerHTML =
-          dateMessage.innerHTML;
+        dateIndicator.querySelector(
+          '.date-indicator-label',
+        ).innerHTML = getFriendlyDate(todo.date, dateIndicator);
         toggleIndicatorClass();
 
         dateLabel.classList.contains('overdue')
@@ -880,6 +883,7 @@ const todoView = () => {
       dateMessage.innerHTML = 'Add due date';
       removeClass(dateLabel, 'is-set');
       removeClass(dateLabel, 'overdue');
+      removeClass(dateLabel, 'today');
       removeDate.remove();
 
       // Set date indicator

@@ -301,6 +301,10 @@
   .date-block {
     padding: 0;
 
+    & > svg {
+      pointer-events: none;
+    }
+
     label {
       display: block;
       position: relative;
@@ -311,11 +315,16 @@
 
       #date {
         border: 0;
+        padding: 8px 0;
+        position: relative;
         opacity: 0;
         width: 100%;
         &::-webkit-calendar-picker-indicator {
-          padding: 12px;
-          width: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: calc(100% - 10px);
+          height: calc(100% - 5px);
         }
       }
 
