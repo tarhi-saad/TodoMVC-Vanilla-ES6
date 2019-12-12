@@ -316,17 +316,12 @@
 
       #date {
         border: 0;
-        padding: 8px 0;
+        cursor: auto;
+        padding: 16px 0;
         position: relative;
         opacity: 0;
         width: 100%;
-        &::-webkit-calendar-picker-indicator {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: calc(100% - 10px);
-          height: calc(100% - 5px);
-        }
+        z-index: 1;
       }
 
       .date-message {
@@ -335,26 +330,26 @@
         pointer-events: none;
         @include vertical-center-absolute;
       }
+    }
 
-      .remove-date {
-        opacity: 0;
-        position: absolute;
-        right: 20px;
-        width: 10px;
-        z-index: 1;
-        @include vertical-center-absolute;
-      }
+    .remove-date {
+      opacity: 0;
+      position: absolute;
+      right: 20px;
+      width: 10px;
+      z-index: 2;
+      @include vertical-center-absolute;
     }
 
     label.is-set {
       .date-message {
         color: $grey-color;
       }
+    }
 
-      &:hover .remove-date {
-        cursor: pointer;
-        opacity: 1;
-      }
+    &:hover .remove-date {
+      cursor: pointer;
+      opacity: 1;
     }
 
     label.is-set + svg {

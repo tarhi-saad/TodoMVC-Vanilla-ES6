@@ -1,3 +1,5 @@
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/themes/light.css';
 import deleteSVG from '../images/delete.svg';
 import listSVG from '../images/list.svg';
 import arrowSVG from '../images/arrow.svg';
@@ -724,7 +726,10 @@ const todoView = () => {
     note.placeholder = 'Add note';
     // Date block of todo
     const date = createElement('input', '#date');
-    date.type = 'date';
+    const flatCalendar = flatpickr(date, {
+      defaultDate: todo.date,
+    });
+    date.type = 'text';
     date.value = todo.date;
     const dateLabel = createElement('label');
     dateLabel.htmlFor = 'date';
@@ -736,7 +741,6 @@ const todoView = () => {
     if (todo.date) {
       dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
       addClass(dateLabel, 'is-set');
-      dateLabel.append(removeDate);
       // Set date indicator text
       const dateIndicator = indicators.querySelector('.date-indicator');
       const dateIndicatorLabel = indicators.querySelector(
@@ -753,8 +757,10 @@ const todoView = () => {
 
     dateLabel.append(date, dateMessage);
     const dateBlock = wrap(dateLabel, 'date-block');
-    dateBlock.append();
     dateBlock.insertAdjacentHTML('beforeEnd', calendarSVG);
+
+    if (dateLabel.classList.contains('is-set')) dateBlock.append(removeDate);
+
     // Priority block of todo
     const priorityBlock = createElement('div', '.priority-block');
     const priorityTitle = createElement('h2');
@@ -874,11 +880,11 @@ const todoView = () => {
         ).innerHTML = getFriendlyDate(todo.date, liveDateIndicator);
       }
 
-      if (!dateLabel.contains(removeDate)) dateLabel.append(removeDate);
+      if (!dateBlock.contains(removeDate)) dateBlock.append(removeDate);
     };
 
     const handleRemoveDateClick = () => {
-      date.value = '';
+      flatCalendar.clear();
       todo.date = date.value;
       dateMessage.innerHTML = 'Add due date';
       removeClass(dateLabel, 'is-set');
