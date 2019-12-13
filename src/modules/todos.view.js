@@ -12,6 +12,7 @@ import noteSVG from '../images/note.svg';
 import checkMarkSVG from '../images/check-mark.svg';
 import menuSVG from '../images/menu.svg';
 import plusSVG from '../images/plus.svg';
+import homeSVG from '../images/home.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -351,6 +352,9 @@ const todoView = () => {
     else hideModal();
   };
 
+  // Display default Projects (All Tasks) //! You're here!!!!!!!!!!!!
+  const displayAllTasks = (projects) => {};
+
   /**
    *  Display the project by name in an HTML list element
    * @param {number} id id of the project
@@ -371,20 +375,29 @@ const todoView = () => {
       if (!todo.isComplete) count += 1;
     });
     todoCount.textContent = count;
+
     if (count === 0) hideElement(todoCount);
-    // Delete Elements
-    const deleteBtn = createElement('button', '.delete-btn');
-    deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+
     // List icon
     const listIcon = createElement('span', '.list-icon');
-    listIcon.insertAdjacentHTML('beforeEnd', listSVG);
     // Append elements
-    li.append(listIcon, projectName, todoCount, deleteBtn);
+    li.append(listIcon, projectName, todoCount);
+
+    if (id !== 1) {
+      listIcon.insertAdjacentHTML('beforeEnd', listSVG);
+      // Delete button not needed for default task
+      const deleteBtn = createElement('button', '.delete-btn');
+      deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+      li.append(deleteBtn);
+    } else if (id === 1) {
+      listIcon.insertAdjacentHTML('beforeEnd', homeSVG);
+      addClass(li, 'home-list');
+      addClass(li, 'pinned');
+    }
+
     elements.lists.append(li);
-    // Remove "pinned" class when adding a new list
-    const { lists } = elements;
-    lists.firstChild.classList.remove('pinned');
     // Reset selected list
+    const { lists } = elements;
     unselect(lists);
 
     if (isSelected) li.classList.add('selected');
@@ -602,10 +615,6 @@ const todoView = () => {
 
   const removeProject = (id) => {
     getElement(`.list[data-index="${id}"]`).remove();
-    // Add "pinned" class when only one list remains
-    const { lists } = elements;
-
-    if (lists.children.length === 1) lists.firstChild.classList.add('pinned');
   };
 
   /**
@@ -614,7 +623,7 @@ const todoView = () => {
    */
   const displayTodos = (todos) => {
     elements.tasksTitle.textContent = getElement(
-      '.selected .project-name',
+      '.list.selected .project-name',
     ).textContent;
     empty(elements.todoList);
     todos.forEach((todo) => {
@@ -630,6 +639,13 @@ const todoView = () => {
 
     // Hide view details on list switch & on add list
     removeClass(elements.detailsView, 'show');
+    // Link todo view with selected project
+    const selectedProject = getElement('.list.selected');
+    if (selectedProject.classList.contains('pinned')) {
+      addClass(elements.tasksView, 'pinned');
+    } else {
+      removeClass(elements.tasksView, 'pinned');
+    }
   };
 
   /**

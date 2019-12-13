@@ -76,10 +76,7 @@
 
         svg {
           width: 18px;
-
-          .list-svg {
-            fill: $grey-color;
-          }
+          fill: $grey-color;
         }
       }
 
@@ -113,7 +110,7 @@
       color: $base-color;
 
       .list-icon {
-        .list-svg {
+        svg {
           fill: $base-color;
         }
       }

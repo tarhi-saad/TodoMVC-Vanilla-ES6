@@ -296,7 +296,7 @@ describe('\n => The todoApp instance', () => {
     test('should remove project when its id is given', () => {
       todoApp.addProject('project 1');
       todoApp.addProject('project 2');
-      todoApp.removeProject(1);
+      todoApp.removeProject(2);
 
       expect(todoApp.getProjects().length).toBe(1);
     });
@@ -313,10 +313,10 @@ describe('\n => The todoApp instance', () => {
       todoApp.addProject('project 1');
       todoApp.addProject('project 2');
       todoApp.addProject('project 3');
-      todoApp.removeProject(1);
+      todoApp.removeProject(2);
 
       expect(todoApp.getProjects().length).toBe(2);
-      expect(todoApp.getProjects()[0].id).toBe(2);
+      expect(todoApp.getProjects()[0].id).toBe(1);
       expect(todoApp.getProjects()[1].id).toBe(3);
     });
 

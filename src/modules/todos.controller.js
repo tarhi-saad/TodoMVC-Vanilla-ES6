@@ -20,11 +20,6 @@ const todoController = (() => {
 
       if (isSelected) view.displayTodos(items);
     });
-
-    // Add "pinned" class when we get one list to style it in CSS and trigger a visual disable mode
-    projects.length === 1
-      ? lists.firstChild.classList.add('pinned')
-      : lists.firstChild.classList.remove('pinned');
   };
 
   // Instantiate todoView factory
@@ -135,9 +130,9 @@ const todoController = (() => {
     const { target } = e;
     const lists = view.elements.lists.children;
 
-    if (!target.closest('.delete-btn') || lists.length === 1) return;
-
     const listID = Number(target.closest('.list').dataset.index);
+
+    if (!target.closest('.delete-btn') || listID === 1) return;
 
     const removeList = () => {
       todoApp.removeProject(listID);
@@ -197,12 +192,13 @@ const todoController = (() => {
 
   const handleEditTasksTitle = (e) => {
     const { target } = e;
+    const selectedProject = view.elements.lists.querySelector('li.selected');
+
+    if (selectedProject.classList.contains('pinned')) return;
 
     const updateProject = (value) => {
       todoApp.getSelectedProject().setName(value);
-      view.elements.lists.querySelector(
-        'li.selected .project-name',
-      ).textContent = value;
+      selectedProject.querySelector('.project-name').textContent = value;
     };
 
     const args = [target, view.elements.tasksTitleInput, updateProject];

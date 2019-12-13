@@ -17,6 +17,15 @@ $line-spacing: 48px;
   padding-bottom: 60px;
   position: relative;
 
+  &.pinned {
+    h1 {
+      span:hover {
+        cursor: auto;
+        background: initial;
+      }
+    }
+  }
+
   h1 {
     margin: 10px 10px 20px;
     font-weight: bold;

@@ -132,7 +132,7 @@ const todoStore = (name = '') => {
 };
 
 const todoApp = (() => {
-  const defaultStore = todoStore('tasks');
+  const defaultStore = todoStore('Tasks');
   defaultStore.id = 1;
   const state = {
     projects: [defaultStore],
@@ -163,7 +163,8 @@ const todoApp = (() => {
   };
 
   const removeProject = (id) => {
-    if (getProjects().length > 1) {
+    // We prevent removing the default project "Tasks"
+    if (getProjects().length > 1 && id !== 1) {
       const index = getProjects().findIndex((project) => project.id === id);
       if (index !== -1) getProjects().splice(index, 1);
     }

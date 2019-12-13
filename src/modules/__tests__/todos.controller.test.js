@@ -26,7 +26,7 @@ describe('\n => todoController', () => {
 
     test('should display the default project', () => {
       expect(document.querySelector('.lists .project-name').innerHTML).toBe(
-        'tasks',
+        'Tasks',
       );
     });
 
@@ -126,7 +126,7 @@ describe('\n => todoController', () => {
         test('should remove project when remove button is clicked', () => {
           addList('My project 2');
           const listCount = document.querySelectorAll('.lists .list').length;
-          document.querySelectorAll('.lists .delete-btn')[1].click();
+          document.querySelectorAll('.lists .delete-btn')[0].click();
 
           expect(document.querySelectorAll('.lists .list').length).toBe(
             listCount - 1,
@@ -136,7 +136,7 @@ describe('\n => todoController', () => {
         test('should transfer "selected" class to its upper sibling when deleted', () => {
           addList('My project 2');
           document.querySelectorAll('.lists .list')[1].click();
-          document.querySelectorAll('.lists .delete-btn')[1].click();
+          document.querySelectorAll('.lists .delete-btn')[0].click();
 
           expect(
             document
