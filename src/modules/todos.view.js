@@ -13,6 +13,9 @@ import checkMarkSVG from '../images/check-mark.svg';
 import menuSVG from '../images/menu.svg';
 import plusSVG from '../images/plus.svg';
 import homeSVG from '../images/home.svg';
+import tasksSVG from '../images/tasks.svg';
+import importantSVG from '../images/important.svg';
+import daySVG from '../images/day.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -352,9 +355,6 @@ const todoView = () => {
     else hideModal();
   };
 
-  // Display default Projects (All Tasks) //! You're here!!!!!!!!!!!!
-  const displayAllTasks = (projects) => {};
-
   /**
    *  Display the project by name in an HTML list element
    * @param {number} id id of the project
@@ -383,24 +383,50 @@ const todoView = () => {
     // Append elements
     li.append(listIcon, projectName, todoCount);
 
-    if (id !== 1) {
-      listIcon.insertAdjacentHTML('beforeEnd', listSVG);
-      // Delete button not needed for default task
-      const deleteBtn = createElement('button', '.delete-btn');
-      deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
-      li.append(deleteBtn);
-    } else if (id === 1) {
-      listIcon.insertAdjacentHTML('beforeEnd', homeSVG);
-      addClass(li, 'home-list');
-      addClass(li, 'pinned');
+    switch (id) {
+      case 1:
+        listIcon.insertAdjacentHTML('beforeEnd', tasksSVG);
+        addClass(li, 'all-tasks-list');
+        addClass(li, 'pinned');
+        break;
+      case 2:
+        listIcon.insertAdjacentHTML('beforeEnd', daySVG);
+        addClass(li, 'my-day-list');
+        addClass(li, 'pinned');
+        break;
+      case 3:
+        listIcon.insertAdjacentHTML('beforeEnd', importantSVG);
+        addClass(li, 'important-list');
+        addClass(li, 'pinned');
+        break;
+      case 4:
+        listIcon.insertAdjacentHTML('beforeEnd', calendarSVG);
+        addClass(li, 'planned-list');
+        addClass(li, 'pinned');
+        break;
+      case 5:
+        listIcon.insertAdjacentHTML('beforeEnd', homeSVG);
+        addClass(li, 'home-list');
+        addClass(li, 'pinned');
+        break;
+      default: {
+        listIcon.insertAdjacentHTML('beforeEnd', listSVG);
+        // Delete button not needed for default task
+        const deleteBtn = createElement('button', '.delete-btn');
+        deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+        li.append(deleteBtn);
+        break;
+      }
     }
 
     elements.lists.append(li);
-    // Reset selected list
-    const { lists } = elements;
-    unselect(lists);
 
-    if (isSelected) li.classList.add('selected');
+    if (isSelected) {
+      // Reset selected list
+      const { lists } = elements;
+      unselect(lists);
+      li.classList.add('selected');
+    }
   };
 
   // Handle event on window to check width screen and show/hide overlay
@@ -478,18 +504,22 @@ const todoView = () => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
     li.dataset.index = todo.id;
+    li.dataset.projectIndex = todo.projectID;
     todo.isComplete ? addClass(li, 'completed') : removeClass(li, 'completed');
     const priorityClass = `${todo.priority.toLowerCase()}`;
     resetClassList(li, ['low', 'medium', 'high']);
     addClass(li, priorityClass);
     // Setting up the checkbox to toggle "completed" state
-    const checkbox = createElement('input', `#todo-checkbox${todo.id}`);
+    const checkbox = createElement(
+      'input',
+      `#todo-checkbox${todo.id}${todo.projectID}`,
+    );
     const label = createElement('label');
     const span = createElement('span');
     span.insertAdjacentHTML('beforeEnd', checkSVG);
     checkbox.type = 'checkbox';
     checkbox.checked = todo.isComplete;
-    label.htmlFor = `todo-checkbox${todo.id}`;
+    label.htmlFor = `todo-checkbox${todo.id}${todo.projectID}`;
     label.append(span);
     // Setting up "todo" title
     const title = createElement('span', '.todo-title');
@@ -544,7 +574,9 @@ const todoView = () => {
 
     if (isNew) {
       // Update todoCount in current list
-      const todoCount = elements.lists.querySelector('.selected .todo-count');
+      const todoCount = elements.lists.querySelector(
+        `.list[data-index="${todo.projectID}"] .todo-count`,
+      );
       todoCount.textContent = Number(todoCount.textContent) + 1;
 
       // Show todo count if it's todo list is not empty
@@ -557,15 +589,17 @@ const todoView = () => {
     }
   };
 
-  const removeTodo = (index) => {
+  const removeTodo = (index, projectIndex) => {
     const todoItem = elements.todoList.querySelector(
-      `.todo-item[data-index="${index}"]`,
+      `.todo-item[data-index="${index}"].todo-item[data-project-index="${projectIndex}"]`,
     );
     todoItem.remove();
 
     // Update todoCount in current list if todo is not completed
     if (!todoItem.classList.contains('completed')) {
-      const todoCount = elements.lists.querySelector('.selected .todo-count');
+      const todoCount = elements.lists.querySelector(
+        `.list[data-index="${projectIndex}"] .todo-count`,
+      );
       todoCount.textContent = Number(todoCount.textContent) - 1;
 
       // Hide todo count if it's todo list is empty
@@ -585,10 +619,12 @@ const todoView = () => {
     }
   };
 
-  const toggleTodo = (isComplete, id) => {
+  const toggleTodo = (isComplete, id, projectID) => {
     const toggleComplete = document.getElementById(id);
     const todoItem = toggleComplete.closest('.todo-item');
-    const todoCount = elements.lists.querySelector('li.selected .todo-count');
+    const todoCount = elements.lists.querySelector(
+      `.list[data-index="${projectID}"] .todo-count`,
+    );
     const prevTodoCount = Number(todoCount.textContent);
     toggleComplete.checked = isComplete;
 
@@ -686,7 +722,9 @@ const todoView = () => {
     // Reset display
     resetDetails();
     // Add class for CSS styling
-    getElement(`.todo-item[data-index="${todo.id}"]`).classList.add('selected');
+    getElement(
+      `.todo-item[data-index="${todo.id}"].todo-item[data-project-index="${todo.projectID}"]`,
+    ).classList.add('selected');
     // Add class to show component
     addClass(elements.detailsView, 'show');
     // If todo is completed, let's disable its details

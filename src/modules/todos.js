@@ -95,12 +95,13 @@ const todoStore = (name = '') => {
 
   const { getItemByID } = todoStoreHelper(getItems);
 
-  const addTodo = (title) => {
+  const addTodo = (title, id) => {
     if (!title) return;
 
     const item = todoItem(title);
     item.id =
       state.items.length > 0 ? state.items[state.items.length - 1].id + 1 : 1;
+    item.projectID = id;
 
     state.items.push(item);
   };
@@ -132,10 +133,21 @@ const todoStore = (name = '') => {
 };
 
 const todoApp = (() => {
-  const defaultStore = todoStore('Tasks');
-  defaultStore.id = 1;
+  // Create default projects
+  const defaultStores = [
+    todoStore('All Tasks'),
+    todoStore('My Day'),
+    todoStore('Important'),
+    todoStore('Planned'),
+    todoStore('Tasks'),
+  ];
+  defaultStores[0].id = 1;
+  defaultStores[1].id = 2;
+  defaultStores[2].id = 3;
+  defaultStores[3].id = 4;
+  defaultStores[4].id = 5;
   const state = {
-    projects: [defaultStore],
+    projects: [...defaultStores],
     selected: 0,
   };
 
@@ -163,8 +175,10 @@ const todoApp = (() => {
   };
 
   const removeProject = (id) => {
-    // We prevent removing the default project "Tasks"
-    if (getProjects().length > 1 && id !== 1) {
+    // We prevent removing the default projects
+    const defaultIDs = [1, 2, 3, 4, 5];
+
+    if (getProjects().length > 1 && !defaultIDs.includes(id)) {
       const index = getProjects().findIndex((project) => project.id === id);
       if (index !== -1) getProjects().splice(index, 1);
     }
@@ -176,61 +190,6 @@ const todoApp = (() => {
     const { id } = getProjects()[getSelected()];
     return getProjectByID(id);
   };
-
-  // const addSubTask = (todoID, name) => {
-  //   const todo = getSelectedProject().getItemByID(todoID);
-  //   const subTaskID =
-  //     todo.subTasks.length > 0
-  //       ? todo.subTasks[todo.subTasks.length - 1].id + 1
-  //       : 1;
-  //   const subTask = {
-  //     id: subTaskID,
-  //     name,
-  //     isComplete: false,
-  //   };
-  //   todo.subTasks.push(subTask);
-  // };
-
-  // const getSubTasks = (todoID) =>
-  //   getSelectedProject().getItemByID(todoID).subTasks;
-
-  // const removeSubTask = (todoID, id) => {
-  //   const subTasks = getSubTasks(todoID);
-
-  //   if (subTasks.length > 1) {
-  //     const index = subTasks.findIndex((subTask) => subTask.id === id);
-
-  //     if (index !== -1) subTasks.splice(index, 1);
-  //   }
-  // };
-
-  // const editSubTaskName = (todoID, id, name) => {
-  //   if (name) {
-  //     getSelectedProject()
-  //       .getItemByID(todoID)
-  //       .subTasks.some((subTask) => {
-  //         if (subTask.id === id) {
-  //           subTask.name = name;
-  //           return true;
-  //         }
-
-  //         return false;
-  //       });
-  //   }
-  // };
-
-  // const toggleSubTaskComplete = (todoID, id) => {
-  //   getSelectedProject()
-  //     .getItemByID(todoID)
-  //     .subTasks.some((subTask) => {
-  //       if (subTask.id === id) {
-  //         subTask.isComplete = !subTask.isComplete;
-  //         return true;
-  //       }
-
-  //       return false;
-  //     });
-  // };
 
   return {
     getProjects,

@@ -33,8 +33,18 @@ const todoController = (() => {
 
     view.elements.newTodoInput.value = '';
     const selectedProject = todoApp.getSelectedProject();
-    selectedProject.addTodo(todoTitle);
-    const todoItems = selectedProject.getItems();
+    let todoItems = null;
+
+    // If default project then add to "Tasks" list
+    if ([1, 2, 3, 4].includes(selectedProject.id)) {
+      const defaultProject = todoApp.getProjectByID(5);
+      defaultProject.addTodo(todoTitle, 5);
+      todoItems = defaultProject.getItems();
+    } else {
+      selectedProject.addTodo(todoTitle, selectedProject.id);
+      todoItems = selectedProject.getItems();
+    }
+
     view.addTodo(todoItems[todoItems.length - 1], true);
 
     // Scroll to bottom of the todo list, only when adding a new item
@@ -49,9 +59,12 @@ const todoController = (() => {
 
     const removeTodo = () => {
       const todoID = Number(target.closest('.todo-item').dataset.index);
-      const selectedProject = todoApp.getSelectedProject();
-      selectedProject.removeTodo(todoID);
-      view.removeTodo(todoID);
+      const projectID = Number(
+        target.closest('.todo-item').dataset.projectIndex,
+      );
+      const project = todoApp.getProjectByID(projectID);
+      project.removeTodo(todoID);
+      view.removeTodo(todoID, projectID);
     };
 
     // Confirm deletion of incomplete task
@@ -72,12 +85,17 @@ const todoController = (() => {
   const handleToggleTodo = (e) => {
     const { target } = e;
     const todoID = Number(target.closest('.todo-item').dataset.index);
+    const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
 
-    if (target.id !== `todo-checkbox${todoID}`) return;
+    if (target.id !== `todo-checkbox${todoID}${projectID}`) return;
 
-    const selectedProject = todoApp.getSelectedProject();
-    selectedProject.toggleTodo(todoID);
-    view.toggleTodo(selectedProject.getItemByID(todoID).isComplete, target.id);
+    const project = todoApp.getProjectByID(projectID);
+    project.toggleTodo(todoID);
+    view.toggleTodo(
+      project.getItemByID(todoID).isComplete,
+      target.id,
+      projectID,
+    );
   };
 
   const handleAddList = (e) => {
@@ -123,16 +141,33 @@ const todoController = (() => {
     selectedList.classList.remove('selected');
     todoApp.setSelected(projectIndex);
     list.classList.add('selected');
-    view.displayTodos(todoApp.getProjects()[projectIndex].getItems());
+    const items = [];
+
+    switch (list.dataset.index) {
+      // All tasks case
+      case '1':
+        todoApp
+          .getProjects()
+          .forEach((project) => items.push(...project.getItems()));
+        view.displayTodos(items);
+        break;
+
+      default:
+        view.displayTodos(todoApp.getProjects()[projectIndex].getItems());
+        break;
+    }
   };
 
   const handleDeleteList = (e) => {
     const { target } = e;
     const lists = view.elements.lists.children;
-
     const listID = Number(target.closest('.list').dataset.index);
+    // Prevent deletion for default projects
+    const defaultIDs = [1, 2, 3, 4, 5];
 
-    if (!target.closest('.delete-btn') || listID === 1) return;
+    if (!target.closest('.delete-btn') || defaultIDs.includes(defaultIDs)) {
+      return;
+    }
 
     const removeList = () => {
       todoApp.removeProject(listID);
@@ -218,7 +253,8 @@ const todoController = (() => {
     }
 
     const id = Number(target.closest('.todo-item').dataset.index);
-    const todo = todoApp.getSelectedProject().getItemByID(id);
+    const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
+    const todo = todoApp.getProjectByID(projectID).getItemByID(id);
     view.displayDetails(todo);
   };
 
