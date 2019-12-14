@@ -714,11 +714,14 @@ const todoView = () => {
     on(editElem, 'keydown', handleEditEvents);
   };
 
+  let flatCalendar = null;
   /**
    * Display details of the selected todo object
    * @param {Object} todo The selected todo object
    */
   const displayDetails = (todo) => {
+    // Reset flatpickr
+    if (flatCalendar) flatCalendar.destroy();
     // Reset display
     resetDetails();
     // Add class for CSS styling
@@ -780,7 +783,7 @@ const todoView = () => {
     note.placeholder = 'Add note';
     // Date block of todo
     const date = createElement('input', '#date');
-    const flatCalendar = flatpickr(date, {
+    flatCalendar = flatpickr(date, {
       defaultDate: todo.date,
     });
     date.type = 'text';
