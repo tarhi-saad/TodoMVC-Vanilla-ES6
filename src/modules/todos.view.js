@@ -355,6 +355,19 @@ const todoView = () => {
     else hideModal();
   };
 
+  // Helper todo count function
+  const updateTodoCount = (element, isIncreased) => {
+    if (isIncreased) {
+      element.textContent = Number(element.textContent) + 1;
+      showElement(element);
+      return;
+    }
+
+    element.textContent = Number(element.textContent) - 1;
+
+    if (element.textContent === '0') hideElement(element);
+  };
+
   /**
    *  Display the project by name in an HTML list element
    * @param {number} id id of the project
@@ -532,17 +545,19 @@ const todoView = () => {
     // Indicators block
     const indicators = createElement('div', '.indicators');
 
-    if (todo.note !== '') indicators.append(elements.noteIndicatorFn());
+    // List name indicator for default projects
+    const selectedProject = getElement('.list.selected');
 
-    if (todo.date !== '') {
-      const dateIndicator = elements.dateIndicatorFn();
-      const dateIndicatorLabel = dateIndicator.querySelector(
-        '.date-indicator-label',
+    if (['1', '2', '3', '4'].includes(selectedProject.dataset.index)) {
+      const projectName = getElement(
+        `.list[data-index="${todo.projectID}"] .project-name`,
+      ).textContent;
+      const projectNameIndicator = createElement(
+        'span',
+        '.project-name-indicator',
       );
-      todo.note
-        ? indicators.querySelector('.note-indicator').before(dateIndicator)
-        : indicators.append(dateIndicator);
-      dateIndicatorLabel.innerHTML = getFriendlyDate(todo.date, dateIndicator);
+      projectNameIndicator.textContent = projectName;
+      indicators.append(projectNameIndicator);
     }
 
     const totalSubtasks = todo.getSubTasks().length;
@@ -558,11 +573,24 @@ const todoView = () => {
       });
 
       subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
-      indicators.prepend(subtaskIndicator);
+      indicators.append(subtaskIndicator);
 
       if (totalSubtasks === completedSubtasks) {
         addClass(subtaskIndicator, 'completed');
       }
+    }
+
+    if (todo.note !== '') indicators.append(elements.noteIndicatorFn());
+
+    if (todo.date !== '') {
+      const dateIndicator = elements.dateIndicatorFn();
+      const dateIndicatorLabel = dateIndicator.querySelector(
+        '.date-indicator-label',
+      );
+      todo.note
+        ? indicators.querySelector('.note-indicator').before(dateIndicator)
+        : indicators.append(dateIndicator);
+      dateIndicatorLabel.innerHTML = getFriendlyDate(todo.date, dateIndicator);
     }
 
     if (indicators.children.length > 0) addClass(titleBlock, 'indicator-on');
@@ -720,14 +748,17 @@ const todoView = () => {
    * @param {Object} todo The selected todo object
    */
   const displayDetails = (todo) => {
+    // Do some DOM selections
+    const selectedTodo = getElement(
+      `.todo-item[data-index="${todo.id}"].todo-item[data-project-index="${todo.projectID}"]`,
+    );
+    const selectedProject = getElement('.list.selected');
     // Reset flatpickr
     if (flatCalendar) flatCalendar.destroy();
     // Reset display
     resetDetails();
     // Add class for CSS styling
-    getElement(
-      `.todo-item[data-index="${todo.id}"].todo-item[data-project-index="${todo.projectID}"]`,
-    ).classList.add('selected');
+    selectedTodo.classList.add('selected');
     // Add class to show component
     addClass(elements.detailsView, 'show');
     // If todo is completed, let's disable its details
@@ -793,7 +824,7 @@ const todoView = () => {
     const dateMessage = createElement('span', '.date-message');
     const removeDate = createElement('span', '.remove-date');
     removeDate.insertAdjacentHTML('beforeEnd', removeDateSVG);
-    const indicators = getElement('.todo-list .selected .indicators');
+    const indicators = selectedTodo.querySelector('.indicators');
 
     if (todo.date) {
       dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
@@ -851,7 +882,7 @@ const todoView = () => {
 
     // Helper functions for handlers
     const toggleIndicatorClass = () => {
-      const titleBlock = getElement('.todo-list .selected .title-block');
+      const titleBlock = selectedTodo.querySelector('.title-block');
       indicators.children.length > 0
         ? addClass(titleBlock, 'indicator-on')
         : removeClass(titleBlock, 'indicator-on');
@@ -867,8 +898,7 @@ const todoView = () => {
     const handleNameChange = (e) => {
       const { target } = e;
       todo.title = target.value;
-      elements.todoList.querySelector('.selected .todo-title').textContent =
-        todo.title;
+      selectedTodo.querySelector('.todo-title').textContent = todo.title;
       // Change the height of textarea
       name.style.height = nameHeight; // Reset height to make it responsive also when deleting
       name.style.height =
@@ -892,9 +922,7 @@ const todoView = () => {
           ? noteHeight
           : `${note.scrollHeight}px`;
 
-      const liveNoteIndicator = getElement(
-        '.todo-list .selected .note-indicator',
-      );
+      const liveNoteIndicator = selectedTodo.querySelector('.note-indicator');
 
       if (target.value !== '' && !liveNoteIndicator) {
         indicators.append(elements.noteIndicatorFn());
@@ -907,14 +935,29 @@ const todoView = () => {
 
     const handleDateChange = (e) => {
       const { target } = e;
+
+      // If removeDate button is clicked don't run this function
+      if (!target.value) return;
+
       todo.date = target.value;
       dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
-      addClass(dateLabel, 'is-set');
+
+      // Check if "date" wasn't set before
+      if (!dateLabel.classList.contains('is-set')) {
+        addClass(dateLabel, 'is-set');
+
+        // Update todoCount of "Planned" project
+        const plannedCount = getElement('.list[data-index="4"] .todo-count');
+        updateTodoCount(plannedCount, true);
+
+        // Set back removed list if we are editing in "Planned" project
+        if (selectedProject.dataset.index === '4') {
+          elements.todoList.append(selectedTodo);
+        }
+      }
 
       // Set date indicator
-      const liveDateIndicator = getElement(
-        '.todo-list .selected .date-indicator',
-      );
+      const liveDateIndicator = selectedTodo.querySelector('.date-indicator');
 
       if (todo.date && !liveDateIndicator) {
         const dateIndicator = elements.dateIndicatorFn();
@@ -950,11 +993,16 @@ const todoView = () => {
       removeDate.remove();
 
       // Set date indicator
-      const liveDateIndicator = getElement(
-        '.todo-list .selected .date-indicator',
-      );
+      const liveDateIndicator = selectedTodo.querySelector('.date-indicator');
       liveDateIndicator.remove();
       toggleIndicatorClass();
+
+      // Remove todo if it's in "Planned" project
+      if (selectedProject.dataset.index === '4') selectedTodo.remove();
+
+      // Update todoCount of "Planned" project
+      const plannedCount = getElement('.list[data-index="4"] .todo-count');
+      updateTodoCount(plannedCount, false);
     };
 
     const handlePriorityClick = (e) => {
@@ -967,7 +1015,6 @@ const todoView = () => {
       unselect(list);
       [todo.priority] = flag.classList;
       addClass(flag, 'selected');
-      const selectedTodo = elements.todoList.querySelector('li.selected');
       const priorityClass = `${todo.priority.toLowerCase()}`;
       resetClassList(selectedTodo, ['low', 'medium', 'high']);
       addClass(selectedTodo, priorityClass);
@@ -1008,8 +1055,8 @@ const todoView = () => {
       hideElement(subTasksSubmit);
 
       // Indicator
-      const liveSubtaskIndicatorLabel = getElement(
-        '.todo-list .selected .subtask-indicator-label',
+      const liveSubtaskIndicatorLabel = selectedTodo.querySelector(
+        '.subtask-indicator-label',
       );
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
@@ -1023,7 +1070,13 @@ const todoView = () => {
           '.subtask-indicator-label',
         );
         subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
-        indicators.prepend(subtaskIndicator);
+        const projectNameIndicator = selectedTodo.querySelector(
+          '.project-name-indicator',
+        );
+
+        if (projectNameIndicator) projectNameIndicator.after(subtaskIndicator);
+        else indicators.prepend(subtaskIndicator);
+
         toggleIndicatorClass();
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
@@ -1042,8 +1095,8 @@ const todoView = () => {
       li.remove();
 
       // Indicator
-      const liveSubtaskIndicatorLabel = getElement(
-        '.todo-list .selected .subtask-indicator-label',
+      const liveSubtaskIndicatorLabel = selectedTodo.querySelector(
+        '.subtask-indicator-label',
       );
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
@@ -1076,9 +1129,7 @@ const todoView = () => {
       isComplete ? addClass(li, 'completed') : removeClass(li, 'completed');
 
       // Indicator
-      const subtaskIndicator = getElement(
-        '.todo-list .selected .subtask-indicator',
-      );
+      const subtaskIndicator = selectedTodo.querySelector('.subtask-indicator');
       const liveSubtaskIndicatorLabel = subtaskIndicator.querySelector(
         '.subtask-indicator-label',
       );
@@ -1294,6 +1345,7 @@ const todoView = () => {
     bindSwitchTodo,
     hideElement,
     confirmRemoval,
+    updateTodoCount,
   };
 };
 

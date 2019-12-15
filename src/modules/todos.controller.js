@@ -33,19 +33,42 @@ const todoController = (() => {
 
     view.elements.newTodoInput.value = '';
     const selectedProject = todoApp.getSelectedProject();
-    let todoItems = null;
+    let todo = null;
 
     // If default project then add to "Tasks" list
     if ([1, 2, 3, 4].includes(selectedProject.id)) {
       const defaultProject = todoApp.getProjectByID(5);
       defaultProject.addTodo(todoTitle, 5);
-      todoItems = defaultProject.getItems();
+      const todoItems = defaultProject.getItems();
+      todo = todoItems[todoItems.length - 1];
+
+      switch (selectedProject.id) {
+        case 4:
+          {
+            const date = new Date();
+            const day =
+              `${date.getDate()}`.length === 1
+                ? `0${date.getDate()}`
+                : `${date.getDate()}`;
+            todo.date = `${date.getFullYear()}-${date.getMonth() + 1}-${day}`;
+            // Update todoCount of "Planned" project
+            const plannedCount = document.querySelector(
+              '.list[data-index="4"] .todo-count',
+            );
+            view.updateTodoCount(plannedCount, true);
+          }
+          break;
+
+        default:
+          break;
+      }
     } else {
       selectedProject.addTodo(todoTitle, selectedProject.id);
-      todoItems = selectedProject.getItems();
+      const todoItems = selectedProject.getItems();
+      todo = todoItems[todoItems.length - 1];
     }
 
-    view.addTodo(todoItems[todoItems.length - 1], true);
+    view.addTodo(todo, true);
 
     // Scroll to bottom of the todo list, only when adding a new item
     const { todoList } = view.elements;
@@ -63,6 +86,18 @@ const todoController = (() => {
         target.closest('.todo-item').dataset.projectIndex,
       );
       const project = todoApp.getProjectByID(projectID);
+
+      // Update "Planned" todoCount if date is set
+      const todo = project.getItemByID(todoID);
+      const plannedCount = document.querySelector(
+        '.list[data-index="4"] .todo-count',
+      );
+
+      if (todo.date && !todo.isComplete) {
+        view.updateTodoCount(plannedCount, false);
+      }
+
+      // Remove todo
       project.removeTodo(todoID);
       view.removeTodo(todoID, projectID);
     };
@@ -96,6 +131,14 @@ const todoController = (() => {
       target.id,
       projectID,
     );
+
+    // Update "Planned" todoCount if date is set
+    const todo = project.getItemByID(todoID);
+    const plannedCount = document.querySelector(
+      '.list[data-index="4"] .todo-count',
+    );
+
+    if (todo.date) view.updateTodoCount(plannedCount, !todo.isComplete);
   };
 
   const handleAddList = (e) => {
@@ -149,6 +192,16 @@ const todoController = (() => {
         todoApp
           .getProjects()
           .forEach((project) => items.push(...project.getItems()));
+        view.displayTodos(items);
+        break;
+
+      // Planned case
+      case '4':
+        todoApp.getProjects().forEach((project) => {
+          project.getItems().forEach((item) => {
+            if (item.date) items.push(item);
+          });
+        });
         view.displayTodos(items);
         break;
 
