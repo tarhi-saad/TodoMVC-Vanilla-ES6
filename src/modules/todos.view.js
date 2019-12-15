@@ -1346,6 +1346,7 @@ const todoView = () => {
     hideElement,
     confirmRemoval,
     updateTodoCount,
+    resetDetails,
   };
 };
 

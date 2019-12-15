@@ -298,10 +298,14 @@ const todoController = (() => {
     const selectedTodo = document.querySelector('.todo-list .selected');
     const todoItem = target.closest('.todo-item');
 
-    if (
-      todoItem === selectedTodo ||
-      (target.tagName !== 'LI' && !target.closest('.title-block'))
-    ) {
+    if (target.tagName !== 'LI' && !target.closest('.title-block')) {
+      return;
+    }
+
+    if (todoItem === selectedTodo) {
+      view.resetDetails();
+      todoItem.classList.remove('selected');
+      view.elements.detailsView.classList.remove('show');
       return;
     }
 
