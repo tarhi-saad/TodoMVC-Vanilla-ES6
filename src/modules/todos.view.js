@@ -678,6 +678,26 @@ const todoView = () => {
   };
 
   const removeProject = (id) => {
+    // Remove all of its tasks if the selected project is a default one
+    const selectedProject = getElement('.list.selected');
+    const index = Number(selectedProject.dataset.index);
+    const defaultIndexes = [1, 2, 3, 4];
+
+    if (defaultIndexes.includes(index)) {
+      const tasks = elements.todoList.querySelectorAll('.todo-item');
+      const todoCount = selectedProject.querySelector('.todo-count');
+      Array.from(tasks).forEach((todo) => {
+        const projectIndex = Number(todo.dataset.projectIndex);
+        if (projectIndex === id) {
+          todo.remove();
+
+          if (todo.classList.contains('completed')) {
+            updateTodoCount(todoCount, false);
+          }
+        }
+      });
+    }
+
     getElement(`.list[data-index="${id}"]`).remove();
   };
 
