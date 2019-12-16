@@ -43,6 +43,17 @@ const todoController = (() => {
       todo = todoItems[todoItems.length - 1];
 
       switch (selectedProject.id) {
+        case 3:
+          {
+            todo.isImportant = true;
+            // Update todoCount of "Important" project
+            const importantCount = document.querySelector(
+              '.list[data-index="3"] .todo-count',
+            );
+            view.updateTodoCount(importantCount, true);
+          }
+          break;
+
         case 4:
           {
             const date = new Date();
@@ -87,14 +98,21 @@ const todoController = (() => {
       );
       const project = todoApp.getProjectByID(projectID);
 
-      // Update "Planned" todoCount if date is set
+      // Update "Planned/Important" todoCounts if date/important is set
       const todo = project.getItemByID(todoID);
       const plannedCount = document.querySelector(
         '.list[data-index="4"] .todo-count',
       );
+      const ImportantCount = document.querySelector(
+        '.list[data-index="3"] .todo-count',
+      );
 
       if (todo.date && !todo.isComplete) {
         view.updateTodoCount(plannedCount, false);
+      }
+
+      if (todo.isImportant && !todo.isComplete) {
+        view.updateTodoCount(ImportantCount, false);
       }
 
       // Remove todo
@@ -132,13 +150,20 @@ const todoController = (() => {
       projectID,
     );
 
-    // Update "Planned" todoCount if date is set
+    // Update "Planned/Important" todoCounts if date/important is set
     const todo = project.getItemByID(todoID);
     const plannedCount = document.querySelector(
       '.list[data-index="4"] .todo-count',
     );
+    const importantCount = document.querySelector(
+      '.list[data-index="3"] .todo-count',
+    );
 
     if (todo.date) view.updateTodoCount(plannedCount, !todo.isComplete);
+
+    if (todo.isImportant) {
+      view.updateTodoCount(importantCount, !todo.isComplete);
+    }
   };
 
   const handleAddList = (e) => {
@@ -192,6 +217,16 @@ const todoController = (() => {
         todoApp
           .getProjects()
           .forEach((project) => items.push(...project.getItems()));
+        view.displayTodos(items);
+        break;
+
+      // Important case
+      case '3':
+        todoApp.getProjects().forEach((project) => {
+          project.getItems().forEach((item) => {
+            if (item.isImportant) items.push(item);
+          });
+        });
         view.displayTodos(items);
         break;
 

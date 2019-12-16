@@ -100,7 +100,8 @@ $line-spacing: 48px;
           .note-indicator,
           .date-indicator,
           .subtask-indicator,
-          .project-name-indicator {
+          .project-name-indicator,
+          .important-indicator {
             color: $grey-color;
             display: flex;
             font-size: 12px;
@@ -160,6 +161,15 @@ $line-spacing: 48px;
           .subtask-indicator.completed {
             svg {
               display: inherit;
+            }
+          }
+
+          .important-indicator {
+            height: 18px;
+
+            svg {
+              fill: $base-color;
+              width: 14px;
             }
           }
         }
@@ -272,7 +282,8 @@ $line-spacing: 48px;
           .date-indicator.overdue,
           .date-indicator.today,
           .subtask-indicator,
-          .project-name-indicator {
+          .project-name-indicator,
+          .important-indicator {
             color: $second-color-darker;
 
             svg {

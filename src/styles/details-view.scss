@@ -35,13 +35,56 @@
   }
 
   .name-block {
+    align-items: center;
     border-bottom: none;
+    display: flex;
     margin-bottom: 0;
     padding-bottom: 0;
 
     textarea.name-details {
       height: 30px;
       font-weight: 500;
+    }
+
+    .important-block {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+
+      label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: pointer;
+
+        svg {
+          fill: $second-color-darker;
+          width: 18px;
+          transition: fill 0.3s ease;
+        }
+
+        &:hover {
+          svg {
+            fill: $grey-color;
+          }
+        }
+      }
+
+      #important-check {
+        height: 0;
+        opacity: 0;
+        width: 0;
+      }
+
+      &.important {
+        label {
+          svg {
+            fill: $base-color;
+          }
+        }
+      }
     }
   }
 

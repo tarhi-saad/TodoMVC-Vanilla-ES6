@@ -51,6 +51,7 @@ const todoItem = (title) => {
     priority: 'Low',
     note: '',
     isComplete: false,
+    isImportant: false,
     getSubTasks,
     addSubTask,
     removeSubTask,
@@ -137,7 +138,7 @@ const todoApp = (() => {
   const defaultStores = [
     todoStore('All Tasks'),
     todoStore('My Day'),
-    todoStore('Important'),
+    todoStore('Bookmarked'),
     todoStore('Planned'),
     todoStore('Tasks'),
   ];

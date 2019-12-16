@@ -237,6 +237,14 @@ const initializeDOMElements = () => {
     return subtaskIndicator;
   };
 
+  /* Important indicator */
+  const importantIndicatorFn = () => {
+    const importantIndicator = createElement('span', '.important-indicator');
+    importantIndicator.insertAdjacentHTML('beforeEnd', importantSVG);
+
+    return importantIndicator;
+  };
+
   // Append elements
   newList.append(newListLabel, newListInput, newListSubmit);
   listsMenu.append(lists, newList);
@@ -331,6 +339,7 @@ const initializeDOMElements = () => {
     noteIndicatorFn,
     dateIndicatorFn,
     subtaskIndicatorFn,
+    importantIndicatorFn,
     menuButton,
     overlay,
   };
@@ -366,6 +375,50 @@ const todoView = () => {
     element.textContent = Number(element.textContent) - 1;
 
     if (element.textContent === '0') hideElement(element);
+  };
+
+  // Helper reorder indicators
+  const appendIndicator = (indicator) => {
+    const indicators = getElement('.todo-item.selected .indicators');
+    const classes = [
+      'project-name-indicator',
+      'subtask-indicator',
+      'date-indicator',
+      'note-indicator',
+      'important-indicator',
+    ];
+    const listName = indicators.querySelector(`.${classes[0]}`);
+    // const subTask = indicators.querySelector(`.${classes[1]}`);
+    // const date = indicators.querySelector(`.${classes[2]}`);
+    const note = indicators.querySelector(`.${classes[3]}`);
+    const bookmark = indicators.querySelector(`.${classes[4]}`);
+
+    switch (indicator.className) {
+      case classes[0]:
+        indicators.prepend(indicator);
+        break;
+
+      case classes[1]:
+        listName ? listName.after(indicator) : indicators.prepend(indicator);
+        break;
+
+      case classes[2]:
+        if (note) note.before(indicator);
+        else if (bookmark) bookmark.before(indicator);
+        else indicators.append(indicator);
+        break;
+
+      case classes[3]:
+        bookmark ? bookmark.before(indicator) : indicators.append(indicator);
+        break;
+
+      case classes[4]:
+        indicators.append(indicator);
+        break;
+
+      default:
+        break;
+    }
   };
 
   /**
@@ -580,18 +633,18 @@ const todoView = () => {
       }
     }
 
-    if (todo.note !== '') indicators.append(elements.noteIndicatorFn());
-
     if (todo.date !== '') {
       const dateIndicator = elements.dateIndicatorFn();
       const dateIndicatorLabel = dateIndicator.querySelector(
         '.date-indicator-label',
       );
-      todo.note
-        ? indicators.querySelector('.note-indicator').before(dateIndicator)
-        : indicators.append(dateIndicator);
+      indicators.append(dateIndicator);
       dateIndicatorLabel.innerHTML = getFriendlyDate(todo.date, dateIndicator);
     }
+
+    if (todo.note !== '') indicators.append(elements.noteIndicatorFn());
+
+    if (todo.isImportant) indicators.append(elements.importantIndicatorFn());
 
     if (indicators.children.length > 0) addClass(titleBlock, 'indicator-on');
 
@@ -786,8 +839,24 @@ const todoView = () => {
     else removeClass(elements.detailsView, 'disabled');
     // Name block of todo
     const name = createElement('textarea', '.name-details');
+    const nameBlock = wrap(name, 'name-block');
     name.maxLength = 255;
     name.value = todo.title;
+    // Important checkbox
+    const importantBlock = createElement('span', '.important-block');
+    const importantInput = createElement('input', '#important-check');
+    const importantLabel = createElement('label');
+    importantInput.type = 'checkbox';
+    importantLabel.htmlFor = 'important-check';
+    importantLabel.insertAdjacentHTML('beforeEnd', importantSVG);
+    importantBlock.append(importantLabel, importantInput);
+    nameBlock.append(importantBlock);
+
+    if (todo.isImportant) {
+      addClass(importantBlock, 'important');
+      importantInput.checked = true;
+    }
+
     // Sub Tasks block
     const subTasksForm = createElement('form');
     const subTasksInput = createElement('input', '#newSubTask');
@@ -888,7 +957,7 @@ const todoView = () => {
     priorityBlock.append(priorityTitle, priorityList);
     // Append to details block
     elements.detailsView.append(
-      wrap(name, 'name-block'),
+      nameBlock,
       subTasksBlock,
       dateBlock,
       priorityBlock,
@@ -945,7 +1014,7 @@ const todoView = () => {
       const liveNoteIndicator = selectedTodo.querySelector('.note-indicator');
 
       if (target.value !== '' && !liveNoteIndicator) {
-        indicators.append(elements.noteIndicatorFn());
+        appendIndicator(elements.noteIndicatorFn());
         toggleIndicatorClass();
       } else if (target.value === '' && liveNoteIndicator) {
         liveNoteIndicator.remove();
@@ -981,11 +1050,7 @@ const todoView = () => {
 
       if (todo.date && !liveDateIndicator) {
         const dateIndicator = elements.dateIndicatorFn();
-
-        todo.note
-          ? indicators.querySelector('.note-indicator').before(dateIndicator)
-          : indicators.append(dateIndicator);
-
+        appendIndicator(dateIndicator);
         dateIndicator.querySelector(
           '.date-indicator-label',
         ).innerHTML = getFriendlyDate(todo.date, dateIndicator);
@@ -1090,13 +1155,7 @@ const todoView = () => {
           '.subtask-indicator-label',
         );
         subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
-        const projectNameIndicator = selectedTodo.querySelector(
-          '.project-name-indicator',
-        );
-
-        if (projectNameIndicator) projectNameIndicator.after(subtaskIndicator);
-        else indicators.prepend(subtaskIndicator);
-
+        appendIndicator(subtaskIndicator);
         toggleIndicatorClass();
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
@@ -1229,6 +1288,38 @@ const todoView = () => {
       off(elements.overlay, 'click', handleOverlayClick);
     };
 
+    const handleImportantClick = () => {
+      const importantCount = getElement('.list[data-index="3"] .todo-count');
+      todo.isImportant = !importantInput.checked;
+      importantInput.checked
+        ? removeClass(importantBlock, 'important')
+        : addClass(importantBlock, 'important');
+
+      if (importantInput.checked) {
+        removeClass(importantBlock, 'important');
+        selectedTodo.querySelector('.important-indicator').remove();
+        toggleIndicatorClass();
+
+        // Update todoCount of "Important" project
+        updateTodoCount(importantCount, false);
+
+        // If we are editing in "Important" project then remove todo
+        if (selectedProject.dataset.index === '3') selectedTodo.remove();
+      } else {
+        addClass(importantBlock, 'important');
+        indicators.append(elements.importantIndicatorFn());
+        toggleIndicatorClass();
+
+        // Update todoCount of "Important" project
+        updateTodoCount(importantCount, true);
+
+        // If we are still editing in "Important" project then append todo
+        if (selectedProject.dataset.index === '3') {
+          elements.todoList.append(selectedTodo);
+        }
+      }
+    };
+
     // Set event listeners
     on(name, 'input', handleNameChange);
     on(note, 'input', handleNoteChange);
@@ -1243,6 +1334,7 @@ const todoView = () => {
     on(elements.overlay, 'click', handleOverlayClick);
     on(window, 'resize', handleResize);
     on(elements.menuButton, 'click', handleMenuClick);
+    on(importantLabel, 'click', handleImportantClick);
   };
 
   // Listen to modal
