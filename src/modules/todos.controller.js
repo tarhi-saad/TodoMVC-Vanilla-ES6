@@ -10,6 +10,10 @@ const todoController = (() => {
     const projects = todoApp.getProjects();
     const { lists } = view.elements;
     view.empty(lists);
+
+    // Default project items
+    const defaultItems = [];
+    const selectedID = todoApp.getSelectedProject().id;
     projects.forEach((project, index) => {
       const { id } = project;
       const name = project.getName();
@@ -18,8 +22,43 @@ const todoController = (() => {
 
       view.displayList(id, name, items, isSelected);
 
-      if (isSelected) view.displayTodos(items);
+      switch (selectedID) {
+        // All tasks case
+        case 1:
+          defaultItems.push(...items);
+          break;
+
+        // My Day case
+        case 2:
+          items.forEach((item) => {
+            if (item.isMyDay) defaultItems.push(item);
+          });
+          break;
+
+        // Important case
+        case 3:
+          items.forEach((item) => {
+            if (item.isImportant) defaultItems.push(item);
+          });
+          break;
+
+        // Planned case
+        case 4:
+          items.forEach((item) => {
+            if (item.date) defaultItems.push(item);
+          });
+          break;
+
+        default:
+          if (isSelected) {
+            view.displayTodos(items);
+          }
+          break;
+      }
     });
+
+    // Display todos if a default project is selected
+    if ([1, 2, 3, 4].includes(selectedID)) view.displayTodos(defaultItems);
   };
 
   // Instantiate todoView factory
