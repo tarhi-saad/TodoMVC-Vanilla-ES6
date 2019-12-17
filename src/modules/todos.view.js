@@ -387,8 +387,12 @@ const todoView = () => {
   };
 
   // Helper reorder indicators
-  const appendIndicator = (indicator) => {
-    const indicators = getElement('.todo-item.selected .indicators');
+  const appendIndicator = (indicator, todo) => {
+    let indicators = null;
+
+    if (todo) indicators = todo.querySelector('.indicators');
+    else indicators = getElement('.todo-item.selected .indicators');
+
     const classes = [
       'project-name-indicator',
       'my-day-indicator',
@@ -1048,7 +1052,7 @@ const todoView = () => {
       const liveNoteIndicator = selectedTodo.querySelector('.note-indicator');
 
       if (target.value !== '' && !liveNoteIndicator) {
-        appendIndicator(elements.noteIndicatorFn());
+        appendIndicator(elements.noteIndicatorFn(), selectedTodo);
         toggleIndicatorClass();
       } else if (target.value === '' && liveNoteIndicator) {
         liveNoteIndicator.remove();
@@ -1084,7 +1088,7 @@ const todoView = () => {
 
       if (todo.date && !liveDateIndicator) {
         const dateIndicator = elements.dateIndicatorFn();
-        appendIndicator(dateIndicator);
+        appendIndicator(dateIndicator, selectedTodo);
         dateIndicator.querySelector(
           '.date-indicator-label',
         ).innerHTML = getFriendlyDate(todo.date, dateIndicator);
@@ -1189,7 +1193,7 @@ const todoView = () => {
           '.subtask-indicator-label',
         );
         subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
-        appendIndicator(subtaskIndicator);
+        appendIndicator(subtaskIndicator, selectedTodo);
         toggleIndicatorClass();
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
@@ -1356,6 +1360,7 @@ const todoView = () => {
 
     const handleMyDayClick = (e) => {
       const { target } = e;
+      const myDayCount = getElement('.list[data-index="2"] .todo-count');
 
       if (target.closest('.remove-my-day') || todo.isMyDay) return;
 
@@ -1364,11 +1369,20 @@ const todoView = () => {
       myDayText.textContent = 'Added to My Day';
 
       // Add indicator
-      appendIndicator(elements.myDayIndicatorFn());
+      appendIndicator(elements.myDayIndicatorFn(), selectedTodo);
       toggleIndicatorClass();
+
+      // Update todoCount of "Important" project
+      updateTodoCount(myDayCount, true);
+
+      // If we are still editing in "Important" project then append todo
+      if (selectedProject.dataset.index === '2') {
+        elements.todoList.append(selectedTodo);
+      }
     };
 
     const handleRemoveMyDayClick = () => {
+      const myDayCount = getElement('.list[data-index="2"] .todo-count');
       todo.isMyDay = false;
       removeClass(myDay, 'added');
       myDayText.textContent = 'Add to My Day';
@@ -1376,6 +1390,12 @@ const todoView = () => {
       // Remove indicator
       selectedTodo.querySelector('.my-day-indicator').remove();
       toggleIndicatorClass();
+
+      // Update todoCount of "Important" project
+      updateTodoCount(myDayCount, false);
+
+      // If we are editing in "Important" project then remove todo
+      if (selectedProject.dataset.index === '2') selectedTodo.remove();
     };
 
     // Set event listeners

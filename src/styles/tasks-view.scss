@@ -170,13 +170,17 @@ $line-spacing: 48px;
 
             svg {
               fill: $base-color;
+              margin-right: 0;
               width: 14px;
             }
           }
 
           .my-day-indicator {
+            height: 18px;
+
             svg {
               fill: $base-color;
+              margin-right: 0;
               width: 14px;
             }
           }
@@ -291,7 +295,8 @@ $line-spacing: 48px;
           .date-indicator.today,
           .subtask-indicator,
           .project-name-indicator,
-          .important-indicator {
+          .important-indicator,
+          .my-day-indicator {
             color: $second-color-darker;
 
             svg {

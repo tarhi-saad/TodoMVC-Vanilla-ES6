@@ -43,6 +43,17 @@ const todoController = (() => {
       todo = todoItems[todoItems.length - 1];
 
       switch (selectedProject.id) {
+        case 2:
+          {
+            todo.isMyDay = true;
+            // Update todoCount of "myDay" project
+            const myDayCount = document.querySelector(
+              '.list[data-index="2"] .todo-count',
+            );
+            view.updateTodoCount(myDayCount, true);
+          }
+          break;
+
         case 3:
           {
             todo.isImportant = true;
@@ -98,13 +109,16 @@ const todoController = (() => {
       );
       const project = todoApp.getProjectByID(projectID);
 
-      // Update "Planned/Important" todoCounts if date/important is set
+      // Update "Planned/Important/MyDay" todoCounts if date/important/myDay is set
       const todo = project.getItemByID(todoID);
       const plannedCount = document.querySelector(
         '.list[data-index="4"] .todo-count',
       );
-      const ImportantCount = document.querySelector(
+      const importantCount = document.querySelector(
         '.list[data-index="3"] .todo-count',
+      );
+      const myDayCount = document.querySelector(
+        '.list[data-index="2"] .todo-count',
       );
 
       if (todo.date && !todo.isComplete) {
@@ -112,7 +126,11 @@ const todoController = (() => {
       }
 
       if (todo.isImportant && !todo.isComplete) {
-        view.updateTodoCount(ImportantCount, false);
+        view.updateTodoCount(importantCount, false);
+      }
+
+      if (todo.isMyDay && !todo.isComplete) {
+        view.updateTodoCount(myDayCount, false);
       }
 
       // Remove todo
@@ -150,7 +168,7 @@ const todoController = (() => {
       projectID,
     );
 
-    // Update "Planned/Important" todoCounts if date/important is set
+    // Update "Planned/Important/MyDay" todoCounts if date/important/myDay is set
     const todo = project.getItemByID(todoID);
     const plannedCount = document.querySelector(
       '.list[data-index="4"] .todo-count',
@@ -158,11 +176,18 @@ const todoController = (() => {
     const importantCount = document.querySelector(
       '.list[data-index="3"] .todo-count',
     );
+    const myDayCount = document.querySelector(
+      '.list[data-index="2"] .todo-count',
+    );
 
     if (todo.date) view.updateTodoCount(plannedCount, !todo.isComplete);
 
     if (todo.isImportant) {
       view.updateTodoCount(importantCount, !todo.isComplete);
+    }
+
+    if (todo.isMyDay) {
+      view.updateTodoCount(myDayCount, !todo.isComplete);
     }
   };
 
@@ -217,6 +242,16 @@ const todoController = (() => {
         todoApp
           .getProjects()
           .forEach((project) => items.push(...project.getItems()));
+        view.displayTodos(items);
+        break;
+
+      // My Day case
+      case '2':
+        todoApp.getProjects().forEach((project) => {
+          project.getItems().forEach((item) => {
+            if (item.isMyDay) items.push(item);
+          });
+        });
         view.displayTodos(items);
         break;
 
