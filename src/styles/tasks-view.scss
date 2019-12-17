@@ -101,7 +101,8 @@ $line-spacing: 48px;
           .date-indicator,
           .subtask-indicator,
           .project-name-indicator,
-          .important-indicator {
+          .important-indicator,
+          .my-day-indicator {
             color: $grey-color;
             display: flex;
             font-size: 12px;
@@ -167,6 +168,13 @@ $line-spacing: 48px;
           .important-indicator {
             height: 18px;
 
+            svg {
+              fill: $base-color;
+              width: 14px;
+            }
+          }
+
+          .my-day-indicator {
             svg {
               fill: $base-color;
               width: 14px;

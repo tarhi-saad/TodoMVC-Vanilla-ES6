@@ -245,6 +245,14 @@ const initializeDOMElements = () => {
     return importantIndicator;
   };
 
+  /* "My Day" indicator */
+  const myDayIndicatorFn = () => {
+    const myDayIndicator = createElement('span', '.my-day-indicator');
+    myDayIndicator.insertAdjacentHTML('beforeEnd', daySVG);
+
+    return myDayIndicator;
+  };
+
   // Append elements
   newList.append(newListLabel, newListInput, newListSubmit);
   listsMenu.append(lists, newList);
@@ -340,6 +348,7 @@ const initializeDOMElements = () => {
     dateIndicatorFn,
     subtaskIndicatorFn,
     importantIndicatorFn,
+    myDayIndicatorFn,
     menuButton,
     overlay,
   };
@@ -382,16 +391,16 @@ const todoView = () => {
     const indicators = getElement('.todo-item.selected .indicators');
     const classes = [
       'project-name-indicator',
+      'my-day-indicator',
       'subtask-indicator',
       'date-indicator',
       'note-indicator',
       'important-indicator',
     ];
     const listName = indicators.querySelector(`.${classes[0]}`);
-    // const subTask = indicators.querySelector(`.${classes[1]}`);
-    // const date = indicators.querySelector(`.${classes[2]}`);
-    const note = indicators.querySelector(`.${classes[3]}`);
-    const bookmark = indicators.querySelector(`.${classes[4]}`);
+    const day = indicators.querySelector(`.${classes[1]}`);
+    const note = indicators.querySelector(`.${classes[4]}`);
+    const bookmark = indicators.querySelector(`.${classes[5]}`);
 
     switch (indicator.className) {
       case classes[0]:
@@ -403,16 +412,22 @@ const todoView = () => {
         break;
 
       case classes[2]:
+        if (day) day.after(indicator);
+        else if (listName) listName.after(indicator);
+        else indicators.prepend(indicator);
+        break;
+
+      case classes[3]:
         if (note) note.before(indicator);
         else if (bookmark) bookmark.before(indicator);
         else indicators.append(indicator);
         break;
 
-      case classes[3]:
+      case classes[4]:
         bookmark ? bookmark.before(indicator) : indicators.append(indicator);
         break;
 
-      case classes[4]:
+      case classes[5]:
         indicators.append(indicator);
         break;
 
@@ -612,6 +627,8 @@ const todoView = () => {
       projectNameIndicator.textContent = projectName;
       indicators.append(projectNameIndicator);
     }
+
+    if (todo.isMyDay) indicators.append(elements.myDayIndicatorFn());
 
     const totalSubtasks = todo.getSubTasks().length;
 
@@ -1345,12 +1362,20 @@ const todoView = () => {
       todo.isMyDay = true;
       addClass(myDay, 'added');
       myDayText.textContent = 'Added to My Day';
+
+      // Add indicator
+      appendIndicator(elements.myDayIndicatorFn());
+      toggleIndicatorClass();
     };
 
     const handleRemoveMyDayClick = () => {
       todo.isMyDay = false;
       removeClass(myDay, 'added');
       myDayText.textContent = 'Add to My Day';
+
+      // Remove indicator
+      selectedTodo.querySelector('.my-day-indicator').remove();
+      toggleIndicatorClass();
     };
 
     // Set event listeners
