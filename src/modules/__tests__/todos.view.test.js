@@ -82,6 +82,7 @@ describe('\n => todoView', () => {
       view.displayTodos([
         {
           id: 1,
+          projectID: 1,
           title: 'awesome todo title',
           isComplete: true,
           priority: 'Low',
@@ -96,6 +97,7 @@ describe('\n => todoView', () => {
       const todos = [
         {
           id: 1,
+          projectID: 1,
           title: 'Todo 1',
           isComplete: true,
           priority: 'Low',
@@ -103,6 +105,7 @@ describe('\n => todoView', () => {
         },
         {
           id: 2,
+          projectID: 1,
           title: 'Todo 2',
           isComplete: true,
           priority: 'Low',
@@ -110,6 +113,7 @@ describe('\n => todoView', () => {
         },
         {
           id: 3,
+          projectID: 1,
           title: 'Todo 3',
           isComplete: true,
           priority: 'Low',
@@ -126,6 +130,7 @@ describe('\n => todoView', () => {
       view.displayTodos([
         {
           id: 1,
+          projectID: 1,
           title: 'My awesome todo',
           isComplete: true,
           priority: 'Low',
@@ -136,9 +141,9 @@ describe('\n => todoView', () => {
       expect(document.querySelector('.todo-list .todo-title').innerHTML).toBe(
         'My awesome todo',
       );
-      expect(document.querySelector('.todo-list #todo-checkbox1').checked).toBe(
-        true,
-      );
+      expect(
+        document.querySelector('.todo-list #todo-checkbox11').checked,
+      ).toBe(true);
       expect(
         document.querySelector('.todo-list .todo-item').dataset.index,
       ).toBe('1');
@@ -160,6 +165,7 @@ describe('\n => todoView', () => {
       view.displayTodos([
         {
           id: 1,
+          projectID: 1,
           title: 'My awesome todo',
           isComplete: true,
           priority: 'Low',
@@ -170,6 +176,7 @@ describe('\n => todoView', () => {
       view.displayTodos([
         {
           id: 1,
+          projectID: 1,
           title: 'My awesome todo',
           isComplete: true,
           priority: 'Low',
@@ -177,6 +184,7 @@ describe('\n => todoView', () => {
         },
         {
           id: 2,
+          projectID: 1,
           title: 'My second awesome todo',
           isComplete: false,
           priority: 'Low',
