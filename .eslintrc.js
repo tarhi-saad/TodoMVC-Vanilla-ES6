@@ -2,6 +2,7 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
+    jest: true,
   },
   extends: 'airbnb-base',
   globals: {
@@ -24,5 +25,9 @@ module.exports = {
         peerDependencies: false,
       },
     ],
+    'operator-linebreak': ['off'],
+    'object-curly-newline': ['off'],
+    'implicit-arrow-linebreak': ['off'],
+    'no-unused-expressions': ['error', { allowTernary: true }],
   },
 };

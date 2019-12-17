@@ -64,17 +64,17 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|svg|jpg|gif)$/,
+        test: /\.(png|jpg|gif)$/,
         loader: 'file-loader',
         options: {
           name: '[name].[contenthash].[ext]',
           outputPath: 'assets/images',
         },
       },
-      // {
-      //   test: /\.svg$/,
-      //   loader: 'svg-inline-loader',
-      // },
+      {
+        test: /\.svg$/,
+        loader: 'svg-inline-loader',
+      },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
         loader: 'file-loader',

@@ -1,0 +1,84 @@
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: $second-color-darker;
+  border-radius: 8px;
+}
+
+* {
+  user-select: none;
+}
+
+body {
+  background: $white-smoke;
+  color: $text-color;
+  font-family: 'Roboto', sans-serif;
+  font-size: $font-size;
+}
+
+.show {
+  display: block !important;
+}
+
+.hide {
+  display: none !important;
+}
+
+#root {
+  height: 100vh;
+  display: grid;
+  grid-template-areas: 'header';
+  grid-template-columns: auto;
+  margin-left: 55px;
+  grid-template-rows: auto 1fr;
+  position: relative;
+
+  @media screen and (min-width: $breakpoint-sm) {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'header header header';
+    margin-left: 0;
+  }
+
+  li {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    min-height: 2.6rem;
+    overflow: hidden;
+    position: relative;
+
+    .delete-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      position: absolute;
+      right: 9px;
+      top: calc(50% - 9px);
+      width: 18px;
+      opacity: 0;
+      transform: translateX(27px);
+      transition: transform 0.3s ease, opacity 0.3s;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    &:hover .delete-btn {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  li.selected {
+  }
+}
