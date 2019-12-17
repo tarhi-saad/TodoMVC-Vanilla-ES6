@@ -5,7 +5,7 @@ import listSVG from '../images/list.svg';
 import arrowSVG from '../images/arrow.svg';
 import checkSVG from '../images/check.svg';
 import emptyStateSVG from '../images/empty-state.svg';
-import removeDateSVG from '../images/remove-date.svg';
+import removeSVG from '../images/remove.svg';
 import prioritySVG from '../images/priority.svg';
 import calendarSVG from '../images/calendar.svg';
 import noteSVG from '../images/note.svg';
@@ -912,7 +912,7 @@ const todoView = () => {
     dateLabel.htmlFor = 'date';
     const dateMessage = createElement('span', '.date-message');
     const removeDate = createElement('span', '.remove-date');
-    removeDate.insertAdjacentHTML('beforeEnd', removeDateSVG);
+    removeDate.insertAdjacentHTML('beforeEnd', removeSVG);
     const indicators = selectedTodo.querySelector('.indicators');
 
     if (todo.date) {
@@ -938,6 +938,22 @@ const todoView = () => {
 
     if (dateLabel.classList.contains('is-set')) dateBlock.append(removeDate);
 
+    // My Day block of todo
+    const myDay = createElement('div', '.my-day');
+    const myDayText = createElement('span', '.my-day-text');
+    const removeMyDay = createElement('span', '.remove-my-day');
+    removeMyDay.insertAdjacentHTML('beforeEnd', removeSVG);
+    myDay.append(myDayText, removeMyDay);
+    myDay.insertAdjacentHTML('afterBegin', daySVG);
+
+    if (todo.isMyDay) {
+      addClass(myDay, 'added');
+      myDayText.textContent = 'Added to My Day';
+    } else {
+      removeClass(myDay, 'added');
+      myDayText.textContent = 'Add to My Day';
+    }
+
     // Priority block of todo
     const priorityBlock = createElement('div', '.priority-block');
     const priorityTitle = createElement('h2');
@@ -959,6 +975,7 @@ const todoView = () => {
     elements.detailsView.append(
       nameBlock,
       subTasksBlock,
+      myDay,
       dateBlock,
       priorityBlock,
       wrap(note, 'note-block'),
@@ -1320,6 +1337,22 @@ const todoView = () => {
       }
     };
 
+    const handleMyDayClick = (e) => {
+      const { target } = e;
+
+      if (target.closest('.remove-my-day') || todo.isMyDay) return;
+
+      todo.isMyDay = true;
+      addClass(myDay, 'added');
+      myDayText.textContent = 'Added to My Day';
+    };
+
+    const handleRemoveMyDayClick = () => {
+      todo.isMyDay = false;
+      removeClass(myDay, 'added');
+      myDayText.textContent = 'Add to My Day';
+    };
+
     // Set event listeners
     on(name, 'input', handleNameChange);
     on(note, 'input', handleNoteChange);
@@ -1335,6 +1368,8 @@ const todoView = () => {
     on(window, 'resize', handleResize);
     on(elements.menuButton, 'click', handleMenuClick);
     on(importantLabel, 'click', handleImportantClick);
+    on(myDay, 'click', handleMyDayClick);
+    on(removeMyDay, 'click', handleRemoveMyDayClick);
   };
 
   // Listen to modal

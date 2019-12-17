@@ -52,6 +52,7 @@ const todoItem = (title) => {
     note: '',
     isComplete: false,
     isImportant: false,
+    isMyDay: false,
     getSubTasks,
     addSubTask,
     removeSubTask,
