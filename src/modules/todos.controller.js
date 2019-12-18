@@ -14,6 +14,10 @@ const todoController = (() => {
     // Default project items
     const defaultItems = [];
     const selectedID = todoApp.getSelectedProject().id;
+
+    // To check if it's a new day
+    let newDay = false;
+
     projects.forEach((project, index) => {
       const { id } = project;
       const name = project.getName();
@@ -54,6 +58,22 @@ const todoController = (() => {
             view.displayTodos(items);
           }
           break;
+      }
+
+      // Clean slot for My Day project if it's a new day
+      const currentDate = new Date(view.getConvertedCurrentDate());
+      const MSDay = 1000 * 60 * 60 * 24;
+      const myDayProject = todoApp.getProjectByID(2);
+
+      if (currentDate - myDayProject.date >= MSDay) {
+        myDayProject.date = currentDate;
+        newDay = true;
+      }
+
+      if (newDay) {
+        items.forEach((item) => {
+          if (item.isMyDay) item.isMyDay = false;
+        });
       }
     });
 
@@ -268,6 +288,26 @@ const todoController = (() => {
     selectedList.classList.remove('selected');
     todoApp.setSelected(projectIndex);
     list.classList.add('selected');
+
+    // Clean slot for My Day project if it's a new day
+    const currentDate = new Date(view.getConvertedCurrentDate());
+    const MSDay = 1000 * 60 * 60 * 24;
+    const myDayProject = todoApp.getProjectByID(2);
+    let newDay = false;
+
+    if (currentDate - myDayProject.date >= MSDay) {
+      myDayProject.date = currentDate;
+      newDay = true;
+    }
+
+    if (newDay) {
+      todoApp.getProjects().forEach((project) => {
+        project.getItems().forEach((item) => {
+          if (item.isMyDay) item.isMyDay = false;
+        });
+      });
+    }
+
     const items = [];
 
     switch (list.dataset.index) {

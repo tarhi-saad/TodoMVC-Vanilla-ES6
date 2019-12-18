@@ -146,6 +146,7 @@ const todoApp = (() => {
   ];
   defaultStores[0].id = 1;
   defaultStores[1].id = 2;
+  defaultStores[1].date = 0;
   defaultStores[2].id = 3;
   defaultStores[3].id = 4;
   defaultStores[4].id = 5;
