@@ -1,5 +1,6 @@
 .details-view {
   background: $white-smoke;
+  margin-bottom: 40px;
   width: 0;
 
   div {
@@ -523,6 +524,24 @@
       }
     }
   }
+
+  .creation-date {
+    background: #f4f4f4;
+    border-color: #eaeaea;
+    display: flex;
+    justify-content: center;
+    color: #666666;
+    font-size: 13px;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 360px;
+    border-radius: 0;
+    margin-bottom: 0;
+
+    .creation-date-text {
+    }
+  }
 }
 
 .details-view.show {
@@ -533,7 +552,7 @@
   position: absolute;
   right: 0;
   top: 48px;
-  height: calc(100% - 48px);
+  height: calc(100% - 88px); // Minus "top" + "margin-bottom" values
   max-width: 100%;
 
   @media screen and (min-width: $breakpoint-sm) {

@@ -529,6 +529,17 @@ const todoView = () => {
     off(window, 'resize', handleResize);
   };
 
+  // Helper function - convert current date to "YYYY-MM-DD"
+  const getConvertedCurrentDate = () => {
+    const date = new Date();
+    const day =
+      `${date.getDate()}`.length === 1
+        ? `0${date.getDate()}`
+        : `${date.getDate()}`;
+
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${day}`;
+  };
+
   // Helper function - Date converter
   const getFriendlyDate = (stringDate, dateLabel) => {
     const currentDate = new Date();
@@ -585,6 +596,49 @@ const todoView = () => {
     }
   };
 
+  // Helper function - Date converter
+  const getFriendlyCreationDate = (stringDate) => {
+    const currentDate = new Date(getConvertedCurrentDate());
+    const dateObj = new Date(stringDate);
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const day = days[dateObj.getDay()];
+    const month = months[dateObj.getMonth()];
+    const dayNumber = dateObj.getDate();
+    const year = dateObj.getFullYear();
+
+    // Today, Yesterday
+    const coefficientMSDay = 1000 * 60 * 60 * 24;
+    const numberOfDays = (currentDate - dateObj) / coefficientMSDay;
+    const timeMSG = 'Created';
+
+    switch (numberOfDays) {
+      case 0:
+        return 'Created Today';
+      case 1:
+        return 'Created Yesterday';
+      default:
+        if (year !== currentDate.getFullYear()) {
+          return `${timeMSG} ${day}, ${month} ${dayNumber}, ${year}`;
+        }
+
+        return `${timeMSG} ${day}, ${month} ${dayNumber}`;
+    }
+  };
+
   const addTodo = (todo, isNew = false) => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
@@ -606,6 +660,10 @@ const todoView = () => {
     checkbox.checked = todo.isComplete;
     label.htmlFor = `todo-checkbox${todo.id}${todo.projectID}`;
     label.append(span);
+
+    // Setting creation date
+    if (!todo.creationDate) todo.creationDate = getConvertedCurrentDate();
+
     // Setting up "todo" title
     const title = createElement('span', '.todo-title');
     title.textContent = todo.title;
@@ -992,6 +1050,11 @@ const todoView = () => {
       'selected',
     );
     priorityBlock.append(priorityTitle, priorityList);
+    // Creation date block
+    const creationDate = createElement('div', '.creation-date');
+    const creationDateText = createElement('span', '.creation-date-text');
+    creationDateText.textContent = getFriendlyCreationDate(todo.creationDate);
+    creationDate.append(creationDateText);
     // Append to details block
     elements.detailsView.append(
       nameBlock,
@@ -1000,6 +1063,7 @@ const todoView = () => {
       dateBlock,
       priorityBlock,
       wrap(note, 'note-block'),
+      creationDate,
     );
 
     // Show overlay on mobile
@@ -1539,6 +1603,7 @@ const todoView = () => {
     confirmRemoval,
     updateTodoCount,
     resetDetails,
+    getConvertedCurrentDate,
   };
 };
 

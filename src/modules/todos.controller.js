@@ -106,12 +106,7 @@ const todoController = (() => {
 
         case 4:
           {
-            const date = new Date();
-            const day =
-              `${date.getDate()}`.length === 1
-                ? `0${date.getDate()}`
-                : `${date.getDate()}`;
-            todo.date = `${date.getFullYear()}-${date.getMonth() + 1}-${day}`;
+            todo.date = view.getConvertedCurrentDate();
             // Update todoCount of "Planned" project
             const plannedCount = document.querySelector(
               '.list[data-index="4"] .todo-count',
