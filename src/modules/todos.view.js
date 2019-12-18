@@ -456,9 +456,39 @@ const todoView = () => {
     // Setup the "span" element to display todo-count per project
     const todoCount = createElement('span', '.todo-count');
     let count = 0;
+
+    // Get todo count for default project on init()
+    let myDayCount = null;
+    let ImportantCount = null;
+    let PlannedCount = null;
+    if (id > 4) {
+      myDayCount = getElement('.list[data-index="2"] .todo-count');
+      ImportantCount = getElement('.list[data-index="3"] .todo-count');
+      PlannedCount = getElement('.list[data-index="4"] .todo-count');
+    }
+
     items.forEach((todo) => {
       if (!todo.isComplete) count += 1;
+
+      if (todo.isMyDay) {
+        myDayCount.textContent = Number(myDayCount.textContent) + 1;
+      }
+      if (todo.isImportant) {
+        ImportantCount.textContent = Number(ImportantCount.textContent) + 1;
+      }
+      if (todo.date) {
+        PlannedCount.textContent = Number(PlannedCount.textContent) + 1;
+      }
+
+      if (id > 4) {
+        if (myDayCount.textContent === '1') showElement(myDayCount);
+
+        if (ImportantCount.textContent === '1') showElement(ImportantCount);
+
+        if (PlannedCount.textContent === '1') showElement(PlannedCount);
+      }
     });
+
     todoCount.textContent = count;
 
     if (count === 0) hideElement(todoCount);
