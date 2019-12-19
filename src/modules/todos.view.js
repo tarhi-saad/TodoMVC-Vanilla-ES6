@@ -624,6 +624,8 @@ const todoView = () => {
         return 'Due Today';
       case 1:
         return 'Due Tomorrow';
+      case -1:
+        return 'Overdue Yesterday';
       default:
         if (year !== currentDate.getFullYear()) {
           return `${timeMSG} ${day}, ${month} ${dayNumber}, ${year}`;
