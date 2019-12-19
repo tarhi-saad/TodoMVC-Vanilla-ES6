@@ -77,6 +77,9 @@ const todoController = (() => {
       }
     });
 
+    // Reset "My Day" todo count if it's a new day
+    if (newDay) view.resetMyDayCount();
+
     // Display todos if a default project is selected
     if ([1, 2, 3, 4].includes(selectedID)) view.displayTodos(defaultItems);
   };
@@ -306,6 +309,8 @@ const todoController = (() => {
           if (item.isMyDay) item.isMyDay = false;
         });
       });
+
+      view.resetMyDayCount();
     }
 
     const items = [];

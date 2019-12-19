@@ -373,6 +373,13 @@ const todoView = () => {
     else hideModal();
   };
 
+  // Helper function - Reset "My Day" todo count
+  const resetMyDayCount = () => {
+    const myDayCount = getElement('.list[data-index="2"] .todo-count');
+    myDayCount.textContent = 0;
+    hideElement(myDayCount);
+  };
+
   // Helper todo count function
   const updateTodoCount = (element, isIncreased) => {
     if (isIncreased) {
@@ -1634,6 +1641,7 @@ const todoView = () => {
     updateTodoCount,
     resetDetails,
     getConvertedCurrentDate,
+    resetMyDayCount,
   };
 };
 
