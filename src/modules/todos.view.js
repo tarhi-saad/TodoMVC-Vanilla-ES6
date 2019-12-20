@@ -16,6 +16,7 @@ import homeSVG from '../images/home.svg';
 import tasksSVG from '../images/tasks.svg';
 import importantSVG from '../images/important.svg';
 import daySVG from '../images/day.svg';
+import chevronSVG from '../images/chevron.svg';
 
 const DOMHelpers = () => {
   const createElement = (tag, idClass) => {
@@ -71,9 +72,10 @@ const DOMHelpers = () => {
     });
   };
 
-  const addClass = (elem, className) => elem.classList.add(className);
+  const addClass = (elem, ...className) => elem.classList.add(...className);
 
-  const removeClass = (elem, className) => elem.classList.remove(className);
+  const removeClass = (elem, ...className) =>
+    elem.classList.remove(...className);
 
   const hideElement = (elem) => {
     addClass(elem, 'hide');
@@ -561,9 +563,20 @@ const todoView = () => {
   };
 
   const resetDetails = () => {
+    const selectedProject = getElement('.list.selected');
     empty(elements.detailsView);
-    unselect(elements.todoList);
     off(window, 'resize', handleResize);
+
+    // Unselect todos in Planned Project
+    if (selectedProject.dataset.index === '4') {
+      const lists = elements.todoList.querySelectorAll('ul.todo-list-time');
+      Array.from(lists).forEach((list) => {
+        if (list.children) unselect(list);
+      });
+    } else {
+      // Unselect todos in the other projects
+      unselect(elements.todoList);
+    }
   };
 
   // Helper function - convert current date to "YYYY-MM-DD"
@@ -678,6 +691,140 @@ const todoView = () => {
     }
   };
 
+  // Helper function - planned list DOM elements
+  const plannedListDOM = () => {
+    const earlierListHeader = createElement('li', '#earlier-list-header');
+    const earlierList = createElement('ul', '#earlier-todo-list');
+    const todayListHeader = createElement('li', '#today-list-header');
+    const todayList = createElement('ul', '#today-todo-list');
+    const tomorrowListHeader = createElement('li', '#tomorrow-list-header');
+    const tomorrowList = createElement('ul', '#tomorrow-todo-list');
+    const laterThisWeekListHeader = createElement(
+      'li',
+      '#laterThisWeek-list-header',
+    );
+    const laterThisWeekList = createElement('ul', '#laterThisWeek-todo-list');
+    const nextWeekListHeader = createElement('li', '#nextWeek-list-header');
+    const nextWeekList = createElement('ul', '#nextWeek-todo-list');
+    const laterListHeader = createElement('li', '#later-list-header');
+    const laterList = createElement('ul', '#later-todo-list');
+    earlierListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Earlier</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    todayListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Today</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    tomorrowListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Tomorrow</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    laterThisWeekListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Later this week</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    nextWeekListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Next week</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    laterListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Later</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+
+    addClass(earlierListHeader, 'list-header', 'hide');
+    addClass(todayListHeader, 'list-header', 'hide');
+    addClass(tomorrowListHeader, 'list-header', 'hide');
+    addClass(laterThisWeekListHeader, 'list-header', 'hide');
+    addClass(nextWeekListHeader, 'list-header', 'hide');
+    addClass(laterListHeader, 'list-header', 'hide');
+
+    addClass(earlierList, 'todo-list-time');
+    addClass(todayList, 'todo-list-time');
+    addClass(tomorrowList, 'todo-list-time');
+    addClass(laterThisWeekList, 'todo-list-time');
+    addClass(nextWeekList, 'todo-list-time');
+    addClass(laterList, 'todo-list-time');
+
+    earlierList.dataset.time = earlierListHeader.id;
+    todayList.dataset.time = todayListHeader.id;
+    tomorrowList.dataset.time = tomorrowListHeader.id;
+    laterThisWeekList.dataset.time = laterThisWeekListHeader.id;
+    nextWeekList.dataset.time = nextWeekListHeader.id;
+    laterList.dataset.time = laterListHeader.id;
+
+    elements.todoList.append(
+      earlierListHeader,
+      earlierList,
+      todayListHeader,
+      todayList,
+      tomorrowListHeader,
+      tomorrowList,
+      laterThisWeekListHeader,
+      laterThisWeekList,
+      nextWeekListHeader,
+      nextWeekList,
+      laterListHeader,
+      laterList,
+    );
+  };
+
+  // Helper function - Planned list system
+  const plannedListView = (todoList, dateString) => {
+    const date = new Date(dateString);
+    const currentDate = new Date(getConvertedCurrentDate());
+    const coefficientMSDay = 1000 * 60 * 60 * 24;
+    const days = (date - currentDate) / coefficientMSDay;
+    const currentDay = currentDate.getDay();
+
+    if (days === 0) {
+      const todayList = getElement('#today-todo-list');
+      const todayListHeader = getElement('#today-list-header');
+      todayList.append(todoList);
+      todayList.style.height = `${todayList.scrollHeight}px`;
+      showElement(todayListHeader);
+    } else if (days === 1) {
+      const tomorrowList = getElement('#tomorrow-todo-list');
+      const tomorrowListHeader = getElement('#tomorrow-list-header');
+      tomorrowList.append(todoList);
+      tomorrowList.style.height = `${tomorrowList.scrollHeight}px`;
+      showElement(tomorrowListHeader);
+    } else if (days < 0) {
+      const earlierList = getElement('#earlier-todo-list');
+      const earlierListHeader = getElement('#earlier-list-header');
+      earlierList.append(todoList);
+      earlierList.style.height = `${earlierList.scrollHeight}px`;
+      showElement(earlierListHeader);
+    } else if (
+      currentDay !== 0 &&
+      currentDay !== 6 &&
+      days > 1 &&
+      days <= 7 - currentDay
+    ) {
+      const laterThisWeekList = getElement('#laterThisWeek-todo-list');
+      const laterThisWeekListHeader = getElement('#laterThisWeek-list-header');
+      laterThisWeekList.append(todoList);
+      laterThisWeekList.style.height = `${laterThisWeekList.scrollHeight}px`;
+      showElement(laterThisWeekListHeader);
+    } else if (
+      (days > 7 - currentDay && days <= 14 - currentDay) ||
+      (currentDay === 0 && days > 1 && days <= 7)
+    ) {
+      const nextWeekList = getElement('#nextWeek-todo-list');
+      const nextWeekListHeader = getElement('#nextWeek-list-header');
+      nextWeekList.append(todoList);
+      nextWeekList.style.height = `${nextWeekList.scrollHeight}px`;
+      showElement(nextWeekListHeader);
+    } else {
+      const laterList = getElement('#later-todo-list');
+      const laterListHeader = getElement('#later-list-header');
+      laterList.append(todoList);
+      laterList.style.height = `${laterList.scrollHeight}px`;
+      showElement(laterListHeader);
+    }
+  };
+
   const addTodo = (todo, isNew = false) => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
@@ -769,7 +916,9 @@ const todoView = () => {
     titleBlock.append(title, indicators);
     // Appended elements
     li.append(label, checkbox, titleBlock, deleteBtn);
-    elements.todoList.append(li);
+
+    if (selectedProject.dataset.index === '4') plannedListView(li, todo.date);
+    else elements.todoList.append(li);
 
     if (isNew) {
       // Update todoCount in current list
@@ -792,7 +941,6 @@ const todoView = () => {
     const todoItem = elements.todoList.querySelector(
       `.todo-item[data-index="${index}"].todo-item[data-project-index="${projectIndex}"]`,
     );
-    todoItem.remove();
 
     // Update todoCount in current list if todo is not completed
     if (!todoItem.classList.contains('completed')) {
@@ -816,6 +964,23 @@ const todoView = () => {
       // Hide view details on delete selected todo
       removeClass(elements.detailsView, 'show');
     }
+
+    // Handle removeTodo in Planned project
+    const selectedProject = getElement('.list.selected');
+
+    if (selectedProject.dataset.index === '4') {
+      const todoListTime = todoItem.closest('ul.todo-list-time');
+      const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
+      todoListTime.style.height = 'auto';
+
+      if (todoListTime.children.length === 1) {
+        hideElement(todoListHeader);
+        todoListTime.style.height = 0;
+      }
+    }
+
+    // Remove Item at the end to get to its ancestors
+    todoItem.remove();
   };
 
   const toggleTodo = (isComplete, id, projectID) => {
@@ -881,6 +1046,11 @@ const todoView = () => {
       '.list.selected .project-name',
     ).textContent;
     empty(elements.todoList);
+
+    // Add DOM elements fro Planned todo list
+    const selectedProject = getElement('.list.selected');
+    if (selectedProject.dataset.index === '4') plannedListDOM();
+
     todos.forEach((todo) => {
       addTodo(todo);
     });
@@ -895,7 +1065,6 @@ const todoView = () => {
     // Hide view details on list switch & on add list
     removeClass(elements.detailsView, 'show');
     // Link todo view with selected project
-    const selectedProject = getElement('.list.selected');
     if (selectedProject.classList.contains('pinned')) {
       addClass(elements.tasksView, 'pinned');
     } else {
@@ -931,6 +1100,27 @@ const todoView = () => {
     editElem.focus();
     on(editElem, 'blur', handleEditEvents);
     on(editElem, 'keydown', handleEditEvents);
+  };
+
+  const updatePlannedListHeight = (selectedProject, selectedTodo) => {
+    if (selectedProject.dataset.index !== '4') return;
+
+    const todoListTime = selectedTodo.closest('.todo-list-time');
+    todoListTime.style.height = 'auto';
+    todoListTime.style.height = `${todoListTime.offsetHeight}px`;
+  };
+
+  const updatePlannedListHeightAnimated = (selectedProject, todoListTime) => {
+    if (selectedProject.dataset.index !== '4') return;
+
+    const { children } = todoListTime;
+    let fullHeight = 0;
+    Array.from(children).forEach((child) => {
+      const height = child.offsetHeight;
+      const { marginBottom } = getComputedStyle(child);
+      fullHeight += parseInt(height, 10) + parseInt(marginBottom, 10);
+    });
+    todoListTime.style.height = `${fullHeight}px`;
   };
 
   let flatCalendar = null;
@@ -1161,6 +1351,9 @@ const todoView = () => {
         liveNoteIndicator.remove();
         toggleIndicatorClass();
       }
+
+      // Update list height if in Planned
+      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleDateChange = (e) => {
@@ -1224,7 +1417,12 @@ const todoView = () => {
       toggleIndicatorClass();
 
       // Remove todo if it's in "Planned" project
-      if (selectedProject.dataset.index === '4') selectedTodo.remove();
+      if (selectedProject.dataset.index === '4') {
+        const todoListTime = selectedTodo.closest('.todo-list-time');
+        selectedTodo.remove();
+        // Update list height if in Planned (Animated)
+        updatePlannedListHeightAnimated(selectedProject, todoListTime);
+      }
 
       // Update todoCount of "Planned" project
       const plannedCount = getElement('.list[data-index="4"] .todo-count');
@@ -1301,6 +1499,9 @@ const todoView = () => {
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
       }
+
+      // Update list height if in Planned
+      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleDeleteSubtask = (e) => {
@@ -1330,6 +1531,9 @@ const todoView = () => {
         liveSubtaskIndicatorLabel.closest('.subtask-indicator').remove();
         toggleIndicatorClass();
       }
+
+      // Update list height if in Planned
+      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleToggleSubtask = (e) => {
@@ -1459,6 +1663,9 @@ const todoView = () => {
           elements.todoList.append(selectedTodo);
         }
       }
+
+      // Update list height if in Planned
+      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleMyDayClick = (e) => {
@@ -1482,6 +1689,9 @@ const todoView = () => {
       if (selectedProject.dataset.index === '2') {
         elements.todoList.append(selectedTodo);
       }
+
+      // Update list height if in Planned
+      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleRemoveMyDayClick = () => {
@@ -1499,6 +1709,9 @@ const todoView = () => {
 
       // If we are editing in "Important" project then remove todo
       if (selectedProject.dataset.index === '2') selectedTodo.remove();
+
+      // Update list height if in Planned
+      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     // Set event listeners
@@ -1554,6 +1767,30 @@ const todoView = () => {
   };
 
   on(elements.newListInput, 'input', handleInput);
+
+  // Listen to todoList in Planned project to close/open lists
+  // Events
+  const handlePlannedClick = (e) => {
+    const { target } = e;
+
+    if (!target.closest('.list-header')) return;
+
+    const listHeader = target.closest('.list-header');
+    const button = listHeader.querySelector('button');
+    const todoListTime = getElement(
+      `.todo-list-time[data-time="${listHeader.id}"]`,
+    );
+
+    if (button.classList.contains('close')) {
+      removeClass(button, 'close');
+      todoListTime.style.height = `${todoListTime.scrollHeight}px`;
+    } else {
+      addClass(button, 'close');
+      todoListTime.style.height = 0;
+    }
+  };
+
+  on(elements.todoList, 'click', handlePlannedClick);
 
   /**
    * Call handleAddTodo function on synthetic event

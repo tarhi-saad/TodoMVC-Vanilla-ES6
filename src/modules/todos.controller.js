@@ -351,6 +351,9 @@ const todoController = (() => {
             if (item.date) items.push(item);
           });
         });
+        items.sort(
+          (todoA, todoB) => new Date(todoA.date) - new Date(todoB.date),
+        );
         view.displayTodos(items);
         break;
 
@@ -362,6 +365,9 @@ const todoController = (() => {
 
   const handleDeleteList = (e) => {
     const { target } = e;
+
+    if (!target.closest('.list')) return;
+
     const lists = view.elements.lists.children;
     const listID = Number(target.closest('.list').dataset.index);
     // Prevent deletion for default projects
@@ -447,7 +453,10 @@ const todoController = (() => {
     const selectedTodo = document.querySelector('.todo-list .selected');
     const todoItem = target.closest('.todo-item');
 
-    if (target.tagName !== 'LI' && !target.closest('.title-block')) {
+    if (
+      (target.tagName !== 'LI' && !target.closest('.title-block')) ||
+      target.classList.contains('list-header')
+    ) {
       return;
     }
 

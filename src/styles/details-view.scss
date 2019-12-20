@@ -1,7 +1,12 @@
 .details-view {
   background: $white-smoke;
   margin-bottom: 40px;
+  position: absolute;
   width: 0;
+
+  @media screen and (min-width: $breakpoint-sm) {
+    position: relative;
+  }
 
   div {
     background: #fff;
@@ -549,7 +554,6 @@
   padding: 10px;
   width: 360px;
   z-index: 70;
-  position: absolute;
   right: 0;
   top: 48px;
   height: calc(100% - 88px); // Minus "top" + "margin-bottom" values
@@ -557,7 +561,6 @@
 
   @media screen and (min-width: $breakpoint-sm) {
     padding-left: 0;
-    position: relative;
     height: auto;
     top: 0;
   }

@@ -24,6 +24,36 @@ $line-spacing: 48px;
         background: initial;
       }
     }
+
+    .todo-list {
+      li.list-header {
+        button.open-close {
+          border: 0;
+          background: none;
+          transform: rotate(-90deg);
+
+          &.close {
+            transform: rotate(90deg);
+          }
+
+          svg {
+            width: 12px;
+          }
+        }
+      }
+
+      ul.todo-list-time {
+        border-bottom: 1px solid $second-color-darker;
+        height: 0;
+        overflow: hidden;
+        padding: 0 2px;
+        transition: height 0.3s linear;
+      }
+
+      .list-header.hide + ul.todo-list-time {
+        border-bottom: 0;
+      }
+    }
   }
 
   h1 {
