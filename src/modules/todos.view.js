@@ -93,7 +93,7 @@ const DOMHelpers = () => {
   };
 
   // Pixel to Number
-  const pxToNum = (value) => Number(value.match(/[0-9]/g).join(''));
+  const getNumberFromString = (value) => Number(value.match(/[0-9]/g).join(''));
 
   return {
     createElement,
@@ -108,7 +108,7 @@ const DOMHelpers = () => {
     hideElement,
     showElement,
     resetClassList,
-    pxToNum,
+    getNumberFromString,
   };
 };
 
@@ -125,7 +125,7 @@ const {
   hideElement,
   showElement,
   resetClassList,
-  pxToNum,
+  getNumberFromString,
 } = DOMHelpers();
 
 const initializeDOMElements = () => {
@@ -825,6 +825,92 @@ const todoView = () => {
     }
   };
 
+  // Helper function - Animating todo list
+  const animateAddTodoList = () => {
+    const { todoList } = elements;
+    const { children } = todoList;
+    let fullHeight = 0;
+    let lastChildFullHeight = 0;
+
+    Array.from(children).forEach((child, index) => {
+      const height = child.offsetHeight;
+      const { marginBottom } = getComputedStyle(child);
+      fullHeight += height + parseInt(marginBottom, 10);
+
+      if (index === 0) {
+        lastChildFullHeight = fullHeight;
+
+        return;
+      }
+
+      const oldTranslateY =
+        child.style.transform === ''
+          ? 0
+          : getNumberFromString(child.style.transform);
+      child.style.transform = `translateY(${lastChildFullHeight +
+        oldTranslateY}px)`;
+    });
+
+    // The number 5 is added to give room to items to grow/shrink and not be hidden
+    todoList.style.height = `${fullHeight + 5}px`;
+
+    // Fix scrollbar display on transition, hide it in between
+    if (
+      todoList.scrollHeight === todoList.offsetHeight ||
+      children.length === 1
+    ) {
+      todoList.style.overflow = 'hidden';
+      const handleTransition = () => {
+        todoList.style.overflow = '';
+        off(todoList, 'transitionend', handleTransition);
+      };
+      on(todoList, 'transitionend', handleTransition);
+    }
+  };
+
+  const animateRemoveTodoList = (removedChild) => {
+    const { todoList } = elements;
+    const { children } = todoList;
+    const indexOfRemoved = Array.from(children).indexOf(removedChild);
+    const fullHeight = todoList.scrollHeight;
+    let removeChildFullHeight = 0;
+
+    Array.from(children).forEach((child, index) => {
+      if (index < indexOfRemoved) return;
+
+      if (index === indexOfRemoved) {
+        const height = child.offsetHeight;
+        const { marginBottom } = getComputedStyle(child);
+        removeChildFullHeight = height + parseInt(marginBottom, 10);
+
+        return;
+      }
+
+      const oldTranslateY =
+        child.style.transform === ''
+          ? 0
+          : getNumberFromString(child.style.transform);
+      child.style.transform = `translateY(${oldTranslateY -
+        removeChildFullHeight}px)`;
+    });
+
+    // Fix scrollbar display on transition, hide it in between
+    const nextChild = children[indexOfRemoved + 1];
+    if (todoList.scrollHeight === todoList.offsetHeight && nextChild) {
+      todoList.style.overflow = 'hidden';
+      const handleTransition = () => {
+        todoList.style.overflow = '';
+        // Update todoList height
+        todoList.style.height = `${fullHeight - removeChildFullHeight}px`;
+        off(nextChild, 'transitionend', handleTransition);
+      };
+      on(nextChild, 'transitionend', handleTransition);
+    } else {
+      // Update todoList height
+      todoList.style.height = `${fullHeight - removeChildFullHeight}px`;
+    }
+  };
+
   const addTodo = (todo, isNew = false) => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
@@ -918,7 +1004,10 @@ const todoView = () => {
     li.append(label, checkbox, titleBlock, deleteBtn);
 
     if (selectedProject.dataset.index === '4') plannedListView(li, todo.date);
-    else elements.todoList.append(li);
+    else elements.todoList.prepend(li);
+
+    // Animate list addition
+    animateAddTodoList();
 
     if (isNew) {
       // Update todoCount in current list
@@ -978,6 +1067,9 @@ const todoView = () => {
         todoListTime.style.height = 0;
       }
     }
+
+    // Animate removing list
+    animateRemoveTodoList(todoItem);
 
     // Remove Item at the end to get to its ancestors
     todoItem.remove();
@@ -1050,6 +1142,9 @@ const todoView = () => {
     // Add DOM elements fro Planned todo list
     const selectedProject = getElement('.list.selected');
     if (selectedProject.dataset.index === '4') plannedListDOM();
+
+    // Animate list - reset todoList Height
+    elements.todoList.style.height = 0;
 
     todos.forEach((todo) => {
       addTodo(todo);
@@ -1311,7 +1406,7 @@ const todoView = () => {
     // Set handlers on synthetic event
     const nameHeight = getComputedStyle(name).height;
     name.style.height =
-      name.scrollHeight <= pxToNum(nameHeight)
+      name.scrollHeight <= getNumberFromString(nameHeight)
         ? nameHeight
         : `${name.scrollHeight}px`;
 
@@ -1322,14 +1417,14 @@ const todoView = () => {
       // Change the height of textarea
       name.style.height = nameHeight; // Reset height to make it responsive also when deleting
       name.style.height =
-        name.scrollHeight <= pxToNum(nameHeight)
+        name.scrollHeight <= getNumberFromString(nameHeight)
           ? nameHeight
           : `${name.scrollHeight}px`;
     };
 
     const noteHeight = getComputedStyle(note).height;
     note.style.height =
-      note.scrollHeight <= pxToNum(noteHeight)
+      note.scrollHeight <= getNumberFromString(noteHeight)
         ? noteHeight
         : `${note.scrollHeight}px`;
 
@@ -1338,7 +1433,7 @@ const todoView = () => {
       todo.note = target.value;
       note.style.height = noteHeight; // Reset height to make it responsive also when deleting
       note.style.height =
-        note.scrollHeight <= pxToNum(noteHeight)
+        note.scrollHeight <= getNumberFromString(noteHeight)
           ? noteHeight
           : `${note.scrollHeight}px`;
 

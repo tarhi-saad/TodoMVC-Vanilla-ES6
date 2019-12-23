@@ -89,17 +89,38 @@ $line-spacing: 48px;
 
   .todo-list {
     overflow-x: hidden;
-    padding: 0 20px 15px;
+    margin: 0 20px 15px;
+    height: 0;
+    transition: all 0.3s ease;
+    position: relative;
 
     .todo-item {
       border: 1px solid $second-color-darker;
+      border-width: 1px;
+      border-radius: 4px;
       margin-bottom: 10px;
       min-height: 3.13rem !important;
       padding: 6px 11px;
-      transition: $transition;
+      transition: transform 0.6s ease, box-shadow 0.25s ease,
+        border-width 0.25s ease, border-color 0.15s linear;
+      position: absolute !important;
+      left: 2px;
+      top: 2px;
+      width: calc(100% - 4px);
+      transform: translateY(0);
+      background: #fff;
+
+      &:first-child {
+        z-index: 1;
+      }
 
       &:hover {
-        border-color: $base-color;
+        box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08),
+          0 0 15px 0 rgba(0, 0, 0, 0.02), 0 0 20px 4px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 0px 1px 1px rgba(0, 0, 0, 0.2),
+          0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+        border-color: #fff;
+        transition: all 150ms linear;
       }
 
       .title-block {
@@ -381,10 +402,9 @@ $line-spacing: 48px;
     }
 
     .todo-item.selected {
-      border-color: $base-color;
-      box-shadow: 0 2px 5px 0 $shadow-color;
-      transform: scale(1.005);
-      transition-duration: 0.1s;
+      border-width: 0;
+      box-shadow: 0 0px 1px 1px rgba(0, 0, 0, 0.2),
+        0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
     }
 
     li.low {
