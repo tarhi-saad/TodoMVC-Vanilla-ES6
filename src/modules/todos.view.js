@@ -92,8 +92,30 @@ const DOMHelpers = () => {
     });
   };
 
-  // Pixel to Number
+  // CSS values to Number
   const getNumberFromString = (value) => Number(value.match(/[0-9]/g).join(''));
+
+  // Disable transition of list and its children
+  const disableTransition = (list) => {
+    list.style.transition = 'none';
+
+    Array.from(list.children).forEach((item) => {
+      item.style.transition =
+        'box-shadow .25s ease-out, border-color .15s linear';
+    });
+  };
+  // Enable transition of list and its children
+  const enableTransition = (list) => {
+    list.style.transition = '';
+
+    Array.from(list.children).forEach((item) => {
+      item.style.transition = '';
+    });
+  };
+  // Toggle transition of list and its children
+  const toggleTransition = (list) => {
+    list.style.transition ? enableTransition(list) : disableTransition(list);
+  };
 
   return {
     createElement,
@@ -109,6 +131,9 @@ const DOMHelpers = () => {
     showElement,
     resetClassList,
     getNumberFromString,
+    disableTransition,
+    enableTransition,
+    toggleTransition,
   };
 };
 
@@ -126,6 +151,8 @@ const {
   showElement,
   resetClassList,
   getNumberFromString,
+  disableTransition,
+  enableTransition,
 } = DOMHelpers();
 
 const initializeDOMElements = () => {
@@ -263,6 +290,29 @@ const initializeDOMElements = () => {
 
   root.append(header, listsMenu, tasksView, detailsView, modal);
 
+  // Helper function - refresh todos transition & list's height
+  const refreshTodoItemsPositions = () => {
+    // Disable all transitions
+    disableTransition(todoList);
+    const { children } = todoList;
+    let fullHeight = 0;
+
+    Array.from(children).forEach((child, index) => {
+      const height = child.offsetHeight;
+
+      const { marginBottom } = getComputedStyle(child);
+
+      if (index > 0) {
+        child.style.transform = `translateY(${fullHeight}px)`;
+      }
+
+      fullHeight += height + parseInt(marginBottom, 10);
+    });
+
+    // The number 5 is added to give room to items to grow/shrink and not be hidden
+    todoList.style.height = `${fullHeight + 5}px`;
+  };
+
   // Events
   const handleOverlayClick = () => {
     menuButton.dataset.state = 'closed';
@@ -289,6 +339,35 @@ const initializeDOMElements = () => {
         on(overlay, 'click', handleOverlayClick);
       }
     }
+
+    // Reposition todos on 'menu' open/close && on desktop mode
+    if (document.body.offsetWidth >= 770) {
+      Array.from(todoList.children).forEach((child) => {
+        child.style.height = `${child.offsetHeight}px`;
+
+        const indicators = child.querySelector('.indicators');
+        if (indicators && menuButton.dataset.state === 'open') {
+          indicators.style.overflow = 'hidden';
+          indicators.style.height = `${indicators.offsetHeight}px`;
+        } else if (indicators) {
+          indicators.style.width = `${indicators.offsetWidth}px`;
+        }
+      });
+
+      const handleTransition = () => {
+        Array.from(todoList.children).forEach((child) => {
+          child.style.height = '';
+
+          const indicators = child.querySelector('.indicators');
+          indicators.style.overflow = '';
+          indicators.style.height = '';
+          indicators.style.width = '';
+        });
+        refreshTodoItemsPositions();
+        off(listsMenu, 'transitionend', handleTransition);
+      };
+      on(listsMenu, 'transitionend', handleTransition);
+    }
   };
 
   // Open lists sidebar if + icon is clicked to add a new list
@@ -300,6 +379,29 @@ const initializeDOMElements = () => {
       if (document.body.offsetWidth < 770) {
         addClass(overlay, 'fade-in');
         on(overlay, 'click', handleOverlayClick);
+      }
+
+      // Reposition todos on 'newList' open && on desktop mode
+      if (document.body.offsetWidth >= 770) {
+        Array.from(todoList.children).forEach((child) => {
+          child.style.height = `${child.offsetHeight}px`;
+
+          const indicators = child.querySelector('.indicators');
+          indicators.style.overflow = 'hidden';
+          indicators.style.height = `${indicators.offsetHeight}px`;
+        });
+        const handleTransition = () => {
+          Array.from(todoList.children).forEach((child) => {
+            child.style.height = '';
+
+            const indicators = child.querySelector('.indicators');
+            indicators.style.overflow = '';
+            indicators.style.height = '';
+          });
+          refreshTodoItemsPositions();
+          off(listsMenu, 'transitionend', handleTransition);
+        };
+        on(listsMenu, 'transitionend', handleTransition);
       }
     }
   };
@@ -336,6 +438,7 @@ const initializeDOMElements = () => {
     newTodoInput,
     newList,
     newListInput,
+    tasksTitleWrapper,
     tasksTitle,
     tasksTitleInput,
     detailsView,
@@ -353,11 +456,13 @@ const initializeDOMElements = () => {
     myDayIndicatorFn,
     menuButton,
     overlay,
+    refreshTodoItemsPositions,
   };
 };
 
 const todoView = () => {
   const elements = initializeDOMElements();
+  const { refreshTodoItemsPositions } = elements;
 
   // Toggle modal helpers
   const showModal = () => {
@@ -553,19 +658,9 @@ const todoView = () => {
     }
   };
 
-  // Handle event on window to check width screen and show/hide overlay
-  const handleResize = () => {
-    if (document.body.offsetWidth < 770) {
-      addClass(elements.overlay, 'fade-in');
-    } else {
-      removeClass(elements.overlay, 'fade-in');
-    }
-  };
-
   const resetDetails = () => {
     const selectedProject = getElement('.list.selected');
     empty(elements.detailsView);
-    off(window, 'resize', handleResize);
 
     // Unselect todos in Planned Project
     if (selectedProject.dataset.index === '4') {
@@ -825,12 +920,20 @@ const todoView = () => {
     }
   };
 
+  // Disable addTodo input
+  const toggleReadOnly = (input) => {
+    input.readOnly = !input.readOnly;
+  };
+
   // Helper function - Animating todo list
   const animateAddTodoList = () => {
     const { todoList } = elements;
     const { children } = todoList;
     let fullHeight = 0;
     let lastChildFullHeight = 0;
+
+    // Enable all transitions
+    enableTransition(todoList);
 
     Array.from(children).forEach((child, index) => {
       const height = child.offsetHeight;
@@ -839,6 +942,8 @@ const todoView = () => {
 
       if (index === 0) {
         lastChildFullHeight = fullHeight;
+        // Add a nice effect for the added item
+        addClass(child, 'selected');
 
         return;
       }
@@ -851,14 +956,11 @@ const todoView = () => {
         oldTranslateY}px)`;
     });
 
-    // The number 5 is added to give room to items to grow/shrink and not be hidden
-    todoList.style.height = `${fullHeight + 5}px`;
-
-    // Fix scrollbar display on transition, hide it in between
-    if (
-      todoList.scrollHeight === todoList.offsetHeight ||
-      children.length === 1
-    ) {
+    /**
+     * Fix scrollbar display on transition, hide it in between
+     * must execute before calculating the new list height
+     */
+    if (todoList.scrollHeight === todoList.offsetHeight) {
       todoList.style.overflow = 'hidden';
       const handleTransition = () => {
         todoList.style.overflow = '';
@@ -866,7 +968,105 @@ const todoView = () => {
       };
       on(todoList, 'transitionend', handleTransition);
     }
+
+    // Do not animate list when there is only one item
+    if (children.length === 1) {
+      todoList.style.transition = 'none';
+      const todoItem = children[0];
+      const handleTransition = () => {
+        todoList.style.transition = '';
+        off(todoItem, 'transitionend', handleTransition);
+      };
+      on(todoItem, 'transitionend', handleTransition);
+    }
+
+    // Disable addTodo input during animation
+    toggleReadOnly(elements.newTodoInput);
+    // Remove the effect of the added item after the end of the animation
+    const lastItem = children[children.length - 1];
+
+    const handleItemTransition = () => {
+      removeClass(children[0], 'selected');
+      off(lastItem, 'transitionend', handleItemTransition);
+
+      // Enable addTodo input after end of animation
+      toggleReadOnly(elements.newTodoInput);
+    };
+    on(lastItem, 'transitionend', handleItemTransition);
+
+    // The number 5 is added to give room to items to grow/shrink and not be hidden
+    todoList.style.height = `${fullHeight + 5}px`;
   };
+
+  // Mutation observer
+  const observerCallback = (mutations) => {
+    mutations.forEach((mutation) => {
+      const { todoList } = elements;
+      const { target, addedNodes, removedNodes } = mutation;
+
+      if (target.closest('.indicators')) {
+        refreshTodoItemsPositions();
+      } else if (
+        addedNodes[0] &&
+        addedNodes[0].classList.contains('todo-item')
+      ) {
+        // If there is scrollbar, grow items to keep the same width
+        const { tasksView, newTodo, tasksTitleWrapper } = elements;
+        const maxTodoListHeight =
+          tasksView.offsetHeight -
+          (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+        const fullHeight = parseInt(todoList.style.height, 10);
+
+        Array.from(todoList.children).forEach((child) => {
+          child.style.width = `${child.offsetWidth}px`;
+        });
+
+        const handleTransition = () => {
+          if (maxTodoListHeight < fullHeight) {
+            addClass(todoList, 'grow-items');
+          }
+
+          Array.from(todoList.children).forEach((child) => {
+            child.style.width = '';
+          });
+          off(todoList, 'transitionend', handleTransition);
+        };
+        on(todoList, 'transitionend', handleTransition);
+      } else if (
+        removedNodes[0] &&
+        removedNodes[0].classList.contains('todo-item')
+      ) {
+        // If there is scrollbar, grow items to keep the same width
+        const { tasksView, newTodo, tasksTitleWrapper } = elements;
+        const maxTodoListHeight =
+          tasksView.offsetHeight -
+          (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+        const fullHeight = parseInt(todoList.style.height, 10);
+
+        Array.from(todoList.children).forEach((child) => {
+          child.style.width = `${child.offsetWidth}px`;
+        });
+
+        const handleTransition = () => {
+          if (maxTodoListHeight >= fullHeight) {
+            removeClass(todoList, 'grow-items');
+          }
+
+          Array.from(todoList.children).forEach((child) => {
+            child.style.width = '';
+          });
+          off(todoList, 'transitionend', handleTransition);
+        };
+        on(todoList, 'transitionend', handleTransition);
+      }
+    });
+  };
+
+  const observer = new MutationObserver(observerCallback);
+  observer.observe(elements.todoList, {
+    childList: true,
+    subtree: true,
+  });
 
   const animateRemoveTodoList = (removedChild) => {
     const { todoList } = elements;
@@ -874,6 +1074,8 @@ const todoView = () => {
     const indexOfRemoved = Array.from(children).indexOf(removedChild);
     const fullHeight = todoList.scrollHeight;
     let removeChildFullHeight = 0;
+    // Disable all transitions
+    enableTransition(todoList);
 
     Array.from(children).forEach((child, index) => {
       if (index < indexOfRemoved) return;
@@ -1007,7 +1209,7 @@ const todoView = () => {
     else elements.todoList.prepend(li);
 
     // Animate list addition
-    animateAddTodoList();
+    isNew ? animateAddTodoList() : refreshTodoItemsPositions();
 
     if (isNew) {
       // Update todoCount in current list
@@ -1047,6 +1249,9 @@ const todoView = () => {
       removeClass(elements.emptyState, 'hide-empty-state');
     }
 
+    // Animate removing list
+    animateRemoveTodoList(todoItem);
+
     // Reset todo details if selected
     if (todoItem.classList.contains('selected')) {
       resetDetails();
@@ -1067,9 +1272,6 @@ const todoView = () => {
         todoListTime.style.height = 0;
       }
     }
-
-    // Animate removing list
-    animateRemoveTodoList(todoItem);
 
     // Remove Item at the end to get to its ancestors
     todoItem.remove();
@@ -1134,12 +1336,17 @@ const todoView = () => {
    * @param {Object[]} todos List of todo objects
    */
   const displayTodos = (todos) => {
+    // Reset todo details - we remove details view before appending todos
+    resetDetails();
+    // Hide view details on list switch & on add list
+    removeClass(elements.detailsView, 'show');
+
     elements.tasksTitle.textContent = getElement(
       '.list.selected .project-name',
     ).textContent;
     empty(elements.todoList);
 
-    // Add DOM elements fro Planned todo list
+    // Add DOM elements for Planned todo list
     const selectedProject = getElement('.list.selected');
     if (selectedProject.dataset.index === '4') plannedListDOM();
 
@@ -1154,11 +1361,7 @@ const todoView = () => {
     todos.length === 0
       ? removeClass(elements.emptyState, 'hide-empty-state')
       : addClass(elements.emptyState, 'hide-empty-state');
-    // Reset todo details
-    resetDetails();
 
-    // Hide view details on list switch & on add list
-    removeClass(elements.detailsView, 'show');
     // Link todo view with selected project
     if (selectedProject.classList.contains('pinned')) {
       addClass(elements.tasksView, 'pinned');
@@ -1821,7 +2024,6 @@ const todoView = () => {
     on(subtasksList, 'click', handleSwitchSubtask);
     on(subTasksInput, 'input', handleInput);
     on(elements.overlay, 'click', handleOverlayClick);
-    on(window, 'resize', handleResize);
     on(elements.menuButton, 'click', handleMenuClick);
     on(importantLabel, 'click', handleImportantClick);
     on(myDay, 'click', handleMyDayClick);
@@ -1886,6 +2088,22 @@ const todoView = () => {
   };
 
   on(elements.todoList, 'click', handlePlannedClick);
+
+  // Listen to window resize
+  const handleResize = () => {
+    // Reposition todos on resize
+    refreshTodoItemsPositions();
+    // Handle event on window to check width screen and show/hide overlay
+    const { detailsView } = elements;
+    if (detailsView.classList.contains('show')) {
+      if (document.body.offsetWidth < 770) {
+        addClass(elements.overlay, 'fade-in');
+      } else {
+        removeClass(elements.overlay, 'fade-in');
+      }
+    }
+  };
+  on(window, 'resize', handleResize);
 
   /**
    * Call handleAddTodo function on synthetic event
@@ -1976,6 +2194,7 @@ const todoView = () => {
     resetDetails,
     getConvertedCurrentDate,
     resetMyDayCount,
+    refreshTodoItemsPositions,
   };
 };
 

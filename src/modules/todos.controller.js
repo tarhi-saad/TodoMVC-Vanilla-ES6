@@ -148,10 +148,6 @@ const todoController = (() => {
     }
 
     view.addTodo(todo, true);
-
-    // Scroll to bottom of the todo list, only when adding a new item
-    const { todoList } = view.elements;
-    todoList.scrollTop = todoList.scrollHeight;
   };
 
   const handleDeleteTodo = (e) => {
@@ -464,6 +460,10 @@ const todoController = (() => {
       view.resetDetails();
       todoItem.classList.remove('selected');
       view.elements.detailsView.classList.remove('show');
+
+      // Reposition todo items on hide details view
+      view.refreshTodoItemsPositions();
+
       return;
     }
 
@@ -471,6 +471,9 @@ const todoController = (() => {
     const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
     const todo = todoApp.getProjectByID(projectID).getItemByID(id);
     view.displayDetails(todo);
+
+    // Reposition todo items on show details view
+    view.refreshTodoItemsPositions();
   };
 
   /**

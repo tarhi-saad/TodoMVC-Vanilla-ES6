@@ -1,6 +1,6 @@
 /* width */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: $scrollbar-width;
 }
 
 /* Track */
@@ -31,6 +31,10 @@ body {
 
 .hide {
   display: none !important;
+}
+
+.transition-off {
+  transition: none !important;
 }
 
 #root {

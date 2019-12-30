@@ -38,6 +38,8 @@ $transition: all 0.4s ease;
 $breakpoint-landscape: 460px;
 $breakpoint-md: 1010px;
 $breakpoint-sm: 770px;
+// constants
+$scrollbar-width: 8px;
 
 // Mixins
 @mixin center-absolute {
