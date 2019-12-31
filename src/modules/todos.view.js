@@ -290,11 +290,11 @@ const initializeDOMElements = () => {
 
   root.append(header, listsMenu, tasksView, detailsView, modal);
 
-  // Helper function - refresh todos transition & list's height
-  const refreshTodoItemsPositions = () => {
+  // Helper function - 'refreshTodoItemsPositions' helper
+  const refreshTodoItemsPositionsHelper = (list) => {
     // Disable all transitions
-    disableTransition(todoList);
-    const { children } = todoList;
+    disableTransition(list);
+    const { children } = list;
     let fullHeight = 0;
 
     Array.from(children).forEach((child, index) => {
@@ -309,8 +309,24 @@ const initializeDOMElements = () => {
       fullHeight += height + parseInt(marginBottom, 10);
     });
 
-    // The number 5 is added to give room to items to grow/shrink and not be hidden
-    todoList.style.height = `${fullHeight + 5}px`;
+    // The number 8 is added to give room to items to grow/shrink and not be hidden
+    list.style.height = `${fullHeight + 8}px`;
+  };
+  // Helper function - refresh todos transition & list's height
+  const refreshTodoItemsPositions = () => {
+    const selectedProject = getElement('.list.selected');
+
+    if (selectedProject.dataset.index === '4') {
+      todoList.style.height = '';
+      const listsTime = todoList.querySelectorAll('ul.todo-list-time');
+      Array.from(listsTime).forEach((list) => {
+        if (list.children.length > 0) {
+          refreshTodoItemsPositionsHelper(list);
+        }
+      });
+    } else {
+      refreshTodoItemsPositionsHelper(todoList);
+    }
   };
 
   // Events
