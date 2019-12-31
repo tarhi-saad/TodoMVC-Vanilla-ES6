@@ -926,8 +926,15 @@ const todoView = () => {
   };
 
   // Helper function - Animating todo list
-  const animateAddTodoList = () => {
-    const { todoList } = elements;
+  const animateAddTodoList = (addedTodo) => {
+    const selectedProject = getElement('.list.selected');
+    let todoList = null;
+
+    if (selectedProject.dataset.index === '4') {
+      todoList = addedTodo.closest('.todo-list-time');
+      elements.todoList.style.height = '';
+    } else todoList = elements.todoList;
+
     const { children } = todoList;
     let fullHeight = 0;
     let lastChildFullHeight = 0;
@@ -994,8 +1001,8 @@ const todoView = () => {
     };
     on(lastItem, 'transitionend', handleItemTransition);
 
-    // The number 5 is added to give room to items to grow/shrink and not be hidden
-    todoList.style.height = `${fullHeight + 5}px`;
+    // The number 8 is added to give room to items to grow/shrink and not be hidden
+    todoList.style.height = `${fullHeight + 8}px`;
   };
 
   // Mutation observer
@@ -1209,7 +1216,7 @@ const todoView = () => {
     else elements.todoList.prepend(li);
 
     // Animate list addition
-    isNew ? animateAddTodoList() : refreshTodoItemsPositions();
+    isNew ? animateAddTodoList(li) : refreshTodoItemsPositions();
 
     if (isNew) {
       // Update todoCount in current list
