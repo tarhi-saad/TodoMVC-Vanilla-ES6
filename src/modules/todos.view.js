@@ -876,7 +876,7 @@ const todoView = () => {
     if (days === 0) {
       const todayList = getElement('#today-todo-list');
       const todayListHeader = getElement('#today-list-header');
-      todayList.append(todoList);
+      todayList.prepend(todoList);
       todayList.style.height = `${todayList.scrollHeight}px`;
       showElement(todayListHeader);
     } else if (days === 1) {
@@ -1076,10 +1076,22 @@ const todoView = () => {
   });
 
   const animateRemoveTodoList = (removedChild) => {
-    const { todoList } = elements;
+    const selectedProject = getElement('.list.selected');
+    let todoList = null;
+
+    if (selectedProject.dataset.index === '4') {
+      todoList = removedChild.closest('.todo-list-time');
+      elements.todoList.style.height = '';
+    } else todoList = elements.todoList;
+
     const { children } = todoList;
     const indexOfRemoved = Array.from(children).indexOf(removedChild);
-    const fullHeight = todoList.scrollHeight;
+
+    const fullHeight =
+      todoList.scrollHeight > todoList.offsetHeight
+        ? todoList.scrollHeight
+        : todoList.offsetHeight;
+
     let removeChildFullHeight = 0;
     // Disable all transitions
     enableTransition(todoList);
@@ -1272,7 +1284,6 @@ const todoView = () => {
     if (selectedProject.dataset.index === '4') {
       const todoListTime = todoItem.closest('ul.todo-list-time');
       const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
-      todoListTime.style.height = 'auto';
 
       if (todoListTime.children.length === 1) {
         hideElement(todoListHeader);
