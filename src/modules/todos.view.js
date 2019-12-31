@@ -38,11 +38,9 @@ const DOMHelpers = () => {
     return elem;
   };
 
-  const on = (target, type, callback) =>
-    target.addEventListener(type, callback);
+  const on = (target, type, callback) => target.addEventListener(type, callback);
 
-  const off = (target, type, callback) =>
-    target.removeEventListener(type, callback);
+  const off = (target, type, callback) => target.removeEventListener(type, callback);
 
   const empty = (parentNode) => {
     while (parentNode.firstChild) {
@@ -74,8 +72,7 @@ const DOMHelpers = () => {
 
   const addClass = (elem, ...className) => elem.classList.add(...className);
 
-  const removeClass = (elem, ...className) =>
-    elem.classList.remove(...className);
+  const removeClass = (elem, ...className) => elem.classList.remove(...className);
 
   const hideElement = (elem) => {
     addClass(elem, 'hide');
@@ -100,8 +97,7 @@ const DOMHelpers = () => {
     list.style.transition = 'none';
 
     Array.from(list.children).forEach((item) => {
-      item.style.transition =
-        'box-shadow .25s ease-out, border-color .15s linear';
+      item.style.transition = 'box-shadow .25s ease-out, border-color .15s linear';
     });
   };
   // Enable transition of list and its children
@@ -256,10 +252,7 @@ const initializeDOMElements = () => {
   /* Note indicator */
   const subtaskIndicatorFn = () => {
     const subtaskIndicator = createElement('span', '.subtask-indicator');
-    const subtaskIndicatorLabel = createElement(
-      'span',
-      '.subtask-indicator-label',
-    );
+    const subtaskIndicatorLabel = createElement('span', '.subtask-indicator-label');
     subtaskIndicator.insertAdjacentHTML('beforeEnd', checkMarkSVG);
     subtaskIndicator.append(subtaskIndicatorLabel);
 
@@ -337,6 +330,53 @@ const initializeDOMElements = () => {
     off(overlay, 'click', handleOverlayClick);
   };
 
+  // Helper function - reposition todos on menu toggle
+  const repositionTodosOnMenuToggleHelper = (list) => {
+    if (document.body.offsetWidth >= 770) {
+      Array.from(list.children).forEach((child) => {
+        child.style.height = `${child.offsetHeight}px`;
+
+        const indicators = child.querySelector('.indicators');
+        if (indicators && menuButton.dataset.state === 'open') {
+          indicators.style.overflow = 'hidden';
+          indicators.style.height = `${indicators.offsetHeight}px`;
+        } else if (indicators) {
+          indicators.style.width = `${indicators.offsetWidth + 1}px`;
+        }
+      });
+
+      const handleTransition = () => {
+        Array.from(list.children).forEach((child) => {
+          child.style.height = '';
+
+          const indicators = child.querySelector('.indicators');
+          indicators.style.overflow = '';
+          indicators.style.height = '';
+          indicators.style.width = '';
+        });
+        refreshTodoItemsPositions();
+        off(listsMenu, 'transitionend', handleTransition);
+      };
+      on(listsMenu, 'transitionend', handleTransition);
+    }
+  };
+
+  // Helper function - reposition todos on menu toggle
+  const repositionTodosOnMenuToggle = () => {
+    const selectedProject = getElement('.list.selected');
+
+    if (selectedProject.dataset.index === '4') {
+      const listsTime = todoList.querySelectorAll('ul.todo-list-time');
+      Array.from(listsTime).forEach((list) => {
+        if (list.children.length > 0) {
+          repositionTodosOnMenuToggleHelper(list);
+        }
+      });
+    } else {
+      repositionTodosOnMenuToggleHelper(todoList);
+    }
+  };
+
   const handleClick = () => {
     if (menuButton.dataset.state === 'open') {
       menuButton.dataset.state = 'closed';
@@ -357,33 +397,7 @@ const initializeDOMElements = () => {
     }
 
     // Reposition todos on 'menu' open/close && on desktop mode
-    if (document.body.offsetWidth >= 770) {
-      Array.from(todoList.children).forEach((child) => {
-        child.style.height = `${child.offsetHeight}px`;
-
-        const indicators = child.querySelector('.indicators');
-        if (indicators && menuButton.dataset.state === 'open') {
-          indicators.style.overflow = 'hidden';
-          indicators.style.height = `${indicators.offsetHeight}px`;
-        } else if (indicators) {
-          indicators.style.width = `${indicators.offsetWidth}px`;
-        }
-      });
-
-      const handleTransition = () => {
-        Array.from(todoList.children).forEach((child) => {
-          child.style.height = '';
-
-          const indicators = child.querySelector('.indicators');
-          indicators.style.overflow = '';
-          indicators.style.height = '';
-          indicators.style.width = '';
-        });
-        refreshTodoItemsPositions();
-        off(listsMenu, 'transitionend', handleTransition);
-      };
-      on(listsMenu, 'transitionend', handleTransition);
-    }
+    repositionTodosOnMenuToggle();
   };
 
   // Open lists sidebar if + icon is clicked to add a new list
@@ -398,37 +412,14 @@ const initializeDOMElements = () => {
       }
 
       // Reposition todos on 'newList' open && on desktop mode
-      if (document.body.offsetWidth >= 770) {
-        Array.from(todoList.children).forEach((child) => {
-          child.style.height = `${child.offsetHeight}px`;
-
-          const indicators = child.querySelector('.indicators');
-          indicators.style.overflow = 'hidden';
-          indicators.style.height = `${indicators.offsetHeight}px`;
-        });
-        const handleTransition = () => {
-          Array.from(todoList.children).forEach((child) => {
-            child.style.height = '';
-
-            const indicators = child.querySelector('.indicators');
-            indicators.style.overflow = '';
-            indicators.style.height = '';
-          });
-          refreshTodoItemsPositions();
-          off(listsMenu, 'transitionend', handleTransition);
-        };
-        on(listsMenu, 'transitionend', handleTransition);
-      }
+      repositionTodosOnMenuToggle();
     }
   };
 
   // Close list sidebar menu on mobile flip if width screen size is smaller
   let screeSize = document.body.offsetWidth;
   const handleResize = () => {
-    if (
-      document.body.offsetWidth < 920 &&
-      document.body.offsetWidth < screeSize
-    ) {
+    if (document.body.offsetWidth < 920 && document.body.offsetWidth < screeSize) {
       menuButton.dataset.state = 'closed';
       addClass(listsMenu, 'mobile');
       removeClass(overlay, 'fade-in');
@@ -693,10 +684,7 @@ const todoView = () => {
   // Helper function - convert current date to "YYYY-MM-DD"
   const getConvertedCurrentDate = () => {
     const date = new Date();
-    const day =
-      `${date.getDate()}`.length === 1
-        ? `0${date.getDate()}`
-        : `${date.getDate()}`;
+    const day = `${date.getDate()}`.length === 1 ? `0${date.getDate()}` : `${date.getDate()}`;
 
     return `${date.getFullYear()}-${date.getMonth() + 1}-${day}`;
   };
@@ -729,8 +717,7 @@ const todoView = () => {
     let initialDay = currentDate.getDate();
     initialDay = `${initialDay}`.length > 1 ? initialDay : `0${initialDay}`;
     const initialDate = new Date(
-      `${currentDate.getFullYear()}-${currentDate.getMonth() +
-        1}-${initialDay}`,
+      `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${initialDay}`,
     );
     const coefficientMSDay = 1000 * 60 * 60 * 24;
     const numberOfDays = (dateObj - initialDate) / coefficientMSDay;
@@ -810,10 +797,7 @@ const todoView = () => {
     const todayList = createElement('ul', '#today-todo-list');
     const tomorrowListHeader = createElement('li', '#tomorrow-list-header');
     const tomorrowList = createElement('ul', '#tomorrow-todo-list');
-    const laterThisWeekListHeader = createElement(
-      'li',
-      '#laterThisWeek-list-header',
-    );
+    const laterThisWeekListHeader = createElement('li', '#laterThisWeek-list-header');
     const laterThisWeekList = createElement('ul', '#laterThisWeek-todo-list');
     const nextWeekListHeader = createElement('li', '#nextWeek-list-header');
     const nextWeekList = createElement('ul', '#nextWeek-todo-list');
@@ -907,12 +891,7 @@ const todoView = () => {
       earlierList.append(todoList);
       earlierList.style.height = `${earlierList.scrollHeight}px`;
       showElement(earlierListHeader);
-    } else if (
-      currentDay !== 0 &&
-      currentDay !== 6 &&
-      days > 1 &&
-      days <= 7 - currentDay
-    ) {
+    } else if (currentDay !== 0 && currentDay !== 6 && days > 1 && days <= 7 - currentDay) {
       const laterThisWeekList = getElement('#laterThisWeek-todo-list');
       const laterThisWeekListHeader = getElement('#laterThisWeek-list-header');
       laterThisWeekList.append(todoList);
@@ -972,11 +951,8 @@ const todoView = () => {
       }
 
       const oldTranslateY =
-        child.style.transform === ''
-          ? 0
-          : getNumberFromString(child.style.transform);
-      child.style.transform = `translateY(${lastChildFullHeight +
-        oldTranslateY}px)`;
+        child.style.transform === '' ? 0 : getNumberFromString(child.style.transform);
+      child.style.transform = `translateY(${lastChildFullHeight + oldTranslateY}px)`;
     });
 
     /**
@@ -1029,15 +1005,11 @@ const todoView = () => {
 
       if (target.closest('.indicators')) {
         refreshTodoItemsPositions();
-      } else if (
-        addedNodes[0] &&
-        addedNodes[0].classList.contains('todo-item')
-      ) {
+      } else if (addedNodes[0] && addedNodes[0].classList.contains('todo-item')) {
         // If there is scrollbar, grow items to keep the same width
         const { tasksView, newTodo, tasksTitleWrapper } = elements;
         const maxTodoListHeight =
-          tasksView.offsetHeight -
-          (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+          tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
         const fullHeight = parseInt(todoList.style.height, 10);
 
         Array.from(todoList.children).forEach((child) => {
@@ -1055,15 +1027,11 @@ const todoView = () => {
           off(todoList, 'transitionend', handleTransition);
         };
         on(todoList, 'transitionend', handleTransition);
-      } else if (
-        removedNodes[0] &&
-        removedNodes[0].classList.contains('todo-item')
-      ) {
+      } else if (removedNodes[0] && removedNodes[0].classList.contains('todo-item')) {
         // If there is scrollbar, grow items to keep the same width
         const { tasksView, newTodo, tasksTitleWrapper } = elements;
         const maxTodoListHeight =
-          tasksView.offsetHeight -
-          (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+          tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
         const fullHeight = parseInt(todoList.style.height, 10);
 
         Array.from(todoList.children).forEach((child) => {
@@ -1104,9 +1072,7 @@ const todoView = () => {
     const indexOfRemoved = Array.from(children).indexOf(removedChild);
 
     const fullHeight =
-      todoList.scrollHeight > todoList.offsetHeight
-        ? todoList.scrollHeight
-        : todoList.offsetHeight;
+      todoList.scrollHeight > todoList.offsetHeight ? todoList.scrollHeight : todoList.offsetHeight;
 
     let removeChildFullHeight = 0;
     // Disable all transitions
@@ -1124,11 +1090,8 @@ const todoView = () => {
       }
 
       const oldTranslateY =
-        child.style.transform === ''
-          ? 0
-          : getNumberFromString(child.style.transform);
-      child.style.transform = `translateY(${oldTranslateY -
-        removeChildFullHeight}px)`;
+        child.style.transform === '' ? 0 : getNumberFromString(child.style.transform);
+      child.style.transform = `translateY(${oldTranslateY - removeChildFullHeight}px)`;
     });
 
     // Fix scrollbar display on transition, hide it in between
@@ -1158,10 +1121,7 @@ const todoView = () => {
     resetClassList(li, ['low', 'medium', 'high']);
     addClass(li, priorityClass);
     // Setting up the checkbox to toggle "completed" state
-    const checkbox = createElement(
-      'input',
-      `#todo-checkbox${todo.id}${todo.projectID}`,
-    );
+    const checkbox = createElement('input', `#todo-checkbox${todo.id}${todo.projectID}`);
     const label = createElement('label');
     const span = createElement('span');
     span.insertAdjacentHTML('beforeEnd', checkSVG);
@@ -1188,13 +1148,9 @@ const todoView = () => {
     const selectedProject = getElement('.list.selected');
 
     if (['1', '2', '3', '4'].includes(selectedProject.dataset.index)) {
-      const projectName = getElement(
-        `.list[data-index="${todo.projectID}"] .project-name`,
-      ).textContent;
-      const projectNameIndicator = createElement(
-        'span',
-        '.project-name-indicator',
-      );
+      const projectName = getElement(`.list[data-index="${todo.projectID}"] .project-name`)
+        .textContent;
+      const projectNameIndicator = createElement('span', '.project-name-indicator');
       projectNameIndicator.textContent = projectName;
       indicators.append(projectNameIndicator);
     }
@@ -1205,9 +1161,7 @@ const todoView = () => {
 
     if (totalSubtasks) {
       const subtaskIndicator = elements.subtaskIndicatorFn();
-      const subtaskIndicatorLabel = subtaskIndicator.querySelector(
-        '.subtask-indicator-label',
-      );
+      const subtaskIndicatorLabel = subtaskIndicator.querySelector('.subtask-indicator-label');
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
         if (subtask.isComplete) completedSubtasks += 1;
@@ -1223,9 +1177,7 @@ const todoView = () => {
 
     if (todo.date !== '') {
       const dateIndicator = elements.dateIndicatorFn();
-      const dateIndicatorLabel = dateIndicator.querySelector(
-        '.date-indicator-label',
-      );
+      const dateIndicatorLabel = dateIndicator.querySelector('.date-indicator-label');
       indicators.append(dateIndicator);
       dateIndicatorLabel.innerHTML = getFriendlyDate(todo.date, dateIndicator);
     }
@@ -1314,9 +1266,7 @@ const todoView = () => {
   const toggleTodo = (isComplete, id, projectID) => {
     const toggleComplete = document.getElementById(id);
     const todoItem = toggleComplete.closest('.todo-item');
-    const todoCount = elements.lists.querySelector(
-      `.list[data-index="${projectID}"] .todo-count`,
-    );
+    const todoCount = elements.lists.querySelector(`.list[data-index="${projectID}"] .todo-count`);
     const prevTodoCount = Number(todoCount.textContent);
     toggleComplete.checked = isComplete;
 
@@ -1375,9 +1325,7 @@ const todoView = () => {
     // Hide view details on list switch & on add list
     removeClass(elements.detailsView, 'show');
 
-    elements.tasksTitle.textContent = getElement(
-      '.list.selected .project-name',
-    ).textContent;
+    elements.tasksTitle.textContent = getElement('.list.selected .project-name').textContent;
     empty(elements.todoList);
 
     // Add DOM elements for Planned todo list
@@ -1437,9 +1385,9 @@ const todoView = () => {
   const updatePlannedListHeight = (selectedProject, selectedTodo) => {
     if (selectedProject.dataset.index !== '4') return;
 
-    const todoListTime = selectedTodo.closest('.todo-list-time');
-    todoListTime.style.height = 'auto';
-    todoListTime.style.height = `${todoListTime.offsetHeight}px`;
+    // const todoListTime = selectedTodo.closest('.todo-list-time');
+    // todoListTime.style.height = 'auto';
+    // todoListTime.style.height = `${todoListTime.offsetHeight}px`;
   };
 
   const updatePlannedListHeightAnimated = (selectedProject, todoListTime) => {
@@ -1560,9 +1508,7 @@ const todoView = () => {
       addClass(dateLabel, 'is-set');
       // Set date indicator text
       const dateIndicator = indicators.querySelector('.date-indicator');
-      const dateIndicatorLabel = indicators.querySelector(
-        '.date-indicator-label',
-      );
+      const dateIndicatorLabel = indicators.querySelector('.date-indicator-label');
       dateIndicatorLabel.innerHTML = dateMessage.innerHTML;
 
       if (dateMessage.classList.contains('overdue')) {
@@ -1606,10 +1552,7 @@ const todoView = () => {
     priorityMedium.insertAdjacentHTML('beforeEnd', prioritySVG);
     priorityHigh.insertAdjacentHTML('beforeEnd', prioritySVG);
     priorityList.append(priorityLow, priorityMedium, priorityHigh);
-    addClass(
-      priorityList.querySelector(`.${todo.priority.toLowerCase()}`),
-      'selected',
-    );
+    addClass(priorityList.querySelector(`.${todo.priority.toLowerCase()}`), 'selected');
     priorityBlock.append(priorityTitle, priorityList);
     // Creation date block
     const creationDate = createElement('div', '.creation-date');
@@ -1643,9 +1586,7 @@ const todoView = () => {
     // Set handlers on synthetic event
     const nameHeight = getComputedStyle(name).height;
     name.style.height =
-      name.scrollHeight <= getNumberFromString(nameHeight)
-        ? nameHeight
-        : `${name.scrollHeight}px`;
+      name.scrollHeight <= getNumberFromString(nameHeight) ? nameHeight : `${name.scrollHeight}px`;
 
     const handleNameChange = (e) => {
       const { target } = e;
@@ -1661,9 +1602,7 @@ const todoView = () => {
 
     const noteHeight = getComputedStyle(note).height;
     note.style.height =
-      note.scrollHeight <= getNumberFromString(noteHeight)
-        ? noteHeight
-        : `${note.scrollHeight}px`;
+      note.scrollHeight <= getNumberFromString(noteHeight) ? noteHeight : `${note.scrollHeight}px`;
 
     const handleNoteChange = (e) => {
       const { target } = e;
@@ -1717,18 +1656,20 @@ const todoView = () => {
       if (todo.date && !liveDateIndicator) {
         const dateIndicator = elements.dateIndicatorFn();
         appendIndicator(dateIndicator, selectedTodo);
-        dateIndicator.querySelector(
-          '.date-indicator-label',
-        ).innerHTML = getFriendlyDate(todo.date, dateIndicator);
+        dateIndicator.querySelector('.date-indicator-label').innerHTML = getFriendlyDate(
+          todo.date,
+          dateIndicator,
+        );
         toggleIndicatorClass();
 
         dateLabel.classList.contains('overdue')
           ? addClass(dateIndicator, 'overdue')
           : removeClass(dateIndicator, 'overdue');
       } else if (todo.date) {
-        liveDateIndicator.querySelector(
-          '.date-indicator-label',
-        ).innerHTML = getFriendlyDate(todo.date, liveDateIndicator);
+        liveDateIndicator.querySelector('.date-indicator-label').innerHTML = getFriendlyDate(
+          todo.date,
+          liveDateIndicator,
+        );
       }
 
       if (!dateBlock.contains(removeDate)) dateBlock.append(removeDate);
@@ -1811,9 +1752,7 @@ const todoView = () => {
       hideElement(subTasksSubmit);
 
       // Indicator
-      const liveSubtaskIndicatorLabel = selectedTodo.querySelector(
-        '.subtask-indicator-label',
-      );
+      const liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
@@ -1822,9 +1761,7 @@ const todoView = () => {
 
       if (totalSubtasks && !liveSubtaskIndicatorLabel) {
         const subtaskIndicator = elements.subtaskIndicatorFn();
-        const subtaskIndicatorLabel = subtaskIndicator.querySelector(
-          '.subtask-indicator-label',
-        );
+        const subtaskIndicatorLabel = subtaskIndicator.querySelector('.subtask-indicator-label');
         subtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
         appendIndicator(subtaskIndicator, selectedTodo);
         toggleIndicatorClass();
@@ -1848,9 +1785,7 @@ const todoView = () => {
       li.remove();
 
       // Indicator
-      const liveSubtaskIndicatorLabel = selectedTodo.querySelector(
-        '.subtask-indicator-label',
-      );
+      const liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
@@ -1886,9 +1821,7 @@ const todoView = () => {
 
       // Indicator
       const subtaskIndicator = selectedTodo.querySelector('.subtask-indicator');
-      const liveSubtaskIndicatorLabel = subtaskIndicator.querySelector(
-        '.subtask-indicator-label',
-      );
+      const liveSubtaskIndicatorLabel = subtaskIndicator.querySelector('.subtask-indicator-label');
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
@@ -1908,10 +1841,7 @@ const todoView = () => {
       const { target } = e;
       const selectedSubtask = target.closest('.subtask');
 
-      if (
-        !selectedSubtask ||
-        (target !== selectedSubtask && !target.closest('.subtask-name'))
-      ) {
+      if (!selectedSubtask || (target !== selectedSubtask && !target.closest('.subtask-name'))) {
         return;
       }
 
@@ -2108,9 +2038,7 @@ const todoView = () => {
 
     const listHeader = target.closest('.list-header');
     const button = listHeader.querySelector('button');
-    const todoListTime = getElement(
-      `.todo-list-time[data-time="${listHeader.id}"]`,
-    );
+    const todoListTime = getElement(`.todo-list-time[data-time="${listHeader.id}"]`);
 
     if (button.classList.contains('close')) {
       removeClass(button, 'close');
