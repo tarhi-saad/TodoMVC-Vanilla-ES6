@@ -2108,9 +2108,12 @@ const todoView = () => {
     const button = listHeader.querySelector('button');
     const todoListTime = getElement(`.todo-list-time[data-time="${listHeader.id}"]`);
 
+    // Enable all transitions in todo list
+    enableTransition(todoListTime);
+
     if (button.classList.contains('close')) {
       removeClass(button, 'close');
-      todoListTime.style.height = `${todoListTime.scrollHeight}px`;
+      todoListTime.style.height = `${todoListTime.scrollHeight + 2}px`;
     } else {
       addClass(button, 'close');
       todoListTime.style.height = 0;
