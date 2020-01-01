@@ -142,6 +142,7 @@ const {
   off,
   empty,
   getElement,
+  getElements,
   wrap,
   unselect,
   addClass,
@@ -298,7 +299,9 @@ const initializeDOMElements = () => {
 
       const { marginBottom } = getComputedStyle(child);
 
-      if (index > 0) {
+      if (index === 0) {
+        child.style.transform = '';
+      } else {
         child.style.transform = `translateY(${fullHeight}px)`;
       }
 
@@ -687,9 +690,11 @@ const todoView = () => {
   // Helper function - convert current date to "YYYY-MM-DD"
   const getConvertedCurrentDate = () => {
     const date = new Date();
+    const month =
+      `${date.getMonth() + 1}`.length === 1 ? `0${date.getMonth() + 1}` : `${date.getMonth() + 1}`;
     const day = `${date.getDate()}`.length === 1 ? `0${date.getDate()}` : `${date.getDate()}`;
 
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${day}`;
+    return `${date.getFullYear()}-${month}-${day}`;
   };
 
   // Helper function - Date converter
@@ -717,11 +722,11 @@ const todoView = () => {
     const year = dateObj.getFullYear();
 
     // Today, Tomorrow
+    let initialMonth = currentDate.getMonth() + 1;
     let initialDay = currentDate.getDate();
+    initialMonth = `${initialMonth}`.length > 1 ? initialMonth : `0${initialMonth}`;
     initialDay = `${initialDay}`.length > 1 ? initialDay : `0${initialDay}`;
-    const initialDate = new Date(
-      `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${initialDay}`,
-    );
+    const initialDate = new Date(`${currentDate.getFullYear()}-${initialMonth}-${initialDay}`);
     const coefficientMSDay = 1000 * 60 * 60 * 24;
     const numberOfDays = (dateObj - initialDate) / coefficientMSDay;
     let timeMSG = 'Due';
@@ -789,132 +794,6 @@ const todoView = () => {
         }
 
         return `${timeMSG} ${day}, ${month} ${dayNumber}`;
-    }
-  };
-
-  // Helper function - planned list DOM elements
-  const plannedListDOM = () => {
-    const earlierListHeader = createElement('li', '#earlier-list-header');
-    const earlierList = createElement('ul', '#earlier-todo-list');
-    const todayListHeader = createElement('li', '#today-list-header');
-    const todayList = createElement('ul', '#today-todo-list');
-    const tomorrowListHeader = createElement('li', '#tomorrow-list-header');
-    const tomorrowList = createElement('ul', '#tomorrow-todo-list');
-    const laterThisWeekListHeader = createElement('li', '#laterThisWeek-list-header');
-    const laterThisWeekList = createElement('ul', '#laterThisWeek-todo-list');
-    const nextWeekListHeader = createElement('li', '#nextWeek-list-header');
-    const nextWeekList = createElement('ul', '#nextWeek-todo-list');
-    const laterListHeader = createElement('li', '#later-list-header');
-    const laterList = createElement('ul', '#later-todo-list');
-    earlierListHeader.insertAdjacentHTML(
-      'beforeEnd',
-      `<h3>Earlier</h3><button class="open-close">${chevronSVG}</button>`,
-    );
-    todayListHeader.insertAdjacentHTML(
-      'beforeEnd',
-      `<h3>Today</h3><button class="open-close">${chevronSVG}</button>`,
-    );
-    tomorrowListHeader.insertAdjacentHTML(
-      'beforeEnd',
-      `<h3>Tomorrow</h3><button class="open-close">${chevronSVG}</button>`,
-    );
-    laterThisWeekListHeader.insertAdjacentHTML(
-      'beforeEnd',
-      `<h3>Later this week</h3><button class="open-close">${chevronSVG}</button>`,
-    );
-    nextWeekListHeader.insertAdjacentHTML(
-      'beforeEnd',
-      `<h3>Next week</h3><button class="open-close">${chevronSVG}</button>`,
-    );
-    laterListHeader.insertAdjacentHTML(
-      'beforeEnd',
-      `<h3>Later</h3><button class="open-close">${chevronSVG}</button>`,
-    );
-
-    addClass(earlierListHeader, 'list-header', 'hide');
-    addClass(todayListHeader, 'list-header', 'hide');
-    addClass(tomorrowListHeader, 'list-header', 'hide');
-    addClass(laterThisWeekListHeader, 'list-header', 'hide');
-    addClass(nextWeekListHeader, 'list-header', 'hide');
-    addClass(laterListHeader, 'list-header', 'hide');
-
-    addClass(earlierList, 'todo-list-time');
-    addClass(todayList, 'todo-list-time');
-    addClass(tomorrowList, 'todo-list-time');
-    addClass(laterThisWeekList, 'todo-list-time');
-    addClass(nextWeekList, 'todo-list-time');
-    addClass(laterList, 'todo-list-time');
-
-    earlierList.dataset.time = earlierListHeader.id;
-    todayList.dataset.time = todayListHeader.id;
-    tomorrowList.dataset.time = tomorrowListHeader.id;
-    laterThisWeekList.dataset.time = laterThisWeekListHeader.id;
-    nextWeekList.dataset.time = nextWeekListHeader.id;
-    laterList.dataset.time = laterListHeader.id;
-
-    elements.todoList.append(
-      earlierListHeader,
-      earlierList,
-      todayListHeader,
-      todayList,
-      tomorrowListHeader,
-      tomorrowList,
-      laterThisWeekListHeader,
-      laterThisWeekList,
-      nextWeekListHeader,
-      nextWeekList,
-      laterListHeader,
-      laterList,
-    );
-  };
-
-  // Helper function - Planned list system
-  const plannedListView = (todoList, dateString) => {
-    const date = new Date(dateString);
-    const currentDate = new Date(getConvertedCurrentDate());
-    const coefficientMSDay = 1000 * 60 * 60 * 24;
-    const days = (date - currentDate) / coefficientMSDay;
-    const currentDay = currentDate.getDay();
-
-    if (days === 0) {
-      const todayList = getElement('#today-todo-list');
-      const todayListHeader = getElement('#today-list-header');
-      todayList.prepend(todoList);
-      todayList.style.height = `${todayList.scrollHeight}px`;
-      showElement(todayListHeader);
-    } else if (days === 1) {
-      const tomorrowList = getElement('#tomorrow-todo-list');
-      const tomorrowListHeader = getElement('#tomorrow-list-header');
-      tomorrowList.append(todoList);
-      tomorrowList.style.height = `${tomorrowList.scrollHeight}px`;
-      showElement(tomorrowListHeader);
-    } else if (days < 0) {
-      const earlierList = getElement('#earlier-todo-list');
-      const earlierListHeader = getElement('#earlier-list-header');
-      earlierList.append(todoList);
-      earlierList.style.height = `${earlierList.scrollHeight}px`;
-      showElement(earlierListHeader);
-    } else if (currentDay !== 0 && currentDay !== 6 && days > 1 && days <= 7 - currentDay) {
-      const laterThisWeekList = getElement('#laterThisWeek-todo-list');
-      const laterThisWeekListHeader = getElement('#laterThisWeek-list-header');
-      laterThisWeekList.append(todoList);
-      laterThisWeekList.style.height = `${laterThisWeekList.scrollHeight}px`;
-      showElement(laterThisWeekListHeader);
-    } else if (
-      (days > 7 - currentDay && days <= 14 - currentDay) ||
-      (currentDay === 0 && days > 1 && days <= 7)
-    ) {
-      const nextWeekList = getElement('#nextWeek-todo-list');
-      const nextWeekListHeader = getElement('#nextWeek-list-header');
-      nextWeekList.append(todoList);
-      nextWeekList.style.height = `${nextWeekList.scrollHeight}px`;
-      showElement(nextWeekListHeader);
-    } else {
-      const laterList = getElement('#later-todo-list');
-      const laterListHeader = getElement('#later-list-header');
-      laterList.append(todoList);
-      laterList.style.height = `${laterList.scrollHeight}px`;
-      showElement(laterListHeader);
     }
   };
 
@@ -1007,6 +886,7 @@ const todoView = () => {
       const { target, addedNodes, removedNodes } = mutation;
       const selectedProject = getElement('.list.selected');
       const indicators = target.closest('.indicators');
+      const isDateIndicator = target.classList.contains('date-indicator-label');
       let skip = false;
 
       /**
@@ -1021,14 +901,19 @@ const todoView = () => {
           addedNodes[0].classList.contains('date-indicator')) ||
           (removedNodes[0] &&
             removedNodes[0].nodeType === 1 &&
-            removedNodes[0].classList.contains('date-indicator')))
+            removedNodes[0].classList.contains('date-indicator')) ||
+          (isDateIndicator && (!addedNodes[0] || !removedNodes[0])))
       ) {
         skip = true;
       }
 
       if (indicators && !skip) {
         refreshTodoItemsPositions();
-      } else if (addedNodes[0] && addedNodes[0].classList.contains('todo-item')) {
+      } else if (
+        addedNodes[0] &&
+        addedNodes[0].nodeType === 1 &&
+        addedNodes[0].classList.contains('todo-item')
+      ) {
         // If there is scrollbar, grow items to keep the same width
         const { tasksView, newTodo, tasksTitleWrapper } = elements;
         const maxTodoListHeight =
@@ -1050,7 +935,11 @@ const todoView = () => {
           off(todoList, 'transitionend', handleTransition);
         };
         on(todoList, 'transitionend', handleTransition);
-      } else if (removedNodes[0] && removedNodes[0].classList.contains('todo-item')) {
+      } else if (
+        removedNodes[0] &&
+        removedNodes[0].nodeType === 1 &&
+        removedNodes[0].classList.contains('todo-item')
+      ) {
         // If there is scrollbar, grow items to keep the same width
         const { tasksView, newTodo, tasksTitleWrapper } = elements;
         const maxTodoListHeight =
@@ -1131,6 +1020,150 @@ const todoView = () => {
     } else {
       // Update todoList height
       todoList.style.height = `${fullHeight - removeChildFullHeight}px`;
+    }
+  };
+
+  // Helper function - planned list DOM elements
+  const plannedListDOM = () => {
+    const earlierListHeader = createElement('li', '#earlier-list-header');
+    const earlierList = createElement('ul', '#earlier-todo-list');
+    const todayListHeader = createElement('li', '#today-list-header');
+    const todayList = createElement('ul', '#today-todo-list');
+    const tomorrowListHeader = createElement('li', '#tomorrow-list-header');
+    const tomorrowList = createElement('ul', '#tomorrow-todo-list');
+    const laterThisWeekListHeader = createElement('li', '#laterThisWeek-list-header');
+    const laterThisWeekList = createElement('ul', '#laterThisWeek-todo-list');
+    const nextWeekListHeader = createElement('li', '#nextWeek-list-header');
+    const nextWeekList = createElement('ul', '#nextWeek-todo-list');
+    const laterListHeader = createElement('li', '#later-list-header');
+    const laterList = createElement('ul', '#later-todo-list');
+    earlierListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Earlier</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    todayListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Today</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    tomorrowListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Tomorrow</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    laterThisWeekListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Later this week</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    nextWeekListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Next week</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+    laterListHeader.insertAdjacentHTML(
+      'beforeEnd',
+      `<h3>Later</h3><button class="open-close">${chevronSVG}</button>`,
+    );
+
+    addClass(earlierListHeader, 'list-header', 'hide');
+    addClass(todayListHeader, 'list-header', 'hide');
+    addClass(tomorrowListHeader, 'list-header', 'hide');
+    addClass(laterThisWeekListHeader, 'list-header', 'hide');
+    addClass(nextWeekListHeader, 'list-header', 'hide');
+    addClass(laterListHeader, 'list-header', 'hide');
+
+    addClass(earlierList, 'todo-list-time');
+    addClass(todayList, 'todo-list-time');
+    addClass(tomorrowList, 'todo-list-time');
+    addClass(laterThisWeekList, 'todo-list-time');
+    addClass(nextWeekList, 'todo-list-time');
+    addClass(laterList, 'todo-list-time');
+
+    earlierList.dataset.time = earlierListHeader.id;
+    todayList.dataset.time = todayListHeader.id;
+    tomorrowList.dataset.time = tomorrowListHeader.id;
+    laterThisWeekList.dataset.time = laterThisWeekListHeader.id;
+    nextWeekList.dataset.time = nextWeekListHeader.id;
+    laterList.dataset.time = laterListHeader.id;
+
+    elements.todoList.append(
+      earlierListHeader,
+      earlierList,
+      todayListHeader,
+      todayList,
+      tomorrowListHeader,
+      tomorrowList,
+      laterThisWeekListHeader,
+      laterThisWeekList,
+      nextWeekListHeader,
+      nextWeekList,
+      laterListHeader,
+      laterList,
+    );
+  };
+
+  // Helper function - Planned list system
+  const plannedListView = (todoList, dateString) => {
+    const date = new Date(dateString);
+    const currentDate = new Date(getConvertedCurrentDate());
+    const coefficientMSDay = 1000 * 60 * 60 * 24;
+    const days = (date - currentDate) / coefficientMSDay;
+    const currentDay = currentDate.getDay();
+
+    if (days === 0) {
+      const todayList = getElement('#today-todo-list');
+      const todayListHeader = getElement('#today-list-header');
+
+      if (!todayList.contains(todoList)) {
+        todayList.prepend(todoList);
+      }
+
+      showElement(todayListHeader);
+    } else if (days === 1) {
+      const tomorrowList = getElement('#tomorrow-todo-list');
+      const tomorrowListHeader = getElement('#tomorrow-list-header');
+
+      if (!tomorrowList.contains(todoList)) {
+        tomorrowList.prepend(todoList);
+      }
+
+      showElement(tomorrowListHeader);
+    } else if (days < 0) {
+      const earlierList = getElement('#earlier-todo-list');
+      const earlierListHeader = getElement('#earlier-list-header');
+
+      if (!earlierList.contains(todoList)) {
+        earlierList.prepend(todoList);
+      }
+
+      showElement(earlierListHeader);
+    } else if (currentDay !== 0 && currentDay !== 6 && days > 1 && days <= 7 - currentDay) {
+      const laterThisWeekList = getElement('#laterThisWeek-todo-list');
+      const laterThisWeekListHeader = getElement('#laterThisWeek-list-header');
+
+      if (!laterThisWeekList.contains(todoList)) {
+        laterThisWeekList.prepend(todoList);
+      }
+
+      showElement(laterThisWeekListHeader);
+    } else if (
+      (days > 7 - currentDay && days <= 14 - currentDay) ||
+      (currentDay === 0 && days > 1 && days <= 7)
+    ) {
+      const nextWeekList = getElement('#nextWeek-todo-list');
+      const nextWeekListHeader = getElement('#nextWeek-list-header');
+
+      if (!nextWeekList.contains(todoList)) {
+        nextWeekList.append(todoList);
+      }
+
+      showElement(nextWeekListHeader);
+    } else {
+      const laterList = getElement('#later-todo-list');
+      const laterListHeader = getElement('#later-list-header');
+
+      if (!laterList.contains(todoList)) {
+        laterList.append(todoList);
+      }
+
+      showElement(laterListHeader);
     }
   };
 
@@ -1233,7 +1266,10 @@ const todoView = () => {
     }
 
     // hide "Empty state" block if todo list is not empty anymore
-    if (elements.todoList.children.length === 1 || getElement('.todo-list-time .todo-item')) {
+    if (
+      elements.todoList.children.length === 1 ||
+      getElements('.todo-list-time .todo-item').length === 1
+    ) {
       addClass(elements.emptyState, 'hide-empty-state');
     }
   };
@@ -1631,6 +1667,7 @@ const todoView = () => {
 
     const handleDateChange = (e) => {
       const { target } = e;
+      const isPlannedProject = selectedProject.dataset.index === '4';
 
       // If removeDate button is clicked don't run this function
       if (!target.value) return;
@@ -1647,8 +1684,38 @@ const todoView = () => {
         updateTodoCount(plannedCount, true);
 
         // Set back removed list if we are editing in "Planned" project
-        if (selectedProject.dataset.index === '4') {
-          elements.todoList.append(selectedTodo);
+        if (isPlannedProject) {
+          selectedTodo.style = '';
+          plannedListView(selectedTodo, todo.date);
+          // Animate list addition
+          animateAddTodoList(selectedTodo);
+
+          // hide "Empty state" block if todo list is not empty anymore
+          if (getElements('.todo-list-time .todo-item').length === 1) {
+            addClass(elements.emptyState, 'hide-empty-state');
+          }
+        }
+      } else if (isPlannedProject) {
+        const todoListTime = selectedTodo.closest('.todo-list-time');
+        const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
+
+        plannedListView(selectedTodo, todo.date);
+
+        // Hide header time group if empty
+        if (todoListTime.children.length === 0) {
+          hideElement(todoListHeader);
+          todoListTime.style.height = 0;
+        }
+
+        // If new date is in another group date, run animation
+        if (todoListTime !== selectedTodo.closest('.todo-list-time')) {
+          selectedTodo.style = '';
+          refreshTodoItemsPositions();
+        }
+
+        // hide "Empty state" block if todo list is not empty anymore
+        if (getElements('.todo-list-time .todo-item').length === 1) {
+          addClass(elements.emptyState, 'hide-empty-state');
         }
       }
 
