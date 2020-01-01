@@ -1002,8 +1002,28 @@ const todoView = () => {
     mutations.forEach((mutation) => {
       const { todoList } = elements;
       const { target, addedNodes, removedNodes } = mutation;
+      const selectedProject = getElement('.list.selected');
+      const indicators = target.closest('.indicators');
+      let skip = false;
 
-      if (target.closest('.indicators')) {
+      /**
+       * Checking if we are in 'Planned' project and removing/adding date
+       * So we skip to not trigger 'refresh position' function and disable animation add/remove todo
+       */
+      if (
+        selectedProject.dataset.index === '4' &&
+        indicators &&
+        ((addedNodes[0] &&
+          addedNodes[0].nodeType === 1 &&
+          addedNodes[0].classList.contains('date-indicator')) ||
+          (removedNodes[0] &&
+            removedNodes[0].nodeType === 1 &&
+            removedNodes[0].classList.contains('date-indicator')))
+      ) {
+        skip = true;
+      }
+
+      if (indicators && !skip) {
         refreshTodoItemsPositions();
       } else if (addedNodes[0] && addedNodes[0].classList.contains('todo-item')) {
         // If there is scrollbar, grow items to keep the same width
@@ -1075,7 +1095,7 @@ const todoView = () => {
       todoList.scrollHeight > todoList.offsetHeight ? todoList.scrollHeight : todoList.offsetHeight;
 
     let removeChildFullHeight = 0;
-    // Disable all transitions
+    // Enable all transitions
     enableTransition(todoList);
 
     Array.from(children).forEach((child, index) => {
@@ -1382,27 +1402,6 @@ const todoView = () => {
     on(editElem, 'keydown', handleEditEvents);
   };
 
-  const updatePlannedListHeight = (selectedProject, selectedTodo) => {
-    if (selectedProject.dataset.index !== '4') return;
-
-    // const todoListTime = selectedTodo.closest('.todo-list-time');
-    // todoListTime.style.height = 'auto';
-    // todoListTime.style.height = `${todoListTime.offsetHeight}px`;
-  };
-
-  const updatePlannedListHeightAnimated = (selectedProject, todoListTime) => {
-    if (selectedProject.dataset.index !== '4') return;
-
-    const { children } = todoListTime;
-    let fullHeight = 0;
-    Array.from(children).forEach((child) => {
-      const height = child.offsetHeight;
-      const { marginBottom } = getComputedStyle(child);
-      fullHeight += parseInt(height, 10) + parseInt(marginBottom, 10);
-    });
-    todoListTime.style.height = `${fullHeight}px`;
-  };
-
   let flatCalendar = null;
   /**
    * Display details of the selected todo object
@@ -1622,9 +1621,6 @@ const todoView = () => {
         liveNoteIndicator.remove();
         toggleIndicatorClass();
       }
-
-      // Update list height if in Planned
-      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleDateChange = (e) => {
@@ -1691,10 +1687,18 @@ const todoView = () => {
 
       // Remove todo if it's in "Planned" project
       if (selectedProject.dataset.index === '4') {
-        const todoListTime = selectedTodo.closest('.todo-list-time');
+        const todoListTime = selectedTodo.closest('ul.todo-list-time');
+        const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
+
+        if (todoListTime.children.length === 1) {
+          hideElement(todoListHeader);
+          todoListTime.style.height = 0;
+        }
+
+        // Animate removing list
+        animateRemoveTodoList(selectedTodo);
+
         selectedTodo.remove();
-        // Update list height if in Planned (Animated)
-        updatePlannedListHeightAnimated(selectedProject, todoListTime);
       }
 
       // Update todoCount of "Planned" project
@@ -1768,9 +1772,6 @@ const todoView = () => {
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
       }
-
-      // Update list height if in Planned
-      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleDeleteSubtask = (e) => {
@@ -1798,9 +1799,6 @@ const todoView = () => {
         liveSubtaskIndicatorLabel.closest('.subtask-indicator').remove();
         toggleIndicatorClass();
       }
-
-      // Update list height if in Planned
-      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleToggleSubtask = (e) => {
@@ -1925,9 +1923,6 @@ const todoView = () => {
           elements.todoList.append(selectedTodo);
         }
       }
-
-      // Update list height if in Planned
-      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleMyDayClick = (e) => {
@@ -1951,9 +1946,6 @@ const todoView = () => {
       if (selectedProject.dataset.index === '2') {
         elements.todoList.append(selectedTodo);
       }
-
-      // Update list height if in Planned
-      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     const handleRemoveMyDayClick = () => {
@@ -1971,9 +1963,6 @@ const todoView = () => {
 
       // If we are editing in "Important" project then remove todo
       if (selectedProject.dataset.index === '2') selectedTodo.remove();
-
-      // Update list height if in Planned
-      updatePlannedListHeight(selectedProject, selectedTodo);
     };
 
     // Set event listeners
