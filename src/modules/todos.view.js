@@ -48,7 +48,9 @@ const DOMHelpers = () => {
     }
   };
 
-  const getElement = (elem) => document.querySelector(elem);
+  const getElement = (selector) => document.querySelector(selector);
+
+  const getElements = (selector) => document.querySelectorAll(selector);
 
   const wrap = (elem, className, parentElem = 'div') => {
     const wrapper = document.createElement(parentElem);
@@ -119,6 +121,7 @@ const DOMHelpers = () => {
     off,
     empty,
     getElement,
+    getElements,
     wrap,
     unselect,
     addClass,
@@ -1230,7 +1233,7 @@ const todoView = () => {
     }
 
     // hide "Empty state" block if todo list is not empty anymore
-    if (elements.todoList.children.length === 1) {
+    if (elements.todoList.children.length === 1 || getElement('.todo-list-time .todo-item')) {
       addClass(elements.emptyState, 'hide-empty-state');
     }
   };
@@ -1239,6 +1242,8 @@ const todoView = () => {
     const todoItem = elements.todoList.querySelector(
       `.todo-item[data-index="${index}"].todo-item[data-project-index="${projectIndex}"]`,
     );
+    const selectedProject = getElement('.list.selected');
+    const isPlannedProject = selectedProject.dataset.index === '4';
 
     // Update todoCount in current list if todo is not completed
     if (!todoItem.classList.contains('completed')) {
@@ -1249,11 +1254,6 @@ const todoView = () => {
 
       // Hide todo count if it's todo list is empty
       if (todoCount.textContent === '0') hideElement(todoCount);
-    }
-
-    // Show the "Empty state" block if list is empty
-    if (elements.todoList.children.length === 0) {
-      removeClass(elements.emptyState, 'hide-empty-state');
     }
 
     // Animate removing list
@@ -1267,9 +1267,7 @@ const todoView = () => {
     }
 
     // Handle removeTodo in Planned project
-    const selectedProject = getElement('.list.selected');
-
-    if (selectedProject.dataset.index === '4') {
+    if (isPlannedProject) {
       const todoListTime = todoItem.closest('ul.todo-list-time');
       const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
 
@@ -1281,6 +1279,14 @@ const todoView = () => {
 
     // Remove Item at the end to get to its ancestors
     todoItem.remove();
+
+    // Show the "Empty state" block if list is empty
+    if (
+      elements.todoList.children.length === 0 ||
+      (isPlannedProject && !getElement('.todo-list-time .todo-item'))
+    ) {
+      removeClass(elements.emptyState, 'hide-empty-state');
+    }
   };
 
   const toggleTodo = (isComplete, id, projectID) => {
@@ -1686,7 +1692,8 @@ const todoView = () => {
       toggleIndicatorClass();
 
       // Remove todo if it's in "Planned" project
-      if (selectedProject.dataset.index === '4') {
+      const isPlannedProject = selectedProject.dataset.index === '4';
+      if (isPlannedProject) {
         const todoListTime = selectedTodo.closest('ul.todo-list-time');
         const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
 
@@ -1699,6 +1706,11 @@ const todoView = () => {
         animateRemoveTodoList(selectedTodo);
 
         selectedTodo.remove();
+
+        // Show the "Empty state" block if all lists are empty
+        if (!getElement('.todo-list-time .todo-item')) {
+          removeClass(elements.emptyState, 'hide-empty-state');
+        }
       }
 
       // Update todoCount of "Planned" project
