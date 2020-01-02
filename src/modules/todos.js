@@ -4,8 +4,7 @@ const todoItem = (title) => {
   const getSubTasks = () => subTasks;
 
   const addSubTask = (name) => {
-    const subTaskID =
-      subTasks.length > 0 ? subTasks[subTasks.length - 1].id + 1 : 1;
+    const subTaskID = subTasks.length > 0 ? subTasks[subTasks.length - 1].id + 1 : 1;
     const subTask = {
       id: subTaskID,
       name,
@@ -102,8 +101,7 @@ const todoStore = (name = '') => {
     if (!title) return;
 
     const item = todoItem(title);
-    item.id =
-      state.items.length > 0 ? state.items[state.items.length - 1].id + 1 : 1;
+    item.id = state.items.length > 0 ? state.items[state.items.length - 1].id + 1 : 1;
     item.projectID = id;
 
     state.items.push(item);
@@ -170,10 +168,7 @@ const todoApp = (() => {
 
   const addProject = (name) => {
     const project = todoStore(name);
-    project.id =
-      state.projects.length > 0
-        ? state.projects[state.projects.length - 1].id + 1
-        : 1;
+    project.id = state.projects.length > 0 ? state.projects[state.projects.length - 1].id + 1 : 1;
 
     state.projects.push(project);
   };

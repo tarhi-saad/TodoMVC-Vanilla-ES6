@@ -80,6 +80,11 @@ const todoController = (() => {
     // Reset "My Day" todo count if it's a new day
     if (newDay) view.resetMyDayCount();
 
+    // Sort todos by date if 'Planned' project is selected
+    if (selectedID === 4) {
+      defaultItems.sort((todoA, todoB) => new Date(todoA.date) - new Date(todoB.date));
+    }
+
     // Display todos if a default project is selected
     if ([1, 2, 3, 4].includes(selectedID)) view.displayTodos(defaultItems);
   };
@@ -109,9 +114,7 @@ const todoController = (() => {
           {
             todo.isMyDay = true;
             // Update todoCount of "myDay" project
-            const myDayCount = document.querySelector(
-              '.list[data-index="2"] .todo-count',
-            );
+            const myDayCount = document.querySelector('.list[data-index="2"] .todo-count');
             view.updateTodoCount(myDayCount, true);
           }
           break;
@@ -120,9 +123,7 @@ const todoController = (() => {
           {
             todo.isImportant = true;
             // Update todoCount of "Important" project
-            const importantCount = document.querySelector(
-              '.list[data-index="3"] .todo-count',
-            );
+            const importantCount = document.querySelector('.list[data-index="3"] .todo-count');
             view.updateTodoCount(importantCount, true);
           }
           break;
@@ -131,9 +132,7 @@ const todoController = (() => {
           {
             todo.date = view.getConvertedCurrentDate();
             // Update todoCount of "Planned" project
-            const plannedCount = document.querySelector(
-              '.list[data-index="4"] .todo-count',
-            );
+            const plannedCount = document.querySelector('.list[data-index="4"] .todo-count');
             view.updateTodoCount(plannedCount, true);
           }
           break;
@@ -157,22 +156,14 @@ const todoController = (() => {
 
     const removeTodo = () => {
       const todoID = Number(target.closest('.todo-item').dataset.index);
-      const projectID = Number(
-        target.closest('.todo-item').dataset.projectIndex,
-      );
+      const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
       const project = todoApp.getProjectByID(projectID);
 
       // Update "Planned/Important/MyDay" todoCounts if date/important/myDay is set
       const todo = project.getItemByID(todoID);
-      const plannedCount = document.querySelector(
-        '.list[data-index="4"] .todo-count',
-      );
-      const importantCount = document.querySelector(
-        '.list[data-index="3"] .todo-count',
-      );
-      const myDayCount = document.querySelector(
-        '.list[data-index="2"] .todo-count',
-      );
+      const plannedCount = document.querySelector('.list[data-index="4"] .todo-count');
+      const importantCount = document.querySelector('.list[data-index="3"] .todo-count');
+      const myDayCount = document.querySelector('.list[data-index="2"] .todo-count');
 
       if (todo.date && !todo.isComplete) {
         view.updateTodoCount(plannedCount, false);
@@ -193,8 +184,7 @@ const todoController = (() => {
 
     // Confirm deletion of incomplete task
     if (!target.closest('.completed')) {
-      const name = target.closest('.todo-item').querySelector('.todo-title')
-        .textContent;
+      const name = target.closest('.todo-item').querySelector('.todo-title').textContent;
       const msg = `
         You didn't complete this task!<br>
         Delete <span class="name">"${name}"</span> anyway?
@@ -215,23 +205,13 @@ const todoController = (() => {
 
     const project = todoApp.getProjectByID(projectID);
     project.toggleTodo(todoID);
-    view.toggleTodo(
-      project.getItemByID(todoID).isComplete,
-      target.id,
-      projectID,
-    );
+    view.toggleTodo(project.getItemByID(todoID).isComplete, target.id, projectID);
 
     // Update "Planned/Important/MyDay" todoCounts if date/important/myDay is set
     const todo = project.getItemByID(todoID);
-    const plannedCount = document.querySelector(
-      '.list[data-index="4"] .todo-count',
-    );
-    const importantCount = document.querySelector(
-      '.list[data-index="3"] .todo-count',
-    );
-    const myDayCount = document.querySelector(
-      '.list[data-index="2"] .todo-count',
-    );
+    const plannedCount = document.querySelector('.list[data-index="4"] .todo-count');
+    const importantCount = document.querySelector('.list[data-index="3"] .todo-count');
+    const myDayCount = document.querySelector('.list[data-index="2"] .todo-count');
 
     if (todo.date) view.updateTodoCount(plannedCount, !todo.isComplete);
 
@@ -314,9 +294,7 @@ const todoController = (() => {
     switch (list.dataset.index) {
       // All tasks case
       case '1':
-        todoApp
-          .getProjects()
-          .forEach((project) => items.push(...project.getItems()));
+        todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
         view.displayTodos(items);
         break;
 
@@ -347,9 +325,7 @@ const todoController = (() => {
             if (item.date) items.push(item);
           });
         });
-        items.sort(
-          (todoA, todoB) => new Date(todoA.date) - new Date(todoB.date),
-        );
+        items.sort((todoA, todoB) => new Date(todoA.date) - new Date(todoB.date));
         view.displayTodos(items);
         break;
 
@@ -376,9 +352,7 @@ const todoController = (() => {
     const removeList = () => {
       todoApp.removeProject(listID);
       // Get the index of the selected list
-      const listIndex = Array.from(lists).indexOf(
-        view.elements.lists.querySelector('.selected'),
-      );
+      const listIndex = Array.from(lists).indexOf(view.elements.lists.querySelector('.selected'));
 
       // transfer selected class and selected project when deleting list
       if (target.closest('.selected')) {
@@ -407,17 +381,14 @@ const todoController = (() => {
     };
 
     // Confirm removal if list is not empty
-    const todoCount = Number(
-      target.closest('.list').querySelector('.todo-count').textContent,
-    );
+    const todoCount = Number(target.closest('.list').querySelector('.todo-count').textContent);
     const isAllTasksComplete = !todoApp
       .getProjectByID(listID)
       .getItems()
       .some((todo) => !todo.isComplete);
 
     if (todoCount > 0 && !isAllTasksComplete) {
-      const name = target.closest('.list').querySelector('.project-name')
-        .textContent;
+      const name = target.closest('.list').querySelector('.project-name').textContent;
       const msg = `
         This list still contains some tasks to do!<br>
         Delete <span class="name">"${name}"</span> anyway?
