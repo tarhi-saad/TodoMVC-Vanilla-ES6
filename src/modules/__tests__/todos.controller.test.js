@@ -1,5 +1,21 @@
 import todoController from '../todos.controller';
 
+// Jest's JSDom doesn't support MutationObserver API. We create a mock to skip it.
+global.MutationObserver = class {
+  constructor(callback) {} // eslint-disable-line
+  disconnect() {} // eslint-disable-line
+  observe(element, initObject) {} // eslint-disable-line
+};
+
+// Disable transition of list and its children
+const disableTransition = (list) => {
+  list.style.transition = 'none';
+
+  Array.from(list.children).forEach((item) => {
+    item.style.transition = 'none';
+  });
+};
+
 const addList = (title) => {
   document.querySelector('#newList').value = title;
   document.querySelector('.lists-menu .submit-btn').click();
@@ -25,21 +41,11 @@ describe('\n => todoController', () => {
     });
 
     test('should display the default projects', () => {
-      expect(
-        document.querySelectorAll('.lists .project-name')[0].innerHTML,
-      ).toBe('All Tasks');
-      expect(
-        document.querySelectorAll('.lists .project-name')[1].innerHTML,
-      ).toBe('My Day');
-      expect(
-        document.querySelectorAll('.lists .project-name')[2].innerHTML,
-      ).toBe('Bookmarked');
-      expect(
-        document.querySelectorAll('.lists .project-name')[3].innerHTML,
-      ).toBe('Planned');
-      expect(
-        document.querySelectorAll('.lists .project-name')[4].innerHTML,
-      ).toBe('Tasks');
+      expect(document.querySelectorAll('.lists .project-name')[0].innerHTML).toBe('All Tasks');
+      expect(document.querySelectorAll('.lists .project-name')[1].innerHTML).toBe('My Day');
+      expect(document.querySelectorAll('.lists .project-name')[2].innerHTML).toBe('Bookmarked');
+      expect(document.querySelectorAll('.lists .project-name')[3].innerHTML).toBe('Planned');
+      expect(document.querySelectorAll('.lists .project-name')[4].innerHTML).toBe('Tasks');
     });
 
     test('should display an empty todo list', () => {
@@ -61,43 +67,6 @@ describe('\n => todoController', () => {
         document.querySelector('.tasks-view label').click();
         document.querySelector('.tasks-view .delete-btn').click();
         expect(document.querySelector('.todo-list').childElementCount).toBe(0);
-      });
-
-      test('should delete the right todo when its button is clicked', () => {
-        document.querySelector('#newTodo').value = 'simple task 1';
-        document.querySelector('.tasks-view .submit-btn').click();
-        document.querySelector('#newTodo').value = 'simple task 2';
-        document.querySelector('.tasks-view .submit-btn').click();
-        document.querySelector('#newTodo').value = 'simple task 3';
-        document.querySelector('.tasks-view .submit-btn').click();
-        // Set task to completed
-        document.querySelector('.tasks-view li:nth-child(2) label').click();
-        document.querySelector('ul li:nth-child(2) .delete-btn').click();
-        expect(document.querySelector('.todo-item[data-index="2"]')).toBeNull();
-      });
-
-      test('should not delete todo when task in not completed', () => {
-        document.querySelector('#newTodo').value = 'simple task';
-        document.querySelector('.tasks-view .submit-btn').click();
-        const { index } = document.querySelector(
-          '.tasks-view li:first-child',
-        ).dataset;
-        document.querySelector('.tasks-view .delete-btn').click();
-        expect(
-          document.querySelector(`.todo-item[data-index="${index}"]`)
-            .childElementCount,
-        ).not.toBeNull();
-      });
-    });
-
-    describe('\n     => bindToggleTodo', () => {
-      test('should display an empty todo list when input is empty', () => {
-        document.querySelector('#newTodo').value = 'simple task 1';
-        document.querySelector('.tasks-view .submit-btn').click();
-        document.querySelector('#todo-checkbox15').click();
-        expect(document.querySelector('#todo-checkbox15').checked).toBe(true);
-        document.querySelector('#todo-checkbox15').click();
-        expect(document.querySelector('#todo-checkbox15').checked).toBe(false);
       });
     });
 
@@ -122,15 +91,9 @@ describe('\n => todoController', () => {
           document.querySelector('.lists .list').click();
 
           expect(
-            document
-              .querySelector('.lists .list:last-child')
-              .classList.contains('selected'),
+            document.querySelector('.lists .list:last-child').classList.contains('selected'),
           ).toBe(false);
-          expect(
-            document
-              .querySelector('.lists .list')
-              .classList.contains('selected'),
-          ).toBe(true);
+          expect(document.querySelector('.lists .list').classList.contains('selected')).toBe(true);
         });
       });
 
@@ -140,9 +103,7 @@ describe('\n => todoController', () => {
           const listCount = document.querySelectorAll('.lists .list').length;
           document.querySelectorAll('.lists .delete-btn')[0].click();
 
-          expect(document.querySelectorAll('.lists .list').length).toBe(
-            listCount - 1,
-          );
+          expect(document.querySelectorAll('.lists .list').length).toBe(listCount - 1);
         });
 
         test('should transfer "selected" class to its upper sibling when deleted', () => {
@@ -150,11 +111,9 @@ describe('\n => todoController', () => {
           document.querySelectorAll('.lists .list')[5].click();
           document.querySelector('.lists .delete-btn').click();
 
-          expect(
-            document
-              .querySelectorAll('.lists .list')[4]
-              .classList.contains('selected'),
-          ).toBe(true);
+          expect(document.querySelectorAll('.lists .list')[4].classList.contains('selected')).toBe(
+            true,
+          );
         });
 
         test('should transfer "selected" class to its lower sibling when deleted list is first', () => {
@@ -164,11 +123,9 @@ describe('\n => todoController', () => {
           document.querySelectorAll('.lists .list')[0].click();
           document.querySelectorAll('.lists .delete-btn')[0].click();
 
-          expect(
-            document
-              .querySelectorAll('.lists .list')[0]
-              .classList.contains('selected'),
-          ).toBe(true);
+          expect(document.querySelectorAll('.lists .list')[0].classList.contains('selected')).toBe(
+            true,
+          );
         });
       });
     });

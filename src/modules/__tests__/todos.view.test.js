@@ -1,5 +1,12 @@
 import { todoView, DOMHelpers } from '../todos.view';
 
+// Jest's JSDom doesn't support MutationObserver API. We create a mock to skip it.
+global.MutationObserver = class {
+  constructor(callback) {} // eslint-disable-line
+  disconnect() {} // eslint-disable-line
+  observe(element, initObject) {} // eslint-disable-line
+};
+
 describe('\n => DOMHelpers', () => {
   const { createElement } = DOMHelpers();
 
@@ -49,21 +56,15 @@ describe('\n => todoView', () => {
     test('should display project data (name/todoCount) correctly when called', () => {
       view.displayList(1, 'Proj 1', []);
 
-      expect(document.querySelector('.lists .project-name').innerHTML).toBe(
-        'Proj 1',
-      );
-      expect(document.querySelector('.lists span.todo-count').innerHTML).toBe(
-        '0',
-      );
+      expect(document.querySelector('.lists .project-name').innerHTML).toBe('Proj 1');
+      expect(document.querySelector('.lists span.todo-count').innerHTML).toBe('0');
       expect(document.querySelector('.lists .list').dataset.index).toBe('1');
     });
 
     test('should add "selected" class to list when argument is true', () => {
       view.displayList(1, 'My awesome project', [], true);
 
-      expect(
-        document.querySelector('.lists .list').classList.contains('selected'),
-      ).toBe(true);
+      expect(document.querySelector('.lists .list').classList.contains('selected')).toBe(true);
     });
   });
 
@@ -138,20 +139,10 @@ describe('\n => todoView', () => {
         },
       ]);
 
-      expect(document.querySelector('.todo-list .todo-title').innerHTML).toBe(
-        'My awesome todo',
-      );
-      expect(
-        document.querySelector('.todo-list #todo-checkbox11').checked,
-      ).toBe(true);
-      expect(
-        document.querySelector('.todo-list .todo-item').dataset.index,
-      ).toBe('1');
-      expect(
-        document
-          .querySelector('.todo-list .todo-item')
-          .classList.contains('low'),
-      ).toBe(true);
+      expect(document.querySelector('.todo-list .todo-title').innerHTML).toBe('My awesome todo');
+      expect(document.querySelector('.todo-list #todo-checkbox11').checked).toBe(true);
+      expect(document.querySelector('.todo-list .todo-item').dataset.index).toBe('1');
+      expect(document.querySelector('.todo-list .todo-item').classList.contains('low')).toBe(true);
     });
 
     test('should display only one list when called multiple times', () => {
