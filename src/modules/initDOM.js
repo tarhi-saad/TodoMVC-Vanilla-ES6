@@ -34,6 +34,11 @@ const initializeDOMElements = () => {
   header.append(menuButton);
   // The left block containing all projects
   const listsMenu = createElement('div', '.lists-menu');
+  // close menu if mobile
+  if (document.body.offsetWidth < 770) {
+    menuButton.dataset.state = 'closed';
+    addClass(listsMenu, 'mobile');
+  }
   // UL element with our list of projects
   const lists = createElement('ul', '.lists');
   // The form with our input to add a project
