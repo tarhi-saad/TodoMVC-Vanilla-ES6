@@ -65,6 +65,7 @@
       font-weight: bold;
       margin: 0 8px;
       padding: 0 10px;
+      transition: background-color 0.3s ease;
 
       &:hover {
         background: $white-smoke;
@@ -138,6 +139,78 @@
     .list.pinned {
       .delete-btn {
         display: none;
+      }
+    }
+
+    .list.all-tasks-list {
+      .list-icon {
+        svg {
+          fill: $allTasks-color;
+        }
+      }
+
+      &.selected {
+        background: $allTasks-background;
+        color: $allTasks-color;
+
+        .todo-count {
+          color: $allTasks-color;
+        }
+      }
+    }
+    .list.my-day-list {
+      .list-icon {
+        svg {
+          fill: $myDay-color;
+        }
+      }
+
+      &.selected {
+        background: $myDay-background;
+        color: $myDay-color;
+
+        .todo-count {
+          color: $myDay-color;
+        }
+      }
+    }
+    .list.important-list {
+      .list-icon {
+        svg {
+          fill: $bookmark-color;
+        }
+      }
+
+      &.selected {
+        background: $bookmark-background;
+        color: $bookmark-color;
+
+        .todo-count {
+          color: $bookmark-color;
+        }
+      }
+    }
+    .list.planned-list {
+      .list-icon {
+        svg {
+          fill: $planned-color;
+        }
+      }
+
+      &.selected {
+        background: $planned-background;
+        color: $planned-color;
+
+        .todo-count {
+          color: $planned-color;
+        }
+      }
+    }
+    .list.home-list {
+      .list-icon {
+        svg {
+          fill: $base-color;
+        }
       }
     }
   }

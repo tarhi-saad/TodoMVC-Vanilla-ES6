@@ -40,6 +40,15 @@ $breakpoint-md: 1010px;
 $breakpoint-sm: 770px;
 // constants
 $scrollbar-width: 8px;
+// Default tasks colors
+$allTasks-color: #ff8a00;
+$allTasks-background: rgba(255, 136, 0, 0.1);
+$myDay-color: #e52e71;
+$myDay-background: rgba(229, 46, 113, 0.1);
+$bookmark-color: #f44336;
+$bookmark-background: rgba(244, 67, 54, 0.1);
+$planned-color: #9c27b0;
+$planned-background: rgba(155, 39, 176, 0.1);
 
 // Mixins
 @mixin center-absolute {
