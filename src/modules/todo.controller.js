@@ -1,5 +1,5 @@
-import todoApp from './todos';
-import { todoView } from './todos.view';
+import todoApp from './todo.model';
+import { todoView } from './todo.view';
 
 const todoController = (() => {
   /**

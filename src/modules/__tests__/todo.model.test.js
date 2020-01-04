@@ -1,4 +1,4 @@
-import todoApp from '../todos';
+import todoApp from '../todo.model';
 
 describe('\n => The todoApp instance', () => {
   let list = null;
@@ -310,9 +310,7 @@ describe('\n => The todoApp instance', () => {
         list.updateTodoTitle(2, 'title 2 is updated');
 
         expect(
-          `${list.getItems()[0].title}, ${list.getItems()[1].title}, ${
-            list.getItems()[2].title
-          }`,
+          `${list.getItems()[0].title}, ${list.getItems()[1].title}, ${list.getItems()[2].title}`,
         ).toBe('title 1, title 2 is updated, title 3');
       });
     });

@@ -1,19 +1,10 @@
-import todoController from '../todos.controller';
+import todoController from '../todo.controller';
 
 // Jest's JSDom doesn't support MutationObserver API. We create a mock to skip it.
 global.MutationObserver = class {
   constructor(callback) {} // eslint-disable-line
   disconnect() {} // eslint-disable-line
   observe(element, initObject) {} // eslint-disable-line
-};
-
-// Disable transition of list and its children
-const disableTransition = (list) => {
-  list.style.transition = 'none';
-
-  Array.from(list.children).forEach((item) => {
-    item.style.transition = 'none';
-  });
 };
 
 const addList = (title) => {

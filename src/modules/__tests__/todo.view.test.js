@@ -1,4 +1,4 @@
-import { todoView, DOMHelpers } from '../todos.view';
+import { todoView, DOMHelpers } from '../todo.view';
 
 // Jest's JSDom doesn't support MutationObserver API. We create a mock to skip it.
 global.MutationObserver = class {
