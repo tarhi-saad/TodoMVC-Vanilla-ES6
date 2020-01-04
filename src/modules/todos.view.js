@@ -310,6 +310,12 @@ const initializeDOMElements = () => {
 
     // The number 8 is added to give room to items to grow/shrink and not be hidden
     list.style.height = `${fullHeight + 8}px`;
+
+    if (todoList.scrollHeight > todoList.offsetHeight) {
+      addClass(todoList, 'grow-items');
+    } else if (todoList.scrollHeight === todoList.offsetHeight) {
+      removeClass(todoList, 'grow-items');
+    }
   };
   // Helper function - refresh todos transition & list's height
   const refreshTodoItemsPositions = () => {
@@ -880,87 +886,123 @@ const todoView = () => {
   };
 
   // Mutation observer
+  const observerCallbackHelper = (todoList, mutation) => {
+    const { target, addedNodes, removedNodes } = mutation;
+    const selectedProject = getElement('.list.selected');
+    const indicators = target.closest('.indicators');
+    const isDateIndicator = target.classList.contains('date-indicator-label');
+    const isPlannedProject = selectedProject.dataset.index === '4';
+    const isTransitionDisabled = todoList.style.transitionProperty === 'none';
+    let skip = false;
+
+    /**
+     * Checking if we are in 'Planned' project and removing/adding date
+     * So we skip to not trigger 'refresh position' function and disable animation add/remove todo
+     */
+    if (
+      isPlannedProject &&
+      indicators &&
+      ((addedNodes[0] &&
+        addedNodes[0].nodeType === 1 &&
+        addedNodes[0].classList.contains('date-indicator')) ||
+        (removedNodes[0] &&
+          removedNodes[0].nodeType === 1 &&
+          removedNodes[0].classList.contains('date-indicator')) ||
+        (isDateIndicator && (!addedNodes[0] || !removedNodes[0])))
+    ) {
+      skip = true;
+    }
+
+    if (indicators && !skip) {
+      refreshTodoItemsPositions();
+    } else if (
+      !isTransitionDisabled &&
+      addedNodes[0] &&
+      addedNodes[0].nodeType === 1 &&
+      addedNodes[0].classList.contains('todo-item')
+    ) {
+      // If there is scrollbar, grow items to keep the same width
+      const { tasksView, newTodo, tasksTitleWrapper } = elements;
+      const maxTodoListHeight =
+        tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+      let fullHeight = null;
+
+      if (isPlannedProject) {
+        const fullHeightAddedNode =
+          addedNodes[0].offsetHeight + parseInt(getComputedStyle(addedNodes[0]).marginBottom, 10);
+        fullHeight = elements.todoList.scrollHeight + fullHeightAddedNode;
+      } else {
+        fullHeight = parseInt(todoList.style.height, 10);
+      }
+
+      Array.from(todoList.children).forEach((child) => {
+        child.style.width = `${child.offsetWidth}px`;
+      });
+
+      const handleTransition = () => {
+        if (maxTodoListHeight < fullHeight) {
+          addClass(elements.todoList, 'grow-items');
+        }
+
+        Array.from(todoList.children).forEach((child) => {
+          child.style.width = '';
+        });
+        off(todoList, 'transitionend', handleTransition);
+      };
+      on(todoList, 'transitionend', handleTransition);
+    } else if (
+      !isTransitionDisabled &&
+      removedNodes[0] &&
+      removedNodes[0].nodeType === 1 &&
+      removedNodes[0].classList.contains('todo-item')
+    ) {
+      // If there is scrollbar, grow items to keep the same width
+      const { tasksView, newTodo, tasksTitleWrapper } = elements;
+      const maxTodoListHeight =
+        tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+      let fullHeight = null;
+
+      if (isPlannedProject) {
+        const todoListInitialHeight = todoList.offsetHeight;
+        const todoListNewHeight = parseInt(todoList.style.height, 10);
+        const fullHeightRemovedNode = todoListInitialHeight - todoListNewHeight;
+        fullHeight = elements.todoList.scrollHeight - fullHeightRemovedNode;
+      } else {
+        fullHeight = parseInt(todoList.style.height, 10);
+      }
+
+      Array.from(todoList.children).forEach((child) => {
+        child.style.width = `${child.offsetWidth}px`;
+      });
+
+      const handleTransition = () => {
+        if (maxTodoListHeight >= fullHeight) {
+          removeClass(elements.todoList, 'grow-items');
+        }
+
+        Array.from(todoList.children).forEach((child) => {
+          child.style.width = '';
+        });
+        off(todoList, 'transitionend', handleTransition);
+      };
+      on(todoList, 'transitionend', handleTransition);
+    }
+  };
+
   const observerCallback = (mutations) => {
     mutations.forEach((mutation) => {
       const { todoList } = elements;
-      const { target, addedNodes, removedNodes } = mutation;
-      const selectedProject = getElement('.list.selected');
-      const indicators = target.closest('.indicators');
-      const isDateIndicator = target.classList.contains('date-indicator-label');
-      let skip = false;
+      const isPlannedProject = elements.tasksView.dataset.projectIndex === '4';
 
-      /**
-       * Checking if we are in 'Planned' project and removing/adding date
-       * So we skip to not trigger 'refresh position' function and disable animation add/remove todo
-       */
-      if (
-        selectedProject.dataset.index === '4' &&
-        indicators &&
-        ((addedNodes[0] &&
-          addedNodes[0].nodeType === 1 &&
-          addedNodes[0].classList.contains('date-indicator')) ||
-          (removedNodes[0] &&
-            removedNodes[0].nodeType === 1 &&
-            removedNodes[0].classList.contains('date-indicator')) ||
-          (isDateIndicator && (!addedNodes[0] || !removedNodes[0])))
-      ) {
-        skip = true;
-      }
-
-      if (indicators && !skip) {
-        refreshTodoItemsPositions();
-      } else if (
-        addedNodes[0] &&
-        addedNodes[0].nodeType === 1 &&
-        addedNodes[0].classList.contains('todo-item')
-      ) {
-        // If there is scrollbar, grow items to keep the same width
-        const { tasksView, newTodo, tasksTitleWrapper } = elements;
-        const maxTodoListHeight =
-          tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
-        const fullHeight = parseInt(todoList.style.height, 10);
-
-        Array.from(todoList.children).forEach((child) => {
-          child.style.width = `${child.offsetWidth}px`;
-        });
-
-        const handleTransition = () => {
-          if (maxTodoListHeight < fullHeight) {
-            addClass(todoList, 'grow-items');
+      if (isPlannedProject) {
+        const listsTime = todoList.querySelectorAll('ul.todo-list-time');
+        Array.from(listsTime).forEach((list) => {
+          if (list.children.length > 0) {
+            observerCallbackHelper(list, mutation);
           }
-
-          Array.from(todoList.children).forEach((child) => {
-            child.style.width = '';
-          });
-          off(todoList, 'transitionend', handleTransition);
-        };
-        on(todoList, 'transitionend', handleTransition);
-      } else if (
-        removedNodes[0] &&
-        removedNodes[0].nodeType === 1 &&
-        removedNodes[0].classList.contains('todo-item')
-      ) {
-        // If there is scrollbar, grow items to keep the same width
-        const { tasksView, newTodo, tasksTitleWrapper } = elements;
-        const maxTodoListHeight =
-          tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
-        const fullHeight = parseInt(todoList.style.height, 10);
-
-        Array.from(todoList.children).forEach((child) => {
-          child.style.width = `${child.offsetWidth}px`;
         });
-
-        const handleTransition = () => {
-          if (maxTodoListHeight >= fullHeight) {
-            removeClass(todoList, 'grow-items');
-          }
-
-          Array.from(todoList.children).forEach((child) => {
-            child.style.width = '';
-          });
-          off(todoList, 'transitionend', handleTransition);
-        };
-        on(todoList, 'transitionend', handleTransition);
+      } else {
+        observerCallbackHelper(todoList, mutation);
       }
     });
   };
@@ -1382,16 +1424,20 @@ const todoView = () => {
    * @param {Object[]} todos List of todo objects
    */
   const displayTodos = (todos) => {
+    const selectedProject = getElement('.list.selected');
+
     // Reset todo details - we remove details view before appending todos
     resetDetails();
     // Hide view details on list switch & on add list
     removeClass(elements.detailsView, 'show');
 
+    // Set task view index
+    elements.tasksView.dataset.projectIndex = selectedProject.dataset.index;
+    // Set task view title
     elements.tasksTitle.textContent = getElement('.list.selected .project-name').textContent;
     empty(elements.todoList);
 
     // Add DOM elements for Planned todo list
-    const selectedProject = getElement('.list.selected');
     if (selectedProject.dataset.index === '4') plannedListDOM();
 
     // Animate list - reset todoList Height
