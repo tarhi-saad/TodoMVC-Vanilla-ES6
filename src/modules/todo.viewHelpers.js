@@ -735,6 +735,14 @@ const viewHelpers = (elements) => {
     }
   };
 
+  // Play complete sound
+  const playCompleteSound = () => {
+    const completeSound = document.getElementById('completeSound');
+    completeSound.pause();
+    completeSound.currentTime = 0;
+    completeSound.play();
+  };
+
   return {
     toggleModal,
     resetMyDayCount,
@@ -752,6 +760,7 @@ const viewHelpers = (elements) => {
     toggleEditMode,
     confirmRemoval,
     switchEmptyState,
+    playCompleteSound,
   };
 };
 

@@ -56,6 +56,7 @@ const todoView = () => {
     toggleEditMode,
     confirmRemoval,
     switchEmptyState,
+    playCompleteSound,
   } = viewHelpers(elements);
 
   /**
@@ -342,6 +343,9 @@ const todoView = () => {
       if (todoItem.classList.contains('selected')) {
         addClass(elements.detailsView, 'disabled');
       }
+
+      // Play complete sound
+      playCompleteSound();
     } else {
       removeClass(todoItem, 'completed');
       todoCount.textContent = Number(todoCount.textContent) + 1;
@@ -872,7 +876,14 @@ const todoView = () => {
       const subTask = todo.getSubTasks().find((subtask) => subtask.id === id);
       const { isComplete } = subTask;
       target.checked = isComplete;
-      isComplete ? addClass(li, 'completed') : removeClass(li, 'completed');
+
+      if (isComplete) {
+        addClass(li, 'completed');
+        // Play complete sound
+        playCompleteSound();
+      } else {
+        removeClass(li, 'completed');
+      }
 
       // Indicator
       const subtaskIndicator = selectedTodo.querySelector('.subtask-indicator');

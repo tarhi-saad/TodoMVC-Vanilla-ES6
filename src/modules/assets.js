@@ -19,6 +19,7 @@ import tasksSVG from '../images/tasks.svg';
 import importantSVG from '../images/important.svg';
 import daySVG from '../images/day.svg';
 import chevronSVG from '../images/chevron.svg';
+import completeSound from '../audio/complete.wav';
 
 const assets = () => ({
   deleteSVG,
@@ -42,6 +43,7 @@ const assets = () => ({
   emptyStateMyDaySVG,
   emptyStateBookmarkSVG,
   emptyStatePlannedSVG,
+  completeSound,
 });
 
 export default assets;

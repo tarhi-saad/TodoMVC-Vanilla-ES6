@@ -21,6 +21,7 @@ const {
   plusSVG,
   importantSVG,
   daySVG,
+  completeSound,
 } = assets();
 
 const initializeDOMElements = () => {
@@ -104,6 +105,16 @@ const initializeDOMElements = () => {
   const overlay = createElement('div', '.overlay');
   document.body.append(modalBackdrop, overlay);
 
+  // Complete sound
+  const audioBlock = createElement('div', '#audioBlock');
+  audioBlock.hidden = true;
+  audioBlock.insertAdjacentHTML(
+    'beforeend',
+    `
+      <audio id="completeSound"><source src="${completeSound}" type="audio/wav"></audio>
+    `,
+  );
+
   // Indicators
   /* Note indicator */
   const noteIndicatorFn = () => {
@@ -158,7 +169,7 @@ const initializeDOMElements = () => {
   newTodo.append(newTodoInput, newTodoSubmit);
   tasksView.append(tasksTitleWrapper, todoList, emptyState, newTodo);
 
-  root.append(header, listsMenu, tasksView, detailsView, modal);
+  root.append(header, listsMenu, tasksView, detailsView, modal, audioBlock);
 
   // Helper function - 'refreshTodoItemsPositions' helper
   const refreshTodoItemsPositionsHelper = (list) => {
