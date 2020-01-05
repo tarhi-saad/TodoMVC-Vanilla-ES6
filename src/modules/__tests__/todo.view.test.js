@@ -7,6 +7,14 @@ global.MutationObserver = class {
   observe(element, initObject) {} // eslint-disable-line
 };
 
+// Mock audio. JSDom does not support HTML audio/video
+window.HTMLMediaElement.prototype.play = () => {
+  /* do nothing */
+};
+window.HTMLMediaElement.prototype.pause = () => {
+  /* do nothing */
+};
+
 describe('\n => DOMHelpers', () => {
   const { createElement } = DOMHelpers();
 

@@ -705,7 +705,7 @@ const viewHelpers = (elements) => {
     const emptyState = document.getElementById('empty-state');
     const emptyStateText = emptyState.querySelector('p');
     const currentSVG = emptyState.querySelector('svg');
-    currentSVG.remove();
+    if (currentSVG) currentSVG.remove();
 
     switch (index) {
       case 1:
