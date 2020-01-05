@@ -17,7 +17,14 @@ const viewHelpers = (elements) => {
     enableTransition,
   } = DOMHelpers();
 
-  const { chevronSVG } = assets();
+  const {
+    chevronSVG,
+    emptyStateSVG,
+    emptyStateAllTasksSVG,
+    emptyStateMyDaySVG,
+    emptyStateBookmarkSVG,
+    emptyStatePlannedSVG,
+  } = assets();
 
   const { refreshTodoItemsPositions } = elements;
 
@@ -692,6 +699,42 @@ const viewHelpers = (elements) => {
     on(modalBackdrop, 'click', handleClick);
   };
 
+  // Switch empty state content between defaults projects
+  const switchEmptyState = (selectedProject) => {
+    const index = Number(selectedProject.dataset.index);
+    const emptyState = document.getElementById('empty-state');
+    const emptyStateText = emptyState.querySelector('p');
+    const currentSVG = emptyState.querySelector('svg');
+    currentSVG.remove();
+
+    switch (index) {
+      case 1:
+        emptyState.insertAdjacentHTML('afterBegin', emptyStateAllTasksSVG);
+        emptyStateText.textContent = 'You have no tasks!';
+        break;
+
+      case 2:
+        emptyState.insertAdjacentHTML('afterBegin', emptyStateMyDaySVG);
+        emptyStateText.textContent = 'This is where you can add your daily tasks.';
+        break;
+
+      case 3:
+        emptyState.insertAdjacentHTML('afterBegin', emptyStateBookmarkSVG);
+        emptyStateText.textContent = 'You have no bookmarked tasks.';
+        break;
+
+      case 4:
+        emptyState.insertAdjacentHTML('afterBegin', emptyStatePlannedSVG);
+        emptyStateText.textContent = 'You have no planned tasks.';
+        break;
+
+      default:
+        emptyState.insertAdjacentHTML('afterBegin', emptyStateSVG);
+        emptyStateText.textContent = 'What tasks are on your mind?';
+        break;
+    }
+  };
+
   return {
     toggleModal,
     resetMyDayCount,
@@ -708,6 +751,7 @@ const viewHelpers = (elements) => {
     plannedListView,
     toggleEditMode,
     confirmRemoval,
+    switchEmptyState,
   };
 };
 

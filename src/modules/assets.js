@@ -3,6 +3,10 @@ import listSVG from '../images/list.svg';
 import arrowSVG from '../images/arrow.svg';
 import checkSVG from '../images/check.svg';
 import emptyStateSVG from '../images/empty-state.svg';
+import emptyStateAllTasksSVG from '../images/empty-state-alltasks.svg';
+import emptyStateMyDaySVG from '../images/empty-state-myday.svg';
+import emptyStateBookmarkSVG from '../images/empty-state-bookmark.svg';
+import emptyStatePlannedSVG from '../images/empty-state-planned.svg';
 import removeSVG from '../images/remove.svg';
 import prioritySVG from '../images/priority.svg';
 import calendarSVG from '../images/calendar.svg';
@@ -34,6 +38,10 @@ const assets = () => ({
   importantSVG,
   daySVG,
   chevronSVG,
+  emptyStateAllTasksSVG,
+  emptyStateMyDaySVG,
+  emptyStateBookmarkSVG,
+  emptyStatePlannedSVG,
 });
 
 export default assets;

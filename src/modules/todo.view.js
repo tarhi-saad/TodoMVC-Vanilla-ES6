@@ -55,6 +55,7 @@ const todoView = () => {
     plannedListView,
     toggleEditMode,
     confirmRemoval,
+    switchEmptyState,
   } = viewHelpers(elements);
 
   /**
@@ -416,6 +417,9 @@ const todoView = () => {
     } else {
       removeClass(elements.tasksView, 'pinned');
     }
+
+    // Choose the right empty state to show for the chosen project
+    switchEmptyState(selectedProject);
   };
 
   let flatCalendar = null;
