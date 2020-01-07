@@ -1,6 +1,12 @@
 .details-view {
   background: $white-smoke;
+  margin-bottom: 40px;
+  position: absolute;
   width: 0;
+
+  @media screen and (min-width: $breakpoint-sm) {
+    position: relative;
+  }
 
   div {
     background: #fff;
@@ -342,6 +348,55 @@
     }
   }
 
+  .my-day {
+    display: flex;
+    padding: 16px 20px 16px 22px;
+
+    &:hover {
+      background: $white-smoke;
+    }
+
+    & > svg {
+      position: relative;
+      transform: none;
+      top: initial;
+      left: initial;
+    }
+
+    .my-day-text {
+      color: $grey-color;
+      padding-left: 12px;
+      width: 100%;
+    }
+
+    .remove-my-day {
+      pointer-events: none;
+      opacity: 0;
+
+      svg {
+        cursor: pointer;
+        width: 10px;
+      }
+    }
+
+    &.added {
+      & > svg {
+        fill: $base-color;
+      }
+
+      .my-day-text {
+        color: $base-color;
+      }
+
+      &:hover {
+        .remove-my-day {
+          opacity: 1;
+          pointer-events: initial;
+        }
+      }
+    }
+  }
+
   .date-block {
     padding: 0;
 
@@ -474,6 +529,24 @@
       }
     }
   }
+
+  .creation-date {
+    background: #f4f4f4;
+    border-color: #eaeaea;
+    display: flex;
+    justify-content: center;
+    color: #666666;
+    font-size: 13px;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 360px;
+    border-radius: 0;
+    margin-bottom: 0;
+
+    .creation-date-text {
+    }
+  }
 }
 
 .details-view.show {
@@ -481,15 +554,13 @@
   padding: 10px;
   width: 360px;
   z-index: 70;
-  position: absolute;
   right: 0;
   top: 48px;
-  height: calc(100% - 48px);
+  height: calc(100% - 88px); // Minus "top" + "margin-bottom" values
   max-width: 100%;
 
   @media screen and (min-width: $breakpoint-sm) {
     padding-left: 0;
-    position: relative;
     height: auto;
     top: 0;
   }

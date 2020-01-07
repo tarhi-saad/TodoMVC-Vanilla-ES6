@@ -24,10 +24,45 @@ $line-spacing: 48px;
         background: initial;
       }
     }
+
+    .todo-list {
+      height: auto;
+
+      li.list-header {
+        button.open-close {
+          border: 0;
+          background: none;
+          transform: rotate(-90deg);
+
+          &.close {
+            transform: rotate(90deg);
+          }
+
+          svg {
+            width: 12px;
+          }
+        }
+      }
+
+      ul.todo-list-time {
+        border-bottom: 1px solid $second-color-darker;
+        padding: 0 2px;
+
+        overflow: hidden;
+        height: 0;
+        transition: all 0.6s ease;
+        position: relative;
+      }
+
+      .list-header.hide + ul.todo-list-time {
+        border-bottom: 0;
+      }
+    }
   }
 
   h1 {
-    margin: 10px 10px 20px;
+    margin: 0;
+    padding: 10px 10px 20px;
     font-weight: bold;
 
     span,
@@ -59,17 +94,40 @@ $line-spacing: 48px;
 
   .todo-list {
     overflow-x: hidden;
-    padding: 0 20px 15px;
+    height: 0;
+    transition: all 0.3s ease;
+    position: relative;
+
+    &.grow-items {
+      .todo-item {
+        left: 11px;
+        width: calc(100% - 22px);
+      }
+    }
 
     .todo-item {
       border: 1px solid $second-color-darker;
+      border-width: 1px;
+      border-radius: 4px;
       margin-bottom: 10px;
       min-height: 3.13rem !important;
       padding: 6px 11px;
-      transition: $transition;
+      transition: transform 0.6s ease, box-shadow 0.25s ease-out, border-color 0.15s linear;
+      position: absolute !important;
+      left: 15px;
+      top: 5px;
+      width: calc(100% - 30px);
+      transform: translateY(0);
+      background: #fff;
+
+      &:first-child {
+        z-index: 1;
+      }
 
       &:hover {
-        border-color: $base-color;
+        box-shadow: 0px 0px 4px rgba(0, 128, 255, 0.7);
+        border-color: #fff;
+        transition: box-shadow 150ms ease-out, border-color 150ms ease-out, transform 0.6s ease;
       }
 
       .title-block {
@@ -101,7 +159,8 @@ $line-spacing: 48px;
           .date-indicator,
           .subtask-indicator,
           .project-name-indicator,
-          .important-indicator {
+          .important-indicator,
+          .my-day-indicator {
             color: $grey-color;
             display: flex;
             font-size: 12px;
@@ -169,6 +228,17 @@ $line-spacing: 48px;
 
             svg {
               fill: $base-color;
+              margin-right: 0;
+              width: 14px;
+            }
+          }
+
+          .my-day-indicator {
+            height: 18px;
+
+            svg {
+              fill: $base-color;
+              margin-right: 0;
               width: 14px;
             }
           }
@@ -283,7 +353,8 @@ $line-spacing: 48px;
           .date-indicator.today,
           .subtask-indicator,
           .project-name-indicator,
-          .important-indicator {
+          .important-indicator,
+          .my-day-indicator {
             color: $second-color-darker;
 
             svg {
@@ -338,10 +409,9 @@ $line-spacing: 48px;
     }
 
     .todo-item.selected {
-      border-color: $base-color;
-      box-shadow: 0 2px 5px 0 $shadow-color;
-      transform: scale(1.005);
-      transition-duration: 0.1s;
+      border-width: 0;
+      box-shadow: 0px 0px 0px 2px rgba(0, 128, 255, 0.3), 0px 0px 10px rgba(0, 128, 255, 0.3);
+      padding: 7px 13px 7px 11px;
     }
 
     li.low {
@@ -390,6 +460,13 @@ $line-spacing: 48px;
         order: 0;
         width: 100%;
       }
+    }
+
+    p {
+      color: $grey-color;
+      font-size: 14px;
+      padding: 10px 0;
+      margin: 20px 0;
     }
   }
 

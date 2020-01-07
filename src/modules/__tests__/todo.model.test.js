@@ -1,4 +1,4 @@
-import todoApp from '../todos';
+import todoApp from '../todo.model';
 
 describe('\n => The todoApp instance', () => {
   let list = null;
@@ -20,7 +20,7 @@ describe('\n => The todoApp instance', () => {
       });
 
       test('should add a todo object with the given title and all the default values when called', () => {
-        list.addTodo('test');
+        list.addTodo('test', 1);
         const [
           {
             description,
@@ -40,9 +40,13 @@ describe('\n => The todoApp instance', () => {
             date,
             id: 1,
             isComplete: false,
+            isImportant: false,
+            isMyDay: false,
+            creationDate: null,
             note,
             priority,
             title: 'test',
+            projectID: 1,
             getSubTasks,
             addSubTask,
             editSubTaskName,
@@ -69,7 +73,7 @@ describe('\n => The todoApp instance', () => {
       });
 
       test('should not alter the todoStore when a non-existing id is given', () => {
-        list.addTodo('saad');
+        list.addTodo('saad', 1);
         const [
           {
             description,
@@ -77,6 +81,10 @@ describe('\n => The todoApp instance', () => {
             note,
             id,
             isComplete,
+            isImportant,
+            isMyDay,
+            creationDate,
+            projectID,
             title,
             priority,
             getSubTasks,
@@ -94,6 +102,10 @@ describe('\n => The todoApp instance', () => {
             note,
             id,
             isComplete,
+            isImportant,
+            isMyDay,
+            creationDate,
+            projectID,
             title,
             priority,
             getSubTasks,
@@ -115,13 +127,17 @@ describe('\n => The todoApp instance', () => {
       });
 
       test('should note change other values of the item when called', () => {
-        list.addTodo('some other todo');
+        list.addTodo('some other todo', 1);
         const {
           description,
           date,
           note,
           id,
           isComplete,
+          isImportant,
+          isMyDay,
+          creationDate,
+          projectID,
           title,
           priority,
           getSubTasks,
@@ -137,6 +153,10 @@ describe('\n => The todoApp instance', () => {
           note,
           id,
           isComplete: !isComplete,
+          isImportant,
+          isMyDay,
+          creationDate,
+          projectID,
           title,
           priority,
           getSubTasks,
@@ -157,6 +177,10 @@ describe('\n => The todoApp instance', () => {
             date: date1,
             id: id1,
             isComplete: isComplete1,
+            isImportant: isImportant1,
+            isMyDay: isMyDay1,
+            creationDate: creationDate1,
+            projectID: projectID1,
             note: note1,
             priority: priority1,
             title: title1,
@@ -171,6 +195,10 @@ describe('\n => The todoApp instance', () => {
             date: date2,
             id: id2,
             isComplete: isComplete2,
+            isImportant: isImportant2,
+            isMyDay: isMyDay2,
+            creationDate: creationDate2,
+            projectID: projectID2,
             note: note2,
             priority: priority2,
             title: title2,
@@ -185,6 +213,10 @@ describe('\n => The todoApp instance', () => {
             date: date3,
             id: id3,
             isComplete: isComplete3,
+            isImportant: isImportant3,
+            isMyDay: isMyDay3,
+            creationDate: creationDate3,
+            projectID: projectID3,
             note: note3,
             priority: priority3,
             title: title3,
@@ -203,6 +235,10 @@ describe('\n => The todoApp instance', () => {
             date: date1,
             id: id1,
             isComplete: isComplete1,
+            isImportant: isImportant1,
+            isMyDay: isMyDay1,
+            creationDate: creationDate1,
+            projectID: projectID1,
             note: note1,
             priority: priority1,
             title: title1,
@@ -217,6 +253,10 @@ describe('\n => The todoApp instance', () => {
             date: date2,
             id: id2,
             isComplete: !isComplete2,
+            isImportant: isImportant2,
+            isMyDay: isMyDay2,
+            creationDate: creationDate2,
+            projectID: projectID2,
             note: note2,
             priority: priority2,
             title: title2,
@@ -231,6 +271,10 @@ describe('\n => The todoApp instance', () => {
             date: date3,
             id: id3,
             isComplete: isComplete3,
+            isImportant: isImportant3,
+            isMyDay: isMyDay3,
+            creationDate: creationDate3,
+            projectID: projectID3,
             note: note3,
             priority: priority3,
             title: title3,
@@ -266,9 +310,7 @@ describe('\n => The todoApp instance', () => {
         list.updateTodoTitle(2, 'title 2 is updated');
 
         expect(
-          `${list.getItems()[0].title}, ${list.getItems()[1].title}, ${
-            list.getItems()[2].title
-          }`,
+          `${list.getItems()[0].title}, ${list.getItems()[1].title}, ${list.getItems()[2].title}`,
         ).toBe('title 1, title 2 is updated, title 3');
       });
     });
@@ -296,7 +338,10 @@ describe('\n => The todoApp instance', () => {
     test('should remove project when its id is given', () => {
       todoApp.addProject('project 1');
       todoApp.addProject('project 2');
-      todoApp.removeProject(2);
+      const projectToRemove = todoApp.getProjectByID(2);
+      // Set an ID that can be removed. IDs from 1 to 5 are default, can't be removed
+      projectToRemove.id = 6;
+      todoApp.removeProject(6);
 
       expect(todoApp.getProjects().length).toBe(1);
     });
@@ -313,7 +358,10 @@ describe('\n => The todoApp instance', () => {
       todoApp.addProject('project 1');
       todoApp.addProject('project 2');
       todoApp.addProject('project 3');
-      todoApp.removeProject(2);
+      const projectToRemove = todoApp.getProjectByID(2);
+      // Set an ID that can be removed. IDs from 1 to 5 are default, can't be removed
+      projectToRemove.id = 6;
+      todoApp.removeProject(6);
 
       expect(todoApp.getProjects().length).toBe(2);
       expect(todoApp.getProjects()[0].id).toBe(1);

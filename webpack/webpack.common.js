@@ -82,13 +82,13 @@ module.exports = {
           outputPath: 'assets/fonts',
         },
       },
-      // {
-      //   test: /\.mp3$/,
-      //   loader: 'file-loader',
-      //   options: {
-      //     outputPath: 'assets/audio',
-      //   },
-      // },
+      {
+        test: /\.wav$/,
+        loader: 'file-loader',
+        options: {
+          outputPath: 'assets/audio',
+        },
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,

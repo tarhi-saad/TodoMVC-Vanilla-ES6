@@ -1,10 +1,10 @@
 header {
   grid-area: header;
-  height: 48px;
+  height: 54px;
   display: flex;
   align-items: center;
   background: $base-color;
-  padding: 0 20px;
+  padding: 0;
   z-index: 70;
   margin-left: -55px;
 
@@ -13,17 +13,24 @@ header {
   }
 
   .menu-btn {
-    width: 24px;
-    height: 24px;
+    background: none;
+    width: 54px;
+    height: 54px;
     padding: 0;
     border: 0;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #005a9e;
+    }
 
     svg {
-      width: 18px;
+      width: 20px;
+      fill: #fff;
     }
   }
 }
