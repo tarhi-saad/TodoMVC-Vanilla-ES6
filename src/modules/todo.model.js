@@ -1,3 +1,5 @@
+import todoSort from './todo.sort';
+
 const todoItem = (title) => {
   const subTasks = [];
 
@@ -47,7 +49,7 @@ const todoItem = (title) => {
     title,
     description: '',
     date: '',
-    priority: 'Low',
+    priority: 'low',
     note: '',
     isComplete: false,
     isImportant: false,
@@ -87,6 +89,10 @@ const todoStore = (name = '') => {
     name,
   };
 
+  const sort = todoSort();
+
+  const { setSelectedSortType, setSelectedDirection } = sort;
+
   const getName = () => state.name;
 
   const setName = (newName) => {
@@ -94,6 +100,8 @@ const todoStore = (name = '') => {
   };
 
   const getItems = () => state.items;
+
+  const getSortedItems = (items = state.items) => sort.getSortedItems(items);
 
   const { getItemByID } = todoStoreHelper(getItems);
 
@@ -130,6 +138,9 @@ const todoStore = (name = '') => {
     toggleTodo,
     updateTodoTitle,
     getItemByID,
+    getSortedItems,
+    setSelectedSortType,
+    setSelectedDirection,
   };
 };
 
