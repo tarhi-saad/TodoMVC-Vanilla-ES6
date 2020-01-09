@@ -189,7 +189,7 @@ const todoView = () => {
     label.append(span);
 
     // Setting creation date
-    if (!todo.creationDate) todo.creationDate = getConvertedCurrentDate();
+    if (!todo.creationDate) todo.creationDate = Date.now();
 
     // Setting up "todo" title
     const title = createElement('span', '.todo-title');
@@ -580,7 +580,8 @@ const todoView = () => {
     // Creation date block
     const creationDate = createElement('div', '.creation-date');
     const creationDateText = createElement('span', '.creation-date-text');
-    creationDateText.textContent = getFriendlyCreationDate(todo.creationDate);
+    const convertedCreationDate = getConvertedCurrentDate(todo.creationDate);
+    creationDateText.textContent = getFriendlyCreationDate(convertedCreationDate);
     creationDate.append(creationDateText);
     // Append to details block
     elements.detailsView.append(
