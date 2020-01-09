@@ -135,8 +135,8 @@ const viewHelpers = (elements) => {
   };
 
   // Helper function - convert current date to "YYYY-MM-DD"
-  const getConvertedCurrentDate = () => {
-    const date = new Date();
+  const getConvertedCurrentDate = (timestamp = Date.now()) => {
+    const date = new Date(timestamp);
     const month =
       `${date.getMonth() + 1}`.length === 1 ? `0${date.getMonth() + 1}` : `${date.getMonth() + 1}`;
     const day = `${date.getDate()}`.length === 1 ? `0${date.getDate()}` : `${date.getDate()}`;
@@ -363,9 +363,9 @@ const viewHelpers = (elements) => {
       addedNodes[0].classList.contains('todo-item')
     ) {
       // If there is scrollbar, grow items to keep the same width
-      const { tasksView, newTodo, tasksTitleWrapper } = elements;
+      const { tasksView, newTodo, tasksHeader } = elements;
       const maxTodoListHeight =
-        tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+        tasksView.offsetHeight - (newTodo.offsetHeight + tasksHeader.offsetHeight);
       let fullHeight = null;
 
       if (isPlannedProject) {
@@ -398,9 +398,9 @@ const viewHelpers = (elements) => {
       removedNodes[0].classList.contains('todo-item')
     ) {
       // If there is scrollbar, grow items to keep the same width
-      const { tasksView, newTodo, tasksTitleWrapper } = elements;
+      const { tasksView, newTodo, tasksHeader } = elements;
       const maxTodoListHeight =
-        tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+        tasksView.offsetHeight - (newTodo.offsetHeight + tasksHeader.offsetHeight);
       let fullHeight = null;
 
       if (isPlannedProject) {

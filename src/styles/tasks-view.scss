@@ -18,10 +18,12 @@ $line-spacing: 48px;
   position: relative;
 
   &.pinned {
-    h1 {
-      span:hover {
-        cursor: auto;
-        background: initial;
+    .tasks-header {
+      h1 {
+        span:hover {
+          cursor: auto;
+          background: initial;
+        }
       }
     }
 
@@ -59,35 +61,127 @@ $line-spacing: 48px;
       }
     }
   }
+  .tasks-header {
+    display: flex;
+    align-items: center;
+    position: relative;
 
-  h1 {
-    margin: 0;
-    padding: 10px 10px 20px;
-    font-weight: bold;
-
-    span,
-    input {
+    h1 {
+      margin: 0;
+      padding: 10px;
+      font-weight: bold;
       width: 100%;
-    }
 
-    span {
-      display: block;
-      padding: 6px 10px;
+      span,
+      input {
+        width: 100%;
+      }
 
-      &:hover {
-        background: #f5f5f5;
-        cursor: text;
+      span {
+        display: block;
+        padding: 6px 10px;
+
+        &:hover {
+          background: #f5f5f5;
+          cursor: text;
+        }
+      }
+
+      input {
+        border: none;
+        font-weight: bold;
+        height: 100%;
+        padding: 5px 10px;
+
+        &:focus {
+          background: #f5f5f5;
+        }
       }
     }
 
-    input {
-      border: none;
-      font-weight: bold;
-      height: 100%;
-      padding: 5px 10px;
+    .sort-btn {
+      align-items: center;
+      display: flex;
+      margin-right: 20px;
+      text-transform: capitalize;
 
-      &:focus {
-        background: #f5f5f5;
+      svg {
+        fill: $base-color;
+        width: 16px;
+      }
+
+      .sort-text {
+        padding-left: 5px;
+      }
+    }
+
+    .sort-menu {
+      background-color: #fff;
+      border-radius: 4px;
+      position: absolute;
+      right: 24px;
+      top: 53px;
+      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+      z-index: 2;
+      visibility: hidden;
+      width: 0;
+      height: 0;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+
+      &.open {
+        display: inline-block;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        width: initial;
+        height: initial;
+      }
+
+      .sort-title {
+        border-bottom: 1px solid #eaeaea;
+        margin: 0;
+        padding: 12px 8px 10px 8px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .sort-list {
+        font-size: 16px;
+        padding: 8px 0;
+
+        .sort-type {
+          .sort-type-btn {
+            border: none;
+            background-color: #fff;
+            color: $grey-color;
+            height: 48px;
+            padding: 0 15px;
+            display: flex;
+            width: 100%;
+
+            &:hover {
+              background-color: $white-smoke;
+              transition: background-color 0.3s ease;
+            }
+
+            &:focus:active {
+              background-color: #eaeaea;
+            }
+
+            svg {
+              fill: $grey-color;
+              width: 18px;
+            }
+
+            .text {
+              padding-left: 15px;
+            }
+          }
+        }
       }
     }
   }

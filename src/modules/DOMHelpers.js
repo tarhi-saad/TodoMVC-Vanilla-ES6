@@ -56,6 +56,8 @@ const DOMHelpers = () => {
 
   const removeClass = (elem, ...className) => elem.classList.remove(...className);
 
+  const toggleClass = (elem, className) => elem.classList.toggle(className);
+
   const hideElement = (elem) => {
     addClass(elem, 'hide');
   };
@@ -106,6 +108,7 @@ const DOMHelpers = () => {
     unselect,
     addClass,
     removeClass,
+    toggleClass,
     hideElement,
     showElement,
     resetClassList,

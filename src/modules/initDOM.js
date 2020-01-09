@@ -8,6 +8,7 @@ const {
   getElement,
   addClass,
   removeClass,
+  toggleClass,
   disableTransition,
 } = DOMHelpers();
 
@@ -21,6 +22,11 @@ const {
   plusSVG,
   importantSVG,
   daySVG,
+  sortSVG,
+  sortNameSVG,
+  prioritySVG,
+  sortCompletedSVG,
+  sortCreationDateSVG,
   completeSound,
 } = assets();
 
@@ -76,12 +82,69 @@ const initializeDOMElements = () => {
   emptyStateText.textContent = 'What tasks are on your mind?';
   emptyState.append(emptyStateText);
 
-  // Display selected list title in tasks view
+  // Display selected list Header in tasks view
+  const tasksHeader = createElement('div', '.tasks-header');
   const tasksTitleWrapper = createElement('h1');
   const tasksTitle = createElement('span', '.tasks-title');
   const tasksTitleInput = createElement('input', '#tasksTitleInput');
   tasksTitleInput.autocomplete = 'off';
   tasksTitleWrapper.append(tasksTitle);
+  const sortButton = createElement('button', '.sort-btn');
+  addClass(sortButton, 'text-button');
+  const sortText = createElement('span', '.sort-text');
+  sortText.textContent = 'Sort';
+  sortButton.insertAdjacentHTML('afterBegin', sortSVG);
+  sortButton.append(sortText);
+
+  // Sort contextual menu
+  const sortMenu = createElement('div', '.sort-menu');
+  const sortTitle = createElement('h3', '.sort-title');
+  const sortList = createElement('ul', '.sort-list');
+  sortTitle.textContent = 'Sort by';
+  sortList.insertAdjacentHTML(
+    'afterBegin',
+    `
+    <li class="sort-type" id="sortByName">
+      <button class='sort-type-btn'>
+        ${sortNameSVG}
+        <span class="text">Alphabetically</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByCompleted">
+      <button class='sort-type-btn'>
+        ${sortCompletedSVG}
+        <span class="text">Completed</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByMyDay">
+      <button class='sort-type-btn'>
+        ${daySVG}
+        <span class="text">Added to My Day</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByDueDate">
+      <button class='sort-type-btn'>
+        ${calendarSVG}
+        <span class="text">DueDate</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByCreationDate">
+      <button class='sort-type-btn'>
+        ${sortCreationDateSVG}
+        <span class="text">Creation date</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByPriority">
+      <button class='sort-type-btn'>
+        ${prioritySVG}
+        <span class="text">Priority</span>
+      </button>
+    </li>
+  `,
+  );
+
+  sortMenu.append(sortTitle, sortList);
+  tasksHeader.append(tasksTitleWrapper, sortButton, sortMenu);
 
   // Details view for todo elements
   const detailsView = createElement('div', '.details-view');
@@ -167,7 +230,7 @@ const initializeDOMElements = () => {
   newList.append(newListLabel, newListInput, newListSubmit);
   listsMenu.append(lists, newList);
   newTodo.append(newTodoInput, newTodoSubmit);
-  tasksView.append(tasksTitleWrapper, todoList, emptyState, newTodo);
+  tasksView.append(tasksHeader, todoList, emptyState, newTodo);
 
   root.append(header, listsMenu, tasksView, detailsView, modal, audioBlock);
 
@@ -328,9 +391,29 @@ const initializeDOMElements = () => {
     screeSize = document.body.offsetWidth;
   };
 
+  const handleSortClick = () => {
+    toggleClass(sortMenu, 'open');
+  };
+
+  const handleBodyClick = (e) => {
+    const { target } = e;
+
+    if (
+      !sortMenu.classList.contains('open') ||
+      target.closest('.sort-menu') ||
+      target.closest('.sort-btn')
+    ) {
+      return;
+    }
+
+    removeClass(sortMenu, 'open');
+  };
+
   on(menuButton, 'click', handleClick);
   on(newListLabel, 'click', handleNewListClick);
   on(window, 'resize', handleResize);
+  on(document.body, 'click', handleBodyClick);
+  on(sortButton, 'click', handleSortClick);
 
   return {
     root,
@@ -341,6 +424,7 @@ const initializeDOMElements = () => {
     newTodoInput,
     newList,
     newListInput,
+    tasksHeader,
     tasksTitleWrapper,
     tasksTitle,
     tasksTitleInput,
