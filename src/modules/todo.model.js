@@ -162,7 +162,7 @@ const todoApp = (() => {
   defaultStores[4].id = 5;
   const state = {
     projects: [...defaultStores],
-    selected: 0,
+    selected: 4,
   };
 
   const getProjects = () => state.projects;
