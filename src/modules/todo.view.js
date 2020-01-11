@@ -22,6 +22,7 @@ const todoView = () => {
     resetClassList,
     getNumberFromString,
     enableTransition,
+    swapElements,
   } = DOMHelpers();
 
   const {
@@ -380,6 +381,45 @@ const todoView = () => {
     }
 
     getElement(`.list[data-index="${id}"]`).remove();
+  };
+
+  /**
+   * Reorder all DOM tasks with the new order of the given list
+   * @param {Object[]} todos List of todo objects
+   */
+  const refreshTodos = (todos) => {
+    enableTransition(elements.todoList);
+    const { children } = elements.todoList;
+    const translateValues = [];
+
+    // Get translateY() values
+    Array.from(children).forEach((list, i) => {
+      if (i === 0) translateValues.push(0);
+      else translateValues.push(getNumberFromString(list.style.transform));
+    });
+
+    // Sort DOM elements from model data
+    todos.forEach((todo, i) => {
+      Array.from(children).some((list, j) => {
+        if (todo.id === Number(list.dataset.index) && i !== children.length - 1 - j) {
+          swapElements(list, children[children.length - 1 - i]);
+
+          return true;
+        }
+
+        return false;
+      });
+    });
+
+    /**
+     * This timeout it's for the browser to process changes in transform to activate the
+     * transition
+     */
+    setTimeout(() => {
+      Array.from(children).forEach((list, i) => {
+        list.style.transform = `translateY(${translateValues[i]}px)`;
+      });
+    }, 100);
   };
 
   /**
@@ -1167,6 +1207,14 @@ const todoView = () => {
     on(elements.todoList, 'click', handler);
   };
 
+  /**
+   * Call handleSortList function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSortList = (handler) => {
+    on(elements.sortList, 'click', handler);
+  };
+
   return {
     displayList,
     removeProject,
@@ -1182,6 +1230,7 @@ const todoView = () => {
     bindSwitchList,
     bindDeleteList,
     bindEditTasksTitle,
+    bindSortList,
     empty,
     toggleEditMode,
     displayDetails,
@@ -1193,6 +1242,7 @@ const todoView = () => {
     getConvertedCurrentDate,
     resetMyDayCount,
     refreshTodoItemsPositions,
+    refreshTodos,
   };
 };
 

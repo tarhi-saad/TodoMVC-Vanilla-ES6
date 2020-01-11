@@ -97,6 +97,24 @@ const DOMHelpers = () => {
     list.style.transition ? enableTransition(list) : disableTransition(list);
   };
 
+  // Swap two siblings without removing one of them (why isn't this built-in yet?!)
+  const swapElements = (elem1, elem2) => {
+    const { parentElement } = elem1;
+    const { children } = parentElement;
+    const indexElem1 = Array.from(children).indexOf(elem1);
+    const indexElem2 = Array.from(children).indexOf(elem2);
+
+    if (indexElem1 < indexElem2) {
+      indexElem1 ? elem1.before(elem2) : elem1.after(elem2);
+
+      indexElem2 ? children[indexElem2].after(elem1) : children[indexElem2].before(elem1);
+    } else if (indexElem1 > indexElem2) {
+      indexElem2 ? elem2.before(elem1) : elem2.after(elem1);
+
+      indexElem1 ? children[indexElem1].after(elem2) : children[indexElem1].before(elem2);
+    }
+  };
+
   return {
     createElement,
     on,
@@ -116,6 +134,7 @@ const DOMHelpers = () => {
     disableTransition,
     enableTransition,
     toggleTransition,
+    swapElements,
   };
 };
 

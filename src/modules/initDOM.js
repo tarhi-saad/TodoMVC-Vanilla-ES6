@@ -122,6 +122,12 @@ const initializeDOMElements = () => {
         <span class="text">Added to My Day</span>
       </button>
     </li>
+    <li class="sort-type" id="sortByBookmarked">
+      <button class='sort-type-btn'>
+        ${importantSVG}
+        <span class="text">Bookmarked</span>
+      </button>
+    </li>
     <li class="sort-type" id="sortByDueDate">
       <button class='sort-type-btn'>
         ${calendarSVG}
@@ -444,6 +450,7 @@ const initializeDOMElements = () => {
     menuButton,
     overlay,
     refreshTodoItemsPositions,
+    sortList,
   };
 };
 
