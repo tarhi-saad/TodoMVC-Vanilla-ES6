@@ -84,6 +84,9 @@ const todoController = (() => {
     if (selectedID === 4) {
       defaultItems.sort((todoA, todoB) => new Date(todoA.date) - new Date(todoB.date));
       view.displayTodos(defaultItems);
+
+      // remove sort button
+      view.elements.toggleSort(true);
     }
 
     // Display todos if a default project is selected (sorted version)
@@ -291,6 +294,10 @@ const todoController = (() => {
 
       view.resetMyDayCount();
     }
+
+    // Remove/add sort button
+    if (list.dataset.index === '4') view.elements.toggleSort(true);
+    else view.elements.toggleSort();
 
     const items = [];
 

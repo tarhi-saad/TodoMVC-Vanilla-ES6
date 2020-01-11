@@ -152,6 +152,16 @@ const initializeDOMElements = () => {
   sortMenu.append(sortTitle, sortList);
   tasksHeader.append(tasksTitleWrapper, sortButton, sortMenu);
 
+  // Remove/add sort feature
+  const toggleSort = (isPlanned = false) => {
+    if (isPlanned) {
+      sortButton.remove();
+      sortMenu.remove();
+    } else if (!tasksHeader.contains(sortButton)) {
+      tasksHeader.append(sortButton, sortMenu);
+    }
+  };
+
   // Details view for todo elements
   const detailsView = createElement('div', '.details-view');
 
@@ -431,6 +441,7 @@ const initializeDOMElements = () => {
     newList,
     newListInput,
     tasksHeader,
+    toggleSort,
     tasksTitleWrapper,
     tasksTitle,
     tasksTitleInput,
