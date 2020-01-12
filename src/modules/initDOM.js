@@ -20,6 +20,7 @@ const {
   checkMarkSVG,
   menuSVG,
   plusSVG,
+  removeSVG,
   importantSVG,
   daySVG,
   sortSVG,
@@ -28,6 +29,7 @@ const {
   sortCompletedSVG,
   sortCreationDateSVG,
   completeSound,
+  chevronSVG,
 } = assets();
 
 const initializeDOMElements = () => {
@@ -131,7 +133,7 @@ const initializeDOMElements = () => {
     <li class="sort-type" id="sortByDueDate">
       <button class='sort-type-btn'>
         ${calendarSVG}
-        <span class="text">DueDate</span>
+        <span class="text">Due Date</span>
       </button>
     </li>
     <li class="sort-type" id="sortByCreationDate">
@@ -160,6 +162,33 @@ const initializeDOMElements = () => {
     } else if (!tasksHeader.contains(sortButton)) {
       tasksHeader.append(sortButton, sortMenu);
     }
+  };
+
+  // Sort indicator
+  const sortIndicator = createElement('div', '.sort-indicator');
+  const sortIndicatorText = createElement('span', 'sort-indicator-text');
+  const sortIndicatorToggle = createElement('button', '.sort-indicator-toggle');
+  const sortIndicatorRemove = createElement('button', '.sort-indicator-remove');
+  sortIndicatorToggle.insertAdjacentHTML('beforeEnd', chevronSVG);
+  sortIndicatorRemove.insertAdjacentHTML('beforeEnd', removeSVG);
+  sortIndicator.append(sortIndicatorText, sortIndicatorToggle, sortIndicatorRemove);
+  // Helper function to setup sortIndicator
+  const setSortIndicator = (type, direction) => {
+    if (!tasksHeader.contains(sortIndicator)) {
+      tasksHeader.append(sortIndicator);
+      addClass(tasksHeader, 'grow');
+    }
+
+    sortIndicatorText.textContent = `Sorted by ${type}`;
+
+    direction === 'desc'
+      ? addClass(sortIndicatorToggle, 'desc')
+      : removeClass(sortIndicatorToggle, 'desc');
+  };
+  // Helper function to remove sortIndicator
+  const removeSortIndicator = () => {
+    sortIndicator.remove();
+    removeClass(tasksHeader, 'grow');
   };
 
   // Details view for todo elements
@@ -462,6 +491,9 @@ const initializeDOMElements = () => {
     overlay,
     refreshTodoItemsPositions,
     sortList,
+    sortIndicator,
+    setSortIndicator,
+    removeSortIndicator,
   };
 };
 

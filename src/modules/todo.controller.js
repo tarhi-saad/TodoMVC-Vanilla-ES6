@@ -547,6 +547,100 @@ const todoController = (() => {
 
     // Remove contextual sort menu
     sortMenu.classList.remove('open');
+
+    // Setup sort indicator
+    view.elements.setSortIndicator(
+      currentProject.getSelectedSortType(),
+      currentProject.getSelectedDirection(),
+    );
+  };
+
+  const handleSortIndicator = (e) => {
+    const { target } = e;
+    const sortIndicatorToggle = target.closest('.sort-indicator-toggle');
+    const sortIndicatorRemove = target.closest('.sort-indicator-remove');
+
+    if (!sortIndicatorRemove && !sortIndicatorToggle) return;
+
+    const projectIndex = todoApp.getSelected();
+    const currentProject = todoApp.getProjects()[projectIndex];
+    const items = [];
+
+    if (sortIndicatorToggle) {
+      currentProject.getSelectedDirection() === 'asc'
+        ? currentProject.setSelectedDirection('desc')
+        : currentProject.setSelectedDirection('asc');
+
+      switch (currentProject.id) {
+        // All tasks case
+        case 1:
+          todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
+          view.refreshTodos(currentProject.getSortedItems(items));
+          break;
+
+        // My Day case
+        case 2:
+          todoApp.getProjects().forEach((project) => {
+            project.getItems().forEach((item) => {
+              if (item.isMyDay) items.push(item);
+            });
+          });
+          view.refreshTodos(currentProject.getSortedItems(items));
+          break;
+
+        // Important case
+        case 3:
+          todoApp.getProjects().forEach((project) => {
+            project.getItems().forEach((item) => {
+              if (item.isImportant) items.push(item);
+            });
+          });
+          view.refreshTodos(currentProject.getSortedItems(items));
+          break;
+
+        default:
+          view.refreshTodos(currentProject.getSortedItems());
+          break;
+      }
+
+      sortIndicatorToggle.classList.toggle('desc');
+    } else {
+      currentProject.setSelectedSortType('none');
+
+      switch (currentProject.id) {
+        // All tasks case
+        case 1:
+          todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
+          view.refreshTodos(currentProject.getItems(items));
+          break;
+
+        // My Day case
+        case 2:
+          todoApp.getProjects().forEach((project) => {
+            project.getItems().forEach((item) => {
+              if (item.isMyDay) items.push(item);
+            });
+          });
+          view.refreshTodos(currentProject.getItems(items));
+          break;
+
+        // Important case
+        case 3:
+          todoApp.getProjects().forEach((project) => {
+            project.getItems().forEach((item) => {
+              if (item.isImportant) items.push(item);
+            });
+          });
+          view.refreshTodos(currentProject.getItems(items));
+          break;
+
+        default:
+          view.refreshTodos(currentProject.getItems());
+          break;
+      }
+
+      view.elements.removeSortIndicator();
+    }
   };
 
   /**
@@ -564,6 +658,7 @@ const todoController = (() => {
     view.bindEditTasksTitle(handleEditTasksTitle);
     view.bindSwitchTodo(handleSwitchTodo);
     view.bindSortList(handleSortList);
+    view.bindSortIndicator(handleSortIndicator);
   };
 
   return {

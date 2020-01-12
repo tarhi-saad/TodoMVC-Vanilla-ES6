@@ -65,6 +65,7 @@ $line-spacing: 48px;
     display: flex;
     align-items: center;
     position: relative;
+    transition: padding-bottom 0.6s ease;
 
     h1 {
       margin: 0;
@@ -183,6 +184,78 @@ $line-spacing: 48px;
           }
         }
       }
+    }
+
+    .sort-indicator {
+      position: absolute;
+      bottom: 10px;
+      font-size: 12px;
+      left: 25px;
+      display: flex;
+      align-items: center;
+      color: $grey-color;
+      width: calc(100% - 50px);
+
+      .sort-indicator-toggle {
+        border: 0;
+        background-color: transparent;
+        margin-left: 5px;
+        transform: rotate(-90deg);
+        display: flex;
+        align-items: center;
+        align-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+
+        &:hover {
+          background-color: $white-smoke;
+          transition: background-color 0.3s ease;
+        }
+
+        &:focus:active {
+          background-color: $second-color-dark;
+        }
+
+        svg {
+          width: 12px;
+          fill: $grey-color;
+        }
+
+        &.desc {
+          transform: rotate(90deg);
+        }
+      }
+
+      .sort-indicator-remove {
+        border: 0;
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        align-content: center;
+        margin-left: auto;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+
+        &:hover {
+          background-color: $white-smoke;
+          transition: background-color 0.3s ease;
+        }
+
+        &:focus:active {
+          background-color: $second-color-dark;
+        }
+
+        svg {
+          width: 12px;
+          fill: $grey-color;
+        }
+      }
+    }
+
+    &.grow {
+      padding-bottom: 20px;
     }
   }
 

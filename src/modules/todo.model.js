@@ -91,7 +91,12 @@ const todoStore = (name = '') => {
 
   const sort = todoSort();
 
-  const { setSelectedSortType, setSelectedDirection, getSelectedSortType } = sort;
+  const {
+    setSelectedSortType,
+    setSelectedDirection,
+    getSelectedSortType,
+    getSelectedDirection,
+  } = sort;
 
   const getName = () => state.name;
 
@@ -142,6 +147,7 @@ const todoStore = (name = '') => {
     setSelectedSortType,
     getSelectedSortType,
     setSelectedDirection,
+    getSelectedDirection,
   };
 };
 

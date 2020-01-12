@@ -1215,6 +1215,14 @@ const todoView = () => {
     on(elements.sortList, 'click', handler);
   };
 
+  /**
+   * Call handleSortIndicator function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSortIndicator = (handler) => {
+    on(elements.sortIndicator, 'click', handler);
+  };
+
   return {
     displayList,
     removeProject,
@@ -1231,6 +1239,7 @@ const todoView = () => {
     bindDeleteList,
     bindEditTasksTitle,
     bindSortList,
+    bindSortIndicator,
     empty,
     toggleEditMode,
     displayDetails,

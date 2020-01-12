@@ -177,6 +177,8 @@ const todoSort = () => {
     state.selectedType = type;
   };
 
+  const getSelectedDirection = () => state.selectedDirection;
+
   const setSelectedDirection = (direction) => {
     state.selectedDirection = direction;
   };
@@ -186,6 +188,7 @@ const todoSort = () => {
     setSelectedSortType,
     setSelectedDirection,
     getSelectedSortType,
+    getSelectedDirection,
   };
 };
 
