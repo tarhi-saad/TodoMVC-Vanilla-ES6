@@ -93,6 +93,14 @@ const todoController = (() => {
     if ([1, 2, 3].includes(selectedID)) {
       view.displayTodos(todoApp.getProjectByID(selectedID).getSortedItems(defaultItems));
     }
+
+    // Setup sort indicator
+    const currentProject = todoApp.getSelectedProject();
+    const selectedSortType = currentProject.getSelectedSortType();
+    view.elements.setSortIndicator(
+      selectedSortType,
+      currentProject.getSelectedDirection(selectedSortType),
+    );
   };
 
   // Instantiate todoView factory
@@ -273,6 +281,14 @@ const todoController = (() => {
     selectedList.classList.remove('selected');
     todoApp.setSelected(projectIndex);
     list.classList.add('selected');
+
+    // Setup sort indicator
+    const currentProject = todoApp.getProjects()[projectIndex];
+    const selectedSortType = currentProject.getSelectedSortType();
+    view.elements.setSortIndicator(
+      selectedSortType,
+      currentProject.getSelectedDirection(selectedSortType),
+    );
 
     // Clean slot for My Day project if it's a new day
     const currentDate = new Date(view.getConvertedCurrentDate());

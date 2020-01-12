@@ -172,8 +172,19 @@ const initializeDOMElements = () => {
   sortIndicatorToggle.insertAdjacentHTML('beforeEnd', chevronSVG);
   sortIndicatorRemove.insertAdjacentHTML('beforeEnd', removeSVG);
   sortIndicator.append(sortIndicatorText, sortIndicatorToggle, sortIndicatorRemove);
+  // Helper function to remove sortIndicator
+  const removeSortIndicator = () => {
+    sortIndicator.remove();
+    removeClass(tasksHeader, 'grow');
+  };
   // Helper function to setup sortIndicator
   const setSortIndicator = (type, direction) => {
+    if (type === 'none') {
+      if (tasksHeader.contains(sortIndicator)) removeSortIndicator();
+
+      return;
+    }
+
     if (!tasksHeader.contains(sortIndicator)) {
       tasksHeader.append(sortIndicator);
       addClass(tasksHeader, 'grow');
@@ -184,11 +195,6 @@ const initializeDOMElements = () => {
     direction === 'desc'
       ? addClass(sortIndicatorToggle, 'desc')
       : removeClass(sortIndicatorToggle, 'desc');
-  };
-  // Helper function to remove sortIndicator
-  const removeSortIndicator = () => {
-    sortIndicator.remove();
-    removeClass(tasksHeader, 'grow');
   };
 
   // Details view for todo elements
