@@ -62,10 +62,9 @@ $line-spacing: 48px;
     }
   }
   .tasks-header {
-    display: flex;
+    display: grid;
     align-items: center;
-    position: relative;
-    transition: padding-bottom 0.6s ease;
+    grid-template-columns: 1fr auto;
 
     h1 {
       margin: 0;
@@ -187,14 +186,13 @@ $line-spacing: 48px;
     }
 
     .sort-indicator {
-      position: absolute;
-      bottom: 10px;
       font-size: 12px;
-      left: 25px;
       display: flex;
       align-items: center;
       color: $grey-color;
-      width: calc(100% - 50px);
+      grid-column: 1 / span3;
+      padding: 0 24px;
+      margin: -10px 0 5px;
 
       .sort-indicator-toggle {
         border: 0;
@@ -252,10 +250,6 @@ $line-spacing: 48px;
           fill: $grey-color;
         }
       }
-    }
-
-    &.grow {
-      padding-bottom: 20px;
     }
   }
 

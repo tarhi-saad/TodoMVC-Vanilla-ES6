@@ -173,21 +173,39 @@ const initializeDOMElements = () => {
   sortIndicatorRemove.insertAdjacentHTML('beforeEnd', removeSVG);
   sortIndicator.append(sortIndicatorText, sortIndicatorToggle, sortIndicatorRemove);
   // Helper function to remove sortIndicator
-  const removeSortIndicator = () => {
-    sortIndicator.remove();
-    removeClass(tasksHeader, 'grow');
+  const removeSortIndicator = (isSwitchList) => {
+    removeClass(sortIndicator, 'slide-in-top');
+
+    if (isSwitchList) {
+      sortIndicator.remove();
+
+      return;
+    }
+
+    addClass(sortIndicator, 'slide-out-top');
+
+    const handleAnimation = () => {
+      off(sortIndicator, 'animationend', handleAnimation);
+      sortIndicator.remove();
+    };
+    on(sortIndicator, 'animationend', handleAnimation);
   };
   // Helper function to setup sortIndicator
-  const setSortIndicator = (type, direction) => {
+  const setSortIndicator = (type, direction, isAnimated) => {
     if (type === 'none') {
-      if (tasksHeader.contains(sortIndicator)) removeSortIndicator();
+      if (tasksHeader.contains(sortIndicator)) {
+        removeSortIndicator(true);
+      }
 
       return;
     }
 
     if (!tasksHeader.contains(sortIndicator)) {
       tasksHeader.append(sortIndicator);
-      addClass(tasksHeader, 'grow');
+
+      if (isAnimated) addClass(sortIndicator, 'slide-in-top');
+
+      removeClass(sortIndicator, 'slide-out-top');
     }
 
     sortIndicatorText.textContent = `Sorted by ${type}`;

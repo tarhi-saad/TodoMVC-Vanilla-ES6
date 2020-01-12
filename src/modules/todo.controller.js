@@ -282,14 +282,6 @@ const todoController = (() => {
     todoApp.setSelected(projectIndex);
     list.classList.add('selected');
 
-    // Setup sort indicator
-    const currentProject = todoApp.getProjects()[projectIndex];
-    const selectedSortType = currentProject.getSelectedSortType();
-    view.elements.setSortIndicator(
-      selectedSortType,
-      currentProject.getSelectedDirection(selectedSortType),
-    );
-
     // Clean slot for My Day project if it's a new day
     const currentDate = new Date(view.getConvertedCurrentDate());
     const MSDay = 1000 * 60 * 60 * 24;
@@ -314,6 +306,14 @@ const todoController = (() => {
     // Remove/add sort button
     if (list.dataset.index === '4') view.elements.toggleSort(true);
     else view.elements.toggleSort();
+
+    // Setup sort indicator
+    const currentProject = todoApp.getProjects()[projectIndex];
+    const selectedSortType = currentProject.getSelectedSortType();
+    view.elements.setSortIndicator(
+      selectedSortType,
+      currentProject.getSelectedDirection(selectedSortType),
+    );
 
     const items = [];
 
@@ -569,6 +569,7 @@ const todoController = (() => {
     view.elements.setSortIndicator(
       selectedSortType,
       currentProject.getSelectedDirection(selectedSortType),
+      true,
     );
   };
 
