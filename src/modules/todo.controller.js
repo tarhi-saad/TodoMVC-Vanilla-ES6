@@ -549,9 +549,10 @@ const todoController = (() => {
     sortMenu.classList.remove('open');
 
     // Setup sort indicator
+    const selectedSortType = currentProject.getSelectedSortType();
     view.elements.setSortIndicator(
-      currentProject.getSelectedSortType(),
-      currentProject.getSelectedDirection(),
+      selectedSortType,
+      currentProject.getSelectedDirection(selectedSortType),
     );
   };
 
@@ -567,7 +568,8 @@ const todoController = (() => {
     const items = [];
 
     if (sortIndicatorToggle) {
-      currentProject.getSelectedDirection() === 'asc'
+      const selectedSortType = currentProject.getSelectedSortType();
+      currentProject.getSelectedDirection(selectedSortType) === 'asc'
         ? currentProject.setSelectedDirection('desc')
         : currentProject.setSelectedDirection('asc');
 

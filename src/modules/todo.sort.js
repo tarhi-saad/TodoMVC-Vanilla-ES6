@@ -1,10 +1,19 @@
 const todoSort = () => {
   const state = {
     selectedType: 'none',
-    selectedDirection: 'asc',
+    selectedDirection: null,
+    typeDirections: {
+      Alphabetically: 'asc',
+      Completed: 'asc',
+      'Added to My Day': 'desc',
+      Bookmarked: 'desc',
+      'Due date': 'asc',
+      'Creation date': 'asc',
+      Priority: 'desc',
+    },
   };
 
-  let order = state.selectedDirection;
+  let order = null;
 
   const sortByName = (sortedItems) => {
     sortedItems.sort((itemA, itemB) => {
@@ -21,9 +30,9 @@ const todoSort = () => {
 
   const sortByCompleted = (sortedItems) => {
     sortedItems.sort((itemA, itemB) => {
-      if (itemB.isComplete && !itemA.isComplete) return order;
+      if (itemB.isComplete && !itemA.isComplete) return -order;
 
-      if (itemA.isComplete && !itemB.isComplete) return -order;
+      if (itemA.isComplete && !itemB.isComplete) return order;
 
       return 0;
     });
@@ -31,9 +40,9 @@ const todoSort = () => {
 
   const sortByMyDay = (sortedItems) => {
     sortedItems.sort((itemA, itemB) => {
-      if (itemB.isMyDay && !itemA.isMyDay) return order;
+      if (itemB.isMyDay && !itemA.isMyDay) return -order;
 
-      if (itemA.isMyDay && !itemB.isMyDay) return -order;
+      if (itemA.isMyDay && !itemB.isMyDay) return order;
 
       return 0;
     });
@@ -41,9 +50,9 @@ const todoSort = () => {
 
   const sortByImportance = (sortedItems) => {
     sortedItems.sort((itemA, itemB) => {
-      if (itemB.isImportant && !itemA.isImportant) return order;
+      if (itemB.isImportant && !itemA.isImportant) return -order;
 
-      if (itemA.isImportant && !itemB.isImportant) return -order;
+      if (itemA.isImportant && !itemB.isImportant) return order;
 
       return 0;
     });
@@ -54,15 +63,19 @@ const todoSort = () => {
       const dateA = new Date(itemA.date);
       const dateB = new Date(itemB.date);
 
+      if (itemA.isComplete && !itemB.isComplete) return -1;
+
+      if (!itemA.isComplete && itemB.isComplete) return 1;
+
+      if (!itemA.date && itemB.date) return -1;
+
+      if (itemA.date && !itemB.date) return 1;
+
       if (dateA && dateB) {
         if (dateA < dateB) return -order;
 
         if (dateA > dateB) return order;
       }
-
-      if ((itemA.isComplete && !itemB.isComplete) || (!itemA.date && itemB.date)) return -1;
-
-      if ((!itemA.isComplete && itemB.isComplete) || (itemA.date && !itemB.date)) return 1;
 
       return 0;
     });
@@ -133,7 +146,12 @@ const todoSort = () => {
 
   const getSortedItems = (items) => {
     const sortedItems = [...items];
-    order = state.selectedDirection === 'asc' ? -1 : 1;
+
+    if (state.selectedDirection) {
+      state.typeDirections[state.selectedType] = state.selectedDirection;
+    }
+
+    order = state.typeDirections[state.selectedType] === 'asc' ? -1 : 1;
 
     switch (state.selectedType) {
       case 'Alphabetically':
@@ -168,6 +186,8 @@ const todoSort = () => {
         break;
     }
 
+    state.selectedDirection = null;
+
     return sortedItems;
   };
 
@@ -177,7 +197,7 @@ const todoSort = () => {
     state.selectedType = type;
   };
 
-  const getSelectedDirection = () => state.selectedDirection;
+  const getSelectedDirection = (type) => state.typeDirections[type];
 
   const setSelectedDirection = (direction) => {
     state.selectedDirection = direction;
