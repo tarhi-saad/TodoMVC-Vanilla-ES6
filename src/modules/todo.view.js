@@ -471,7 +471,7 @@ const todoView = () => {
    * Display details of the selected todo object
    * @param {Object} todo The selected todo object
    */
-  const displayDetails = (todo) => {
+  const displayDetails = (todo, currentProject, refreshSort) => {
     // Do some DOM selections
     const selectedTodo = getElement(
       `.todo-item[data-index="${todo.id}"].todo-item[data-project-index="${todo.projectID}"]`,
@@ -821,6 +821,8 @@ const todoView = () => {
       const priorityClass = `${todo.priority.toLowerCase()}`;
       resetClassList(selectedTodo, ['low', 'medium', 'high']);
       addClass(selectedTodo, priorityClass);
+
+      refreshSort(currentProject);
     };
 
     const handleSubmit = (e) => {

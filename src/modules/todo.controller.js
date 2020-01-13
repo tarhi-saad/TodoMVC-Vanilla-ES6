@@ -506,8 +506,9 @@ const todoController = (() => {
 
     const id = Number(target.closest('.todo-item').dataset.index);
     const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
-    const todo = todoApp.getProjectByID(projectID).getItemByID(id);
-    view.displayDetails(todo);
+    const project = todoApp.getProjectByID(projectID);
+    const todo = project.getItemByID(id);
+    view.displayDetails(todo, project, refreshCurrentTodoList);
 
     // Reposition todo items on show details view
     view.refreshTodoItemsPositions();
