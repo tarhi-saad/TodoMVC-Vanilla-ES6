@@ -106,6 +106,43 @@ const todoController = (() => {
   // Instantiate todoView factory
   let view = null;
 
+  // Helper function - refresh list for sorting
+  const refreshCurrentTodoList = (currentProject) => {
+    const items = [];
+
+    switch (currentProject.id) {
+      // All tasks case
+      case 1:
+        todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
+        view.refreshTodos(currentProject.getSortedItems(items));
+        break;
+
+      // My Day case
+      case 2:
+        todoApp.getProjects().forEach((project) => {
+          project.getItems().forEach((item) => {
+            if (item.isMyDay) items.push(item);
+          });
+        });
+        view.refreshTodos(currentProject.getSortedItems(items));
+        break;
+
+      // Important case
+      case 3:
+        todoApp.getProjects().forEach((project) => {
+          project.getItems().forEach((item) => {
+            if (item.isImportant) items.push(item);
+          });
+        });
+        view.refreshTodos(currentProject.getSortedItems(items));
+        break;
+
+      default:
+        view.refreshTodos(currentProject.getSortedItems());
+        break;
+    }
+  };
+
   const handleAddTodo = (e) => {
     e.preventDefault();
     const todoTitle = view.elements.newTodoInput.value;
@@ -236,6 +273,9 @@ const todoController = (() => {
     if (todo.isMyDay) {
       view.updateTodoCount(myDayCount, !todo.isComplete);
     }
+
+    // refresh sorting
+    refreshCurrentTodoList(project);
   };
 
   const handleAddList = (e) => {
@@ -526,39 +566,7 @@ const todoController = (() => {
     }
 
     if (!isSelected) {
-      const items = [];
-
-      switch (currentProject.id) {
-        // All tasks case
-        case 1:
-          todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
-          view.refreshTodos(currentProject.getSortedItems(items));
-          break;
-
-        // My Day case
-        case 2:
-          todoApp.getProjects().forEach((project) => {
-            project.getItems().forEach((item) => {
-              if (item.isMyDay) items.push(item);
-            });
-          });
-          view.refreshTodos(currentProject.getSortedItems(items));
-          break;
-
-        // Important case
-        case 3:
-          todoApp.getProjects().forEach((project) => {
-            project.getItems().forEach((item) => {
-              if (item.isImportant) items.push(item);
-            });
-          });
-          view.refreshTodos(currentProject.getSortedItems(items));
-          break;
-
-        default:
-          view.refreshTodos(currentProject.getSortedItems());
-          break;
-      }
+      refreshCurrentTodoList(currentProject);
     }
 
     // Remove contextual sort menu
@@ -590,37 +598,7 @@ const todoController = (() => {
         ? currentProject.setSelectedDirection('desc')
         : currentProject.setSelectedDirection('asc');
 
-      switch (currentProject.id) {
-        // All tasks case
-        case 1:
-          todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
-          view.refreshTodos(currentProject.getSortedItems(items));
-          break;
-
-        // My Day case
-        case 2:
-          todoApp.getProjects().forEach((project) => {
-            project.getItems().forEach((item) => {
-              if (item.isMyDay) items.push(item);
-            });
-          });
-          view.refreshTodos(currentProject.getSortedItems(items));
-          break;
-
-        // Important case
-        case 3:
-          todoApp.getProjects().forEach((project) => {
-            project.getItems().forEach((item) => {
-              if (item.isImportant) items.push(item);
-            });
-          });
-          view.refreshTodos(currentProject.getSortedItems(items));
-          break;
-
-        default:
-          view.refreshTodos(currentProject.getSortedItems());
-          break;
-      }
+      refreshCurrentTodoList(currentProject);
 
       sortIndicatorToggle.classList.toggle('desc');
     } else {
