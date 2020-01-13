@@ -187,67 +187,90 @@ $line-spacing: 48px;
 
     .sort-indicator {
       font-size: 12px;
-      display: flex;
-      align-items: center;
       color: $grey-color;
       grid-column: 1 / span3;
       padding: 0 24px;
       margin: -10px 0 5px;
 
-      .sort-indicator-toggle {
-        border: 0;
-        background-color: transparent;
-        margin-left: 5px;
-        transform: rotate(-90deg);
-        display: flex;
-        align-items: center;
-        align-content: center;
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
+      &.show-sort {
+        animation: show 0.6s ease;
 
-        &:hover {
-          background-color: $white-smoke;
-          transition: background-color 0.3s ease;
-        }
-
-        &:focus:active {
-          background-color: $second-color-dark;
-        }
-
-        svg {
-          width: 12px;
-          fill: $grey-color;
-        }
-
-        &.desc {
-          transform: rotate(90deg);
+        .sort-indicator-inner {
+          animation: slide-in-top 0.6s ease;
         }
       }
 
-      .sort-indicator-remove {
-        border: 0;
-        background-color: transparent;
+      &.hide-sort {
+        animation: hide 0.6s ease;
+
+        .sort-indicator-inner {
+          animation: slide-out-top 0.6s ease;
+        }
+      }
+
+      .sort-indicator-inner {
         display: flex;
         align-items: center;
-        align-content: center;
-        margin-left: auto;
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
 
-        &:hover {
-          background-color: $white-smoke;
-          transition: background-color 0.3s ease;
+        .sort-indicator-text {
+          line-height: 2;
         }
 
-        &:focus:active {
-          background-color: $second-color-dark;
+        .sort-indicator-toggle {
+          border: 0;
+          background-color: transparent;
+          margin-left: 5px;
+          transform: rotate(-90deg);
+          display: flex;
+          align-items: center;
+          align-content: center;
+          width: 24px;
+          height: 24px;
+          border-radius: 4px;
+
+          &:hover {
+            background-color: $white-smoke;
+            transition: background-color 0.3s ease;
+          }
+
+          &:focus:active {
+            background-color: $second-color-dark;
+          }
+
+          svg {
+            width: 12px;
+            fill: $grey-color;
+          }
+
+          &.desc {
+            transform: rotate(90deg);
+          }
         }
 
-        svg {
-          width: 12px;
-          fill: $grey-color;
+        .sort-indicator-remove {
+          border: 0;
+          background-color: transparent;
+          display: flex;
+          align-items: center;
+          align-content: center;
+          margin-left: auto;
+          width: 24px;
+          height: 24px;
+          border-radius: 4px;
+
+          &:hover {
+            background-color: $white-smoke;
+            transition: background-color 0.3s ease;
+          }
+
+          &:focus:active {
+            background-color: $second-color-dark;
+          }
+
+          svg {
+            width: 12px;
+            fill: $grey-color;
+          }
         }
       }
     }

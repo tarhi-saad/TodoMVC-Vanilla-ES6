@@ -166,15 +166,17 @@ const initializeDOMElements = () => {
 
   // Sort indicator
   const sortIndicator = createElement('div', '.sort-indicator');
-  const sortIndicatorText = createElement('span', 'sort-indicator-text');
+  const sortIndicatorInner = createElement('div', '.sort-indicator-inner');
+  const sortIndicatorText = createElement('span', '.sort-indicator-text');
   const sortIndicatorToggle = createElement('button', '.sort-indicator-toggle');
   const sortIndicatorRemove = createElement('button', '.sort-indicator-remove');
   sortIndicatorToggle.insertAdjacentHTML('beforeEnd', chevronSVG);
   sortIndicatorRemove.insertAdjacentHTML('beforeEnd', removeSVG);
-  sortIndicator.append(sortIndicatorText, sortIndicatorToggle, sortIndicatorRemove);
+  sortIndicatorInner.append(sortIndicatorText, sortIndicatorToggle, sortIndicatorRemove);
+  sortIndicator.append(sortIndicatorInner);
   // Helper function to remove sortIndicator
   const removeSortIndicator = (isSwitchList) => {
-    removeClass(sortIndicator, 'slide-in-top');
+    removeClass(sortIndicator, 'show-sort');
 
     if (isSwitchList) {
       sortIndicator.remove();
@@ -182,7 +184,7 @@ const initializeDOMElements = () => {
       return;
     }
 
-    addClass(sortIndicator, 'slide-out-top');
+    addClass(sortIndicator, 'hide-sort');
 
     const handleAnimation = () => {
       off(sortIndicator, 'animationend', handleAnimation);
@@ -203,9 +205,9 @@ const initializeDOMElements = () => {
     if (!tasksHeader.contains(sortIndicator)) {
       tasksHeader.append(sortIndicator);
 
-      if (isAnimated) addClass(sortIndicator, 'slide-in-top');
+      if (isAnimated) addClass(sortIndicator, 'show-sort');
 
-      removeClass(sortIndicator, 'slide-out-top');
+      removeClass(sortIndicator, 'hide-sort');
     }
 
     sortIndicatorText.textContent = `Sorted by ${type}`;
