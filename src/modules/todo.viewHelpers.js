@@ -354,7 +354,7 @@ const viewHelpers = (elements) => {
       skip = true;
     }
 
-    if (indicators && !skip) {
+    if (indicators && !skip && isPlannedProject) {
       refreshTodoItemsPositions();
     } else if (
       !isTransitionDisabled &&

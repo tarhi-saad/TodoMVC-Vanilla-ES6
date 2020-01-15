@@ -107,14 +107,17 @@ const todoController = (() => {
   let view = null;
 
   // Helper function - refresh list for sorting
-  const refreshCurrentTodoList = (currentProject) => {
+  const refreshCurrentTodoList = (currentProject, selectedTodo = null) => {
+    // We don't use sort in Planned project
+    if (currentProject.id === 4) return;
+
     const items = [];
 
     switch (currentProject.id) {
       // All tasks case
       case 1:
         todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
-        view.refreshTodos(currentProject.getSortedItems(items));
+        view.refreshTodos(currentProject.getSortedItems(items), selectedTodo);
         break;
 
       // My Day case
@@ -124,7 +127,7 @@ const todoController = (() => {
             if (item.isMyDay) items.push(item);
           });
         });
-        view.refreshTodos(currentProject.getSortedItems(items));
+        view.refreshTodos(currentProject.getSortedItems(items), selectedTodo);
         break;
 
       // Important case
@@ -134,11 +137,11 @@ const todoController = (() => {
             if (item.isImportant) items.push(item);
           });
         });
-        view.refreshTodos(currentProject.getSortedItems(items));
+        view.refreshTodos(currentProject.getSortedItems(items), selectedTodo);
         break;
 
       default:
-        view.refreshTodos(currentProject.getSortedItems());
+        view.refreshTodos(currentProject.getSortedItems(), selectedTodo);
         break;
     }
   };
@@ -506,9 +509,16 @@ const todoController = (() => {
 
     const id = Number(target.closest('.todo-item').dataset.index);
     const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
-    const project = todoApp.getProjectByID(projectID);
-    const todo = project.getItemByID(id);
-    view.displayDetails(todo, project, refreshCurrentTodoList);
+    const todo = todoApp.getProjectByID(projectID).getItemByID(id);
+
+    // Inject sort state to the view
+    const currentProject = todoApp.getSelectedProject();
+    const sortType = currentProject.getSelectedSortType;
+    const sort = {
+      type: sortType,
+      refreshSort: refreshCurrentTodoList,
+    };
+    view.displayDetails(todo, currentProject, sort);
 
     // Reposition todo items on show details view
     view.refreshTodoItemsPositions();

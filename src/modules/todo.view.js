@@ -22,6 +22,7 @@ const todoView = () => {
     resetClassList,
     getNumberFromString,
     enableTransition,
+    disableTransition,
     swapElements,
   } = DOMHelpers();
 
@@ -386,17 +387,11 @@ const todoView = () => {
   /**
    * Reorder all DOM tasks with the new order of the given list
    * @param {Object[]} todos List of todo objects
+   * @param {Object} selectedTodo The selected todo edited
    */
-  const refreshTodos = (todos) => {
+  const refreshTodos = (todos, selectedTodo = null) => {
     enableTransition(elements.todoList);
     const { children } = elements.todoList;
-    const translateValues = [];
-
-    // Get translateY() values
-    Array.from(children).forEach((list, i) => {
-      if (i === 0) translateValues.push(0);
-      else translateValues.push(getNumberFromString(list.style.transform));
-    });
 
     // Sort DOM elements from model data
     todos.forEach((todo, i) => {
@@ -411,15 +406,31 @@ const todoView = () => {
       });
     });
 
-    /**
-     * This timeout it's for the browser to process changes in transform to activate the
-     * transition
-     */
-    setTimeout(() => {
-      Array.from(children).forEach((list, i) => {
-        list.style.transform = `translateY(${translateValues[i]}px)`;
-      });
-    }, 100);
+    let increasedHeight = 0;
+    // Refresh todo list on sort change - animated
+    Array.from(children).forEach((list) => {
+      // Refresh on todo details option change
+      if (selectedTodo) {
+        const isNotTranslating = list.style.transform
+          ? getNumberFromString(list.style.transform) === increasedHeight
+          : increasedHeight === 0;
+
+        // Disable transition if edited todo isn't switching position
+        if (list === selectedTodo && isNotTranslating) {
+          disableTransition(elements.todoList);
+        }
+      }
+
+      const listHeight = list.offsetHeight + parseInt(getComputedStyle(list).marginBottom, 10);
+      list.style.transform = `translateY(${increasedHeight}px)`;
+      increasedHeight += listHeight;
+    });
+
+    if (elements.todoList.offsetHeight > increasedHeight) {
+      elements.todoList.style.transitionDuration = '0.6s';
+    }
+
+    elements.todoList.style.height = `${increasedHeight + 8}px`;
   };
 
   /**
@@ -471,7 +482,7 @@ const todoView = () => {
    * Display details of the selected todo object
    * @param {Object} todo The selected todo object
    */
-  const displayDetails = (todo, currentProject, refreshSort) => {
+  const displayDetails = (todo, currentProject, sort) => {
     // Do some DOM selections
     const selectedTodo = getElement(
       `.todo-item[data-index="${todo.id}"].todo-item[data-project-index="${todo.projectID}"]`,
@@ -822,7 +833,10 @@ const todoView = () => {
       resetClassList(selectedTodo, ['low', 'medium', 'high']);
       addClass(selectedTodo, priorityClass);
 
-      refreshSort(currentProject);
+      // Sort tasks on priority change
+      if (sort.type() === 'Priority') {
+        sort.refreshSort(currentProject);
+      }
     };
 
     const handleSubmit = (e) => {
@@ -1034,6 +1048,9 @@ const todoView = () => {
           elements.todoList.append(selectedTodo);
         }
       }
+
+      // Sort tasks on Importance change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleMyDayClick = (e) => {
