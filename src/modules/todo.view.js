@@ -673,6 +673,9 @@ const todoView = () => {
         name.scrollHeight <= getNumberFromString(nameHeight)
           ? nameHeight
           : `${name.scrollHeight}px`;
+
+      // Sort tasks on Importance change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const noteHeight = getComputedStyle(note).height;

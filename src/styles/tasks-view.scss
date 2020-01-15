@@ -319,6 +319,7 @@ $line-spacing: 48px;
 
         .todo-title {
           transition: color 0.3s ease;
+          word-break: break-word;
 
           &::before {
             background: $second-color-darker;
