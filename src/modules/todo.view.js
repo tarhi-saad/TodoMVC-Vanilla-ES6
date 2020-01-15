@@ -1074,6 +1074,9 @@ const todoView = () => {
       if (selectedProject.dataset.index === '2') {
         elements.todoList.append(selectedTodo);
       }
+
+      // Sort tasks on Importance change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleRemoveMyDayClick = () => {
@@ -1091,6 +1094,9 @@ const todoView = () => {
 
       // If we are editing in "Important" project then remove todo
       if (selectedProject.dataset.index === '2') selectedTodo.remove();
+
+      // Sort tasks on Importance change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     // Set event listeners
