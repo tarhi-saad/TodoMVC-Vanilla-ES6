@@ -22,6 +22,8 @@ const todoView = () => {
     resetClassList,
     getNumberFromString,
     enableTransition,
+    disableTransition,
+    swapElements,
   } = DOMHelpers();
 
   const {
@@ -57,6 +59,7 @@ const todoView = () => {
     confirmRemoval,
     switchEmptyState,
     playCompleteSound,
+    initPlannedDateTabs,
   } = viewHelpers(elements);
 
   /**
@@ -169,7 +172,7 @@ const todoView = () => {
     subtree: true,
   });
 
-  const addTodo = (todo, isNew = false) => {
+  const addTodo = (todo, isNew = false, sort) => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
     li.dataset.index = todo.id;
@@ -189,7 +192,7 @@ const todoView = () => {
     label.append(span);
 
     // Setting creation date
-    if (!todo.creationDate) todo.creationDate = getConvertedCurrentDate();
+    if (!todo.creationDate) todo.creationDate = Date.now();
 
     // Setting up "todo" title
     const title = createElement('span', '.todo-title');
@@ -254,7 +257,7 @@ const todoView = () => {
     else elements.todoList.prepend(li);
 
     // Animate list addition
-    isNew ? animateAddTodoList(li) : refreshTodoItemsPositions();
+    isNew ? animateAddTodoList(li, sort) : refreshTodoItemsPositions();
 
     if (isNew) {
       // Update todoCount in current list
@@ -383,6 +386,55 @@ const todoView = () => {
   };
 
   /**
+   * Reorder all DOM tasks with the new order of the given list
+   * @param {Object[]} todos List of todo objects
+   * @param {Object} selectedTodo The selected todo edited
+   */
+  const refreshTodos = (todos, selectedTodo = null) => {
+    enableTransition(elements.todoList);
+    const { children } = elements.todoList;
+
+    // Sort DOM elements from model data
+    todos.forEach((todo, i) => {
+      Array.from(children).some((list, j) => {
+        if (todo.id === Number(list.dataset.index) && i !== children.length - 1 - j) {
+          swapElements(list, children[children.length - 1 - i]);
+
+          return true;
+        }
+
+        return false;
+      });
+    });
+
+    let increasedHeight = 0;
+    // Refresh todo list on sort change - animated
+    Array.from(children).forEach((list) => {
+      // Refresh on todo details option change
+      if (selectedTodo) {
+        const isNotTranslating = list.style.transform
+          ? getNumberFromString(list.style.transform) === increasedHeight
+          : increasedHeight === 0;
+
+        // Disable transition if edited todo isn't switching position
+        if (list === selectedTodo && isNotTranslating) {
+          disableTransition(elements.todoList);
+        }
+      }
+
+      const listHeight = list.offsetHeight + parseInt(getComputedStyle(list).marginBottom, 10);
+      list.style.transform = `translateY(${increasedHeight}px)`;
+      increasedHeight += listHeight;
+    });
+
+    if (elements.todoList.offsetHeight > increasedHeight) {
+      elements.todoList.style.transitionDuration = '0.6s';
+    }
+
+    elements.todoList.style.height = `${increasedHeight + 8}px`;
+  };
+
+  /**
    * Display all todos in the project list
    * @param {Object[]} todos List of todo objects
    */
@@ -431,7 +483,7 @@ const todoView = () => {
    * Display details of the selected todo object
    * @param {Object} todo The selected todo object
    */
-  const displayDetails = (todo) => {
+  const displayDetails = (todo, currentProject, sort) => {
     // Do some DOM selections
     const selectedTodo = getElement(
       `.todo-item[data-index="${todo.id}"].todo-item[data-project-index="${todo.projectID}"]`,
@@ -580,7 +632,8 @@ const todoView = () => {
     // Creation date block
     const creationDate = createElement('div', '.creation-date');
     const creationDateText = createElement('span', '.creation-date-text');
-    creationDateText.textContent = getFriendlyCreationDate(todo.creationDate);
+    const convertedCreationDate = getConvertedCurrentDate(todo.creationDate);
+    creationDateText.textContent = getFriendlyCreationDate(convertedCreationDate);
     creationDate.append(creationDateText);
     // Append to details block
     elements.detailsView.append(
@@ -621,6 +674,9 @@ const todoView = () => {
         name.scrollHeight <= getNumberFromString(nameHeight)
           ? nameHeight
           : `${name.scrollHeight}px`;
+
+      // sort tasks on name change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const noteHeight = getComputedStyle(note).height;
@@ -724,6 +780,9 @@ const todoView = () => {
       }
 
       if (!dateBlock.contains(removeDate)) dateBlock.append(removeDate);
+
+      // Sort tasks on date change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleRemoveDateClick = () => {
@@ -765,6 +824,9 @@ const todoView = () => {
       // Update todoCount of "Planned" project
       const plannedCount = getElement('.list[data-index="4"] .todo-count');
       updateTodoCount(plannedCount, false);
+
+      // Sort tasks on date remove
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handlePriorityClick = (e) => {
@@ -780,6 +842,11 @@ const todoView = () => {
       const priorityClass = `${todo.priority.toLowerCase()}`;
       resetClassList(selectedTodo, ['low', 'medium', 'high']);
       addClass(selectedTodo, priorityClass);
+
+      // Sort tasks on priority change
+      if (sort.type() === 'Priority') {
+        sort.refreshSort(currentProject);
+      }
     };
 
     const handleSubmit = (e) => {
@@ -833,6 +900,9 @@ const todoView = () => {
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
       }
+
+      // Refresh tasks positions on add subTask
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleDeleteSubtask = (e) => {
@@ -860,6 +930,9 @@ const todoView = () => {
         liveSubtaskIndicatorLabel.closest('.subtask-indicator').remove();
         toggleIndicatorClass();
       }
+
+      // Refresh tasks positions on remove subTask
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleToggleSubtask = (e) => {
@@ -901,6 +974,9 @@ const todoView = () => {
       } else {
         removeClass(subtaskIndicator, 'completed');
       }
+
+      // Refresh tasks positions on toggle subTask
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleSwitchSubtask = (e) => {
@@ -991,6 +1067,9 @@ const todoView = () => {
           elements.todoList.append(selectedTodo);
         }
       }
+
+      // Sort tasks on Importance change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleMyDayClick = (e) => {
@@ -1014,6 +1093,9 @@ const todoView = () => {
       if (selectedProject.dataset.index === '2') {
         elements.todoList.append(selectedTodo);
       }
+
+      // Sort tasks on add My Day
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleRemoveMyDayClick = () => {
@@ -1031,6 +1113,9 @@ const todoView = () => {
 
       // If we are editing in "Important" project then remove todo
       if (selectedProject.dataset.index === '2') selectedTodo.remove();
+
+      // Sort tasks on remove My Day
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     // Set event listeners
@@ -1060,31 +1145,6 @@ const todoView = () => {
   };
 
   on(elements.newListInput, 'input', handleInput);
-
-  // Listen to todoList in Planned project to close/open lists
-  // Events
-  const handlePlannedClick = (e) => {
-    const { target } = e;
-
-    if (!target.closest('.list-header')) return;
-
-    const listHeader = target.closest('.list-header');
-    const button = listHeader.querySelector('button');
-    const todoListTime = getElement(`.todo-list-time[data-time="${listHeader.id}"]`);
-
-    // Enable all transitions in todo list
-    enableTransition(todoListTime);
-
-    if (button.classList.contains('close')) {
-      removeClass(button, 'close');
-      todoListTime.style.height = `${todoListTime.scrollHeight + 2}px`;
-    } else {
-      addClass(button, 'close');
-      todoListTime.style.height = 0;
-    }
-  };
-
-  on(elements.todoList, 'click', handlePlannedClick);
 
   // Listen to window resize
   const handleResize = () => {
@@ -1166,6 +1226,30 @@ const todoView = () => {
     on(elements.todoList, 'click', handler);
   };
 
+  /**
+   * Call handleSortList function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSortList = (handler) => {
+    on(elements.sortList, 'click', handler);
+  };
+
+  /**
+   * Call handleSortIndicator function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSortIndicator = (handler) => {
+    on(elements.sortIndicator, 'click', handler);
+  };
+
+  /**
+   * Call handlePlannedClick function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindPlannedClick = (handler) => {
+    on(elements.todoList, 'click', handler);
+  };
+
   return {
     displayList,
     removeProject,
@@ -1181,6 +1265,9 @@ const todoView = () => {
     bindSwitchList,
     bindDeleteList,
     bindEditTasksTitle,
+    bindSortList,
+    bindSortIndicator,
+    bindPlannedClick,
     empty,
     toggleEditMode,
     displayDetails,
@@ -1192,6 +1279,12 @@ const todoView = () => {
     getConvertedCurrentDate,
     resetMyDayCount,
     refreshTodoItemsPositions,
+    refreshTodos,
+    initPlannedDateTabs,
+    removeClass,
+    addClass,
+    getElement,
+    enableTransition,
   };
 };
 

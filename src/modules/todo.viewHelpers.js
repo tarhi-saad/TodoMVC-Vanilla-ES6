@@ -135,8 +135,8 @@ const viewHelpers = (elements) => {
   };
 
   // Helper function - convert current date to "YYYY-MM-DD"
-  const getConvertedCurrentDate = () => {
-    const date = new Date();
+  const getConvertedCurrentDate = (timestamp = Date.now()) => {
+    const date = new Date(timestamp);
     const month =
       `${date.getMonth() + 1}`.length === 1 ? `0${date.getMonth() + 1}` : `${date.getMonth() + 1}`;
     const day = `${date.getDate()}`.length === 1 ? `0${date.getDate()}` : `${date.getDate()}`;
@@ -250,7 +250,7 @@ const viewHelpers = (elements) => {
   };
 
   // Helper function - Animating todo list
-  const animateAddTodoList = (addedTodo) => {
+  const animateAddTodoList = (addedTodo, sort = null) => {
     const selectedProject = getElement('.list.selected');
     let todoList = null;
 
@@ -319,6 +319,9 @@ const viewHelpers = (elements) => {
 
       // Enable addTodo input after end of animation
       toggleReadOnly(elements.newTodoInput);
+
+      // Sort added item after the end of transition
+      if (sort && sort.type !== 'none') sort.refreshSort(sort.currentProject);
     };
     on(lastItem, 'transitionend', handleItemTransition);
 
@@ -354,7 +357,7 @@ const viewHelpers = (elements) => {
       skip = true;
     }
 
-    if (indicators && !skip) {
+    if (indicators && !skip && isPlannedProject) {
       refreshTodoItemsPositions();
     } else if (
       !isTransitionDisabled &&
@@ -363,9 +366,9 @@ const viewHelpers = (elements) => {
       addedNodes[0].classList.contains('todo-item')
     ) {
       // If there is scrollbar, grow items to keep the same width
-      const { tasksView, newTodo, tasksTitleWrapper } = elements;
+      const { tasksView, newTodo, tasksHeader } = elements;
       const maxTodoListHeight =
-        tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+        tasksView.offsetHeight - (newTodo.offsetHeight + tasksHeader.offsetHeight);
       let fullHeight = null;
 
       if (isPlannedProject) {
@@ -398,9 +401,9 @@ const viewHelpers = (elements) => {
       removedNodes[0].classList.contains('todo-item')
     ) {
       // If there is scrollbar, grow items to keep the same width
-      const { tasksView, newTodo, tasksTitleWrapper } = elements;
+      const { tasksView, newTodo, tasksHeader } = elements;
       const maxTodoListHeight =
-        tasksView.offsetHeight - (newTodo.offsetHeight + tasksTitleWrapper.offsetHeight);
+        tasksView.offsetHeight - (newTodo.offsetHeight + tasksHeader.offsetHeight);
       let fullHeight = null;
 
       if (isPlannedProject) {
@@ -743,6 +746,23 @@ const viewHelpers = (elements) => {
     completeSound.play();
   };
 
+  // Set close/open Planned date tabs on switchList/initApp
+  const initPlannedDateTabs = (plannedProject) => {
+    const todoListTimes = elements.todoList.querySelectorAll('.todo-list-time');
+    const toggleButtons = elements.todoList.querySelectorAll('.list-header button');
+    const { tabStates } = plannedProject;
+
+    todoListTimes.forEach((list, i) => {
+      if (tabStates[i] === 'open') {
+        removeClass(toggleButtons[i], 'close');
+        list.style.height = list.scrollHeight ? `${list.scrollHeight + 2}px` : '';
+      } else {
+        addClass(toggleButtons[i], 'close');
+        list.style.height = 0;
+      }
+    });
+  };
+
   return {
     toggleModal,
     resetMyDayCount,
@@ -761,6 +781,7 @@ const viewHelpers = (elements) => {
     confirmRemoval,
     switchEmptyState,
     playCompleteSound,
+    initPlannedDateTabs,
   };
 };
 

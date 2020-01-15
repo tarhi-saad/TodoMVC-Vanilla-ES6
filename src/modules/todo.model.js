@@ -1,3 +1,5 @@
+import todoSort from './todo.sort';
+
 const todoItem = (title) => {
   const subTasks = [];
 
@@ -47,7 +49,7 @@ const todoItem = (title) => {
     title,
     description: '',
     date: '',
-    priority: 'Low',
+    priority: 'low',
     note: '',
     isComplete: false,
     isImportant: false,
@@ -87,6 +89,15 @@ const todoStore = (name = '') => {
     name,
   };
 
+  const sort = todoSort();
+
+  const {
+    setSelectedSortType,
+    setSelectedDirection,
+    getSelectedSortType,
+    getSelectedDirection,
+  } = sort;
+
   const getName = () => state.name;
 
   const setName = (newName) => {
@@ -94,6 +105,8 @@ const todoStore = (name = '') => {
   };
 
   const getItems = () => state.items;
+
+  const getSortedItems = (items = state.items) => sort.getSortedItems(items);
 
   const { getItemByID } = todoStoreHelper(getItems);
 
@@ -130,6 +143,11 @@ const todoStore = (name = '') => {
     toggleTodo,
     updateTodoTitle,
     getItemByID,
+    getSortedItems,
+    setSelectedSortType,
+    getSelectedSortType,
+    setSelectedDirection,
+    getSelectedDirection,
   };
 };
 
@@ -148,9 +166,11 @@ const todoApp = (() => {
   defaultStores[2].id = 3;
   defaultStores[3].id = 4;
   defaultStores[4].id = 5;
+  // Planned project's tabs states (open/closed)
+  defaultStores[3].tabStates = ['open', 'open', 'open', 'open', 'open', 'open'];
   const state = {
     projects: [...defaultStores],
-    selected: 0,
+    selected: 4,
   };
 
   const getProjects = () => state.projects;

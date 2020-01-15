@@ -8,6 +8,7 @@ const {
   getElement,
   addClass,
   removeClass,
+  toggleClass,
   disableTransition,
 } = DOMHelpers();
 
@@ -19,9 +20,16 @@ const {
   checkMarkSVG,
   menuSVG,
   plusSVG,
+  removeSVG,
   importantSVG,
   daySVG,
+  sortSVG,
+  sortNameSVG,
+  prioritySVG,
+  sortCompletedSVG,
+  sortCreationDateSVG,
   completeSound,
+  chevronSVG,
 } = assets();
 
 const initializeDOMElements = () => {
@@ -76,12 +84,138 @@ const initializeDOMElements = () => {
   emptyStateText.textContent = 'What tasks are on your mind?';
   emptyState.append(emptyStateText);
 
-  // Display selected list title in tasks view
+  // Display selected list Header in tasks view
+  const tasksHeader = createElement('div', '.tasks-header');
   const tasksTitleWrapper = createElement('h1');
   const tasksTitle = createElement('span', '.tasks-title');
   const tasksTitleInput = createElement('input', '#tasksTitleInput');
   tasksTitleInput.autocomplete = 'off';
   tasksTitleWrapper.append(tasksTitle);
+  const sortButton = createElement('button', '.sort-btn');
+  addClass(sortButton, 'text-button');
+  const sortText = createElement('span', '.sort-text');
+  sortText.textContent = 'Sort';
+  sortButton.insertAdjacentHTML('afterBegin', sortSVG);
+  sortButton.append(sortText);
+
+  // Sort contextual menu
+  const sortMenu = createElement('div', '.sort-menu');
+  const sortTitle = createElement('h3', '.sort-title');
+  const sortList = createElement('ul', '.sort-list');
+  sortTitle.textContent = 'Sort by';
+  sortList.insertAdjacentHTML(
+    'afterBegin',
+    `
+    <li class="sort-type" id="sortByName">
+      <button class='sort-type-btn'>
+        ${sortNameSVG}
+        <span class="text">Alphabetically</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByCompleted">
+      <button class='sort-type-btn'>
+        ${sortCompletedSVG}
+        <span class="text">Completed</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByMyDay">
+      <button class='sort-type-btn'>
+        ${daySVG}
+        <span class="text">Added to My Day</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByBookmarked">
+      <button class='sort-type-btn'>
+        ${importantSVG}
+        <span class="text">Bookmarked</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByDueDate">
+      <button class='sort-type-btn'>
+        ${calendarSVG}
+        <span class="text">Due Date</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByCreationDate">
+      <button class='sort-type-btn'>
+        ${sortCreationDateSVG}
+        <span class="text">Creation date</span>
+      </button>
+    </li>
+    <li class="sort-type" id="sortByPriority">
+      <button class='sort-type-btn'>
+        ${prioritySVG}
+        <span class="text">Priority</span>
+      </button>
+    </li>
+  `,
+  );
+
+  sortMenu.append(sortTitle, sortList);
+  tasksHeader.append(tasksTitleWrapper, sortButton, sortMenu);
+
+  // Remove/add sort feature
+  const toggleSort = (isPlanned = false) => {
+    if (isPlanned) {
+      sortButton.remove();
+      sortMenu.remove();
+    } else if (!tasksHeader.contains(sortButton)) {
+      tasksHeader.append(sortButton, sortMenu);
+    }
+  };
+
+  // Sort indicator
+  const sortIndicator = createElement('div', '.sort-indicator');
+  const sortIndicatorInner = createElement('div', '.sort-indicator-inner');
+  const sortIndicatorText = createElement('span', '.sort-indicator-text');
+  const sortIndicatorToggle = createElement('button', '.sort-indicator-toggle');
+  const sortIndicatorRemove = createElement('button', '.sort-indicator-remove');
+  sortIndicatorToggle.insertAdjacentHTML('beforeEnd', chevronSVG);
+  sortIndicatorRemove.insertAdjacentHTML('beforeEnd', removeSVG);
+  sortIndicatorInner.append(sortIndicatorText, sortIndicatorToggle, sortIndicatorRemove);
+  sortIndicator.append(sortIndicatorInner);
+  // Helper function to remove sortIndicator
+  const removeSortIndicator = (isSwitchList) => {
+    removeClass(sortIndicator, 'show-sort');
+
+    if (isSwitchList) {
+      sortIndicator.remove();
+
+      return;
+    }
+
+    addClass(sortIndicator, 'hide-sort');
+
+    const handleAnimation = () => {
+      off(sortIndicator, 'animationend', handleAnimation);
+      sortIndicator.remove();
+    };
+    on(sortIndicator, 'animationend', handleAnimation);
+  };
+  // Helper function to setup sortIndicator
+  const setSortIndicator = (type, direction, isAnimated) => {
+    if (type === 'none') {
+      if (tasksHeader.contains(sortIndicator)) {
+        removeSortIndicator(true);
+      }
+
+      return;
+    }
+
+    if (!tasksHeader.contains(sortIndicator)) {
+      tasksHeader.append(sortIndicator);
+
+      if (isAnimated) addClass(sortIndicator, 'show-sort');
+
+      removeClass(sortIndicator, 'hide-sort');
+    }
+
+    sortIndicatorText.textContent = `Sorted by ${type}`;
+
+    direction === 'desc'
+      ? addClass(sortIndicatorToggle, 'desc')
+      : removeClass(sortIndicatorToggle, 'desc');
+  };
 
   // Details view for todo elements
   const detailsView = createElement('div', '.details-view');
@@ -167,12 +301,12 @@ const initializeDOMElements = () => {
   newList.append(newListLabel, newListInput, newListSubmit);
   listsMenu.append(lists, newList);
   newTodo.append(newTodoInput, newTodoSubmit);
-  tasksView.append(tasksTitleWrapper, todoList, emptyState, newTodo);
+  tasksView.append(tasksHeader, todoList, emptyState, newTodo);
 
   root.append(header, listsMenu, tasksView, detailsView, modal, audioBlock);
 
   // Helper function - 'refreshTodoItemsPositions' helper
-  const refreshTodoItemsPositionsHelper = (list) => {
+  const refreshTodoItemsPositionsHelper = (list, isTabClosed = false) => {
     // Disable all transitions
     disableTransition(list);
     const { children } = list;
@@ -193,7 +327,7 @@ const initializeDOMElements = () => {
     });
 
     // The number 8 is added to give room to items to grow/shrink and not be hidden
-    list.style.height = `${fullHeight + 8}px`;
+    if (!isTabClosed) list.style.height = `${fullHeight + 8}px`;
 
     if (todoList.scrollHeight > todoList.offsetHeight) {
       addClass(todoList, 'grow-items');
@@ -209,8 +343,12 @@ const initializeDOMElements = () => {
       todoList.style.height = '';
       const listsTime = todoList.querySelectorAll('ul.todo-list-time');
       Array.from(listsTime).forEach((list) => {
+        const isTabClosed = list.previousElementSibling
+          .querySelector('button')
+          .classList.contains('close');
+
         if (list.children.length > 0) {
-          refreshTodoItemsPositionsHelper(list);
+          refreshTodoItemsPositionsHelper(list, isTabClosed);
         }
       });
     } else {
@@ -328,9 +466,29 @@ const initializeDOMElements = () => {
     screeSize = document.body.offsetWidth;
   };
 
+  const handleSortClick = () => {
+    toggleClass(sortMenu, 'open');
+  };
+
+  const handleBodyClick = (e) => {
+    const { target } = e;
+
+    if (
+      !sortMenu.classList.contains('open') ||
+      target.closest('.sort-menu') ||
+      target.closest('.sort-btn')
+    ) {
+      return;
+    }
+
+    removeClass(sortMenu, 'open');
+  };
+
   on(menuButton, 'click', handleClick);
   on(newListLabel, 'click', handleNewListClick);
   on(window, 'resize', handleResize);
+  on(document.body, 'click', handleBodyClick);
+  on(sortButton, 'click', handleSortClick);
 
   return {
     root,
@@ -341,6 +499,8 @@ const initializeDOMElements = () => {
     newTodoInput,
     newList,
     newListInput,
+    tasksHeader,
+    toggleSort,
     tasksTitleWrapper,
     tasksTitle,
     tasksTitleInput,
@@ -360,6 +520,10 @@ const initializeDOMElements = () => {
     menuButton,
     overlay,
     refreshTodoItemsPositions,
+    sortList,
+    sortIndicator,
+    setSortIndicator,
+    removeSortIndicator,
   };
 };
 
