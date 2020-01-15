@@ -776,6 +776,9 @@ const todoView = () => {
       }
 
       if (!dateBlock.contains(removeDate)) dateBlock.append(removeDate);
+
+      // Sort tasks on Importance change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleRemoveDateClick = () => {
@@ -817,6 +820,9 @@ const todoView = () => {
       // Update todoCount of "Planned" project
       const plannedCount = getElement('.list[data-index="4"] .todo-count');
       updateTodoCount(plannedCount, false);
+
+      // Sort tasks on Importance change
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handlePriorityClick = (e) => {
