@@ -171,7 +171,7 @@ const todoView = () => {
     subtree: true,
   });
 
-  const addTodo = (todo, isNew = false) => {
+  const addTodo = (todo, isNew = false, sort) => {
     // Setup the 'li' element container of the "todo item"
     const li = createElement('li', '.todo-item');
     li.dataset.index = todo.id;
@@ -256,7 +256,7 @@ const todoView = () => {
     else elements.todoList.prepend(li);
 
     // Animate list addition
-    isNew ? animateAddTodoList(li) : refreshTodoItemsPositions();
+    isNew ? animateAddTodoList(li, sort) : refreshTodoItemsPositions();
 
     if (isNew) {
       // Update todoCount in current list

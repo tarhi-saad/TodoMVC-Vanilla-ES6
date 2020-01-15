@@ -200,7 +200,15 @@ const todoController = (() => {
       todo = todoItems[todoItems.length - 1];
     }
 
-    view.addTodo(todo, true);
+    // Inject sort state to the view
+    const sortType = selectedProject.getSelectedSortType();
+    const sort = {
+      type: sortType,
+      refreshSort: refreshCurrentTodoList,
+      currentProject: selectedProject,
+    };
+
+    view.addTodo(todo, true, sort);
   };
 
   const handleDeleteTodo = (e) => {

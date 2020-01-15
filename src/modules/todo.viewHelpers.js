@@ -250,7 +250,7 @@ const viewHelpers = (elements) => {
   };
 
   // Helper function - Animating todo list
-  const animateAddTodoList = (addedTodo) => {
+  const animateAddTodoList = (addedTodo, sort = null) => {
     const selectedProject = getElement('.list.selected');
     let todoList = null;
 
@@ -319,6 +319,9 @@ const viewHelpers = (elements) => {
 
       // Enable addTodo input after end of animation
       toggleReadOnly(elements.newTodoInput);
+
+      // Sort added item after the end of transition
+      if (sort && sort.type !== 'none') sort.refreshSort(sort.currentProject);
     };
     on(lastItem, 'transitionend', handleItemTransition);
 
