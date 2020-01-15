@@ -674,7 +674,7 @@ const todoView = () => {
           ? nameHeight
           : `${name.scrollHeight}px`;
 
-      // Sort tasks on Importance change
+      // sort tasks on name change
       sort.refreshSort(currentProject, selectedTodo);
     };
 
@@ -780,7 +780,7 @@ const todoView = () => {
 
       if (!dateBlock.contains(removeDate)) dateBlock.append(removeDate);
 
-      // Sort tasks on Importance change
+      // Sort tasks on date change
       sort.refreshSort(currentProject, selectedTodo);
     };
 
@@ -824,7 +824,7 @@ const todoView = () => {
       const plannedCount = getElement('.list[data-index="4"] .todo-count');
       updateTodoCount(plannedCount, false);
 
-      // Sort tasks on Importance change
+      // Sort tasks on date remove
       sort.refreshSort(currentProject, selectedTodo);
     };
 
@@ -899,6 +899,9 @@ const todoView = () => {
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
       }
+
+      // Refresh tasks positions on add subTask
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleDeleteSubtask = (e) => {
@@ -926,6 +929,9 @@ const todoView = () => {
         liveSubtaskIndicatorLabel.closest('.subtask-indicator').remove();
         toggleIndicatorClass();
       }
+
+      // Refresh tasks positions on remove subTask
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleToggleSubtask = (e) => {
@@ -967,6 +973,9 @@ const todoView = () => {
       } else {
         removeClass(subtaskIndicator, 'completed');
       }
+
+      // Refresh tasks positions on toggle subTask
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleSwitchSubtask = (e) => {
@@ -1084,7 +1093,7 @@ const todoView = () => {
         elements.todoList.append(selectedTodo);
       }
 
-      // Sort tasks on Importance change
+      // Sort tasks on add My Day
       sort.refreshSort(currentProject, selectedTodo);
     };
 
@@ -1104,7 +1113,7 @@ const todoView = () => {
       // If we are editing in "Important" project then remove todo
       if (selectedProject.dataset.index === '2') selectedTodo.remove();
 
-      // Sort tasks on Importance change
+      // Sort tasks on remove My Day
       sort.refreshSort(currentProject, selectedTodo);
     };
 
