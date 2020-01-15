@@ -746,6 +746,23 @@ const viewHelpers = (elements) => {
     completeSound.play();
   };
 
+  // Set close/open Planned date tabs on switchList/initApp
+  const initPlannedDateTabs = (plannedProject) => {
+    const todoListTimes = elements.todoList.querySelectorAll('.todo-list-time');
+    const toggleButtons = elements.todoList.querySelectorAll('.list-header button');
+    const { tabStates } = plannedProject;
+
+    todoListTimes.forEach((list, i) => {
+      if (tabStates[i] === 'open') {
+        removeClass(toggleButtons[i], 'close');
+        list.style.height = list.scrollHeight ? `${list.scrollHeight + 2}px` : '';
+      } else {
+        addClass(toggleButtons[i], 'close');
+        list.style.height = 0;
+      }
+    });
+  };
+
   return {
     toggleModal,
     resetMyDayCount,
@@ -764,6 +781,7 @@ const viewHelpers = (elements) => {
     confirmRemoval,
     switchEmptyState,
     playCompleteSound,
+    initPlannedDateTabs,
   };
 };
 

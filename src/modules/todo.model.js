@@ -166,6 +166,8 @@ const todoApp = (() => {
   defaultStores[2].id = 3;
   defaultStores[3].id = 4;
   defaultStores[4].id = 5;
+  // Planned project's tabs states (open/closed)
+  defaultStores[3].tabStates = ['open', 'open', 'open', 'open', 'open', 'open'];
   const state = {
     projects: [...defaultStores],
     selected: 4,

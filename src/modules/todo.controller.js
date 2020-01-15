@@ -87,6 +87,9 @@ const todoController = (() => {
 
       // remove sort button
       view.elements.toggleSort(true);
+
+      // init tabs states
+      view.initPlannedDateTabs(todoApp.getProjectByID(4));
     }
 
     // Display todos if a default project is selected (sorted version)
@@ -404,6 +407,7 @@ const todoController = (() => {
         });
         items.sort((todoA, todoB) => new Date(todoA.date) - new Date(todoB.date));
         view.displayTodos(items);
+        view.initPlannedDateTabs(todoApp.getProjectByID(4));
         break;
 
       default:
@@ -659,6 +663,35 @@ const todoController = (() => {
     }
   };
 
+  // Listen to todoList in Planned project to close/open lists Events
+  const handlePlannedClick = (e) => {
+    const { target } = e;
+
+    if (!target.closest('.list-header')) return;
+
+    const listHeader = target.closest('.list-header');
+    const button = listHeader.querySelector('button');
+    const todoListTime = view.getElement(`.todo-list-time[data-time="${listHeader.id}"]`);
+
+    // Enable all transitions in todo list
+    view.enableTransition(todoListTime);
+
+    const plannedProject = todoApp.getProjectByID(4);
+    const headerIndex = Array.from(view.elements.todoList.querySelectorAll('.list-header')).indexOf(
+      listHeader,
+    );
+
+    if (button.classList.contains('close')) {
+      view.removeClass(button, 'close');
+      todoListTime.style.height = `${todoListTime.scrollHeight + 2}px`;
+      plannedProject.tabStates[headerIndex] = 'open';
+    } else {
+      view.addClass(button, 'close');
+      todoListTime.style.height = 0;
+      plannedProject.tabStates[headerIndex] = 'closed';
+    }
+  };
+
   /**
    * Initialize the todo app (display default data to the user)
    */
@@ -675,6 +708,7 @@ const todoController = (() => {
     view.bindSwitchTodo(handleSwitchTodo);
     view.bindSortList(handleSortList);
     view.bindSortIndicator(handleSortIndicator);
+    view.bindPlannedClick(handlePlannedClick);
   };
 
   return {

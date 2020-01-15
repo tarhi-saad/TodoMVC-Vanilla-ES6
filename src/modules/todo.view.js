@@ -59,6 +59,7 @@ const todoView = () => {
     confirmRemoval,
     switchEmptyState,
     playCompleteSound,
+    initPlannedDateTabs,
   } = viewHelpers(elements);
 
   /**
@@ -1145,31 +1146,6 @@ const todoView = () => {
 
   on(elements.newListInput, 'input', handleInput);
 
-  // Listen to todoList in Planned project to close/open lists
-  // Events
-  const handlePlannedClick = (e) => {
-    const { target } = e;
-
-    if (!target.closest('.list-header')) return;
-
-    const listHeader = target.closest('.list-header');
-    const button = listHeader.querySelector('button');
-    const todoListTime = getElement(`.todo-list-time[data-time="${listHeader.id}"]`);
-
-    // Enable all transitions in todo list
-    enableTransition(todoListTime);
-
-    if (button.classList.contains('close')) {
-      removeClass(button, 'close');
-      todoListTime.style.height = `${todoListTime.scrollHeight + 2}px`;
-    } else {
-      addClass(button, 'close');
-      todoListTime.style.height = 0;
-    }
-  };
-
-  on(elements.todoList, 'click', handlePlannedClick);
-
   // Listen to window resize
   const handleResize = () => {
     // Reposition todos on resize
@@ -1266,6 +1242,14 @@ const todoView = () => {
     on(elements.sortIndicator, 'click', handler);
   };
 
+  /**
+   * Call handlePlannedClick function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindPlannedClick = (handler) => {
+    on(elements.todoList, 'click', handler);
+  };
+
   return {
     displayList,
     removeProject,
@@ -1283,6 +1267,7 @@ const todoView = () => {
     bindEditTasksTitle,
     bindSortList,
     bindSortIndicator,
+    bindPlannedClick,
     empty,
     toggleEditMode,
     displayDetails,
@@ -1295,6 +1280,11 @@ const todoView = () => {
     resetMyDayCount,
     refreshTodoItemsPositions,
     refreshTodos,
+    initPlannedDateTabs,
+    removeClass,
+    addClass,
+    getElement,
+    enableTransition,
   };
 };
 

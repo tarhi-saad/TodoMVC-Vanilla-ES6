@@ -306,7 +306,7 @@ const initializeDOMElements = () => {
   root.append(header, listsMenu, tasksView, detailsView, modal, audioBlock);
 
   // Helper function - 'refreshTodoItemsPositions' helper
-  const refreshTodoItemsPositionsHelper = (list) => {
+  const refreshTodoItemsPositionsHelper = (list, isTabClosed = false) => {
     // Disable all transitions
     disableTransition(list);
     const { children } = list;
@@ -327,7 +327,7 @@ const initializeDOMElements = () => {
     });
 
     // The number 8 is added to give room to items to grow/shrink and not be hidden
-    list.style.height = `${fullHeight + 8}px`;
+    if (!isTabClosed) list.style.height = `${fullHeight + 8}px`;
 
     if (todoList.scrollHeight > todoList.offsetHeight) {
       addClass(todoList, 'grow-items');
@@ -343,8 +343,12 @@ const initializeDOMElements = () => {
       todoList.style.height = '';
       const listsTime = todoList.querySelectorAll('ul.todo-list-time');
       Array.from(listsTime).forEach((list) => {
+        const isTabClosed = list.previousElementSibling
+          .querySelector('button')
+          .classList.contains('close');
+
         if (list.children.length > 0) {
-          refreshTodoItemsPositionsHelper(list);
+          refreshTodoItemsPositionsHelper(list, isTabClosed);
         }
       });
     } else {
