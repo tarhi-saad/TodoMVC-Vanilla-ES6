@@ -10,6 +10,7 @@ const {
   removeClass,
   toggleClass,
   disableTransition,
+  wrap,
 } = DOMHelpers();
 
 const {
@@ -45,14 +46,15 @@ const initializeDOMElements = () => {
   const searchIcon = createElement('span', '.search-icon');
   const searchInput = createElement('input', '#search-input');
   const searchReset = createElement('button', '.search-reset');
+  const searchOverlay = createElement('div', '.search-overlay');
   searchIcon.insertAdjacentHTML('beforeEnd', searchSVG);
   searchInput.type = 'text';
   searchInput.placeholder = 'Search';
   searchInput.autocomplete = 'off';
   searchReset.insertAdjacentHTML('beforeEnd', removeSVG);
   addClass(searchReset, 'text-button');
-  searchContainer.append(searchIcon, searchInput, searchReset);
-  header.append(menuButton, searchContainer);
+  searchContainer.append(searchIcon, searchInput, searchReset, searchOverlay);
+  header.append(menuButton, wrap(searchContainer, 'search-wrapper'));
   // The left block containing all projects
   const listsMenu = createElement('div', '.lists-menu');
   // close menu if mobile
