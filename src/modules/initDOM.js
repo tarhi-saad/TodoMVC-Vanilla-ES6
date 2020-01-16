@@ -30,6 +30,7 @@ const {
   sortCreationDateSVG,
   completeSound,
   chevronSVG,
+  searchSVG,
 } = assets();
 
 const initializeDOMElements = () => {
@@ -40,7 +41,18 @@ const initializeDOMElements = () => {
   const menuButton = createElement('button', '.menu-btn');
   menuButton.dataset.state = 'open';
   menuButton.insertAdjacentHTML('beforeEnd', menuSVG);
-  header.append(menuButton);
+  const searchContainer = createElement('div', '.search-container');
+  const searchIcon = createElement('span', '.search-icon');
+  const searchInput = createElement('input', '#search-input');
+  const searchReset = createElement('button', '.search-reset');
+  searchIcon.insertAdjacentHTML('beforeEnd', searchSVG);
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Search';
+  searchInput.autocomplete = 'off';
+  searchReset.insertAdjacentHTML('beforeEnd', removeSVG);
+  addClass(searchReset, 'text-button');
+  searchContainer.append(searchIcon, searchInput, searchReset);
+  header.append(menuButton, searchContainer);
   // The left block containing all projects
   const listsMenu = createElement('div', '.lists-menu');
   // close menu if mobile
