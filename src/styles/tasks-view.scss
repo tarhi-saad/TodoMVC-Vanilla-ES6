@@ -70,6 +70,7 @@ $line-spacing: 48px;
       margin: 0;
       padding: 10px;
       font-weight: bold;
+      overflow: hidden;
       width: 100%;
 
       span,
@@ -80,6 +81,9 @@ $line-spacing: 48px;
       span {
         display: block;
         padding: 6px 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
         &:hover {
           background: #f5f5f5;

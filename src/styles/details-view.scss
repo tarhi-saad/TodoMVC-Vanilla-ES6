@@ -113,6 +113,9 @@
         .subtask-name {
           margin-left: 15px;
           transition: color 0.3s ease;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
 
           &::before {
             background: $second-color-darker;
