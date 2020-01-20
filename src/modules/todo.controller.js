@@ -810,11 +810,13 @@ const todoController = (() => {
 
   const handleSearchReset = () => {
     const { searchReset, searchInput, tasksTitle } = view.elements;
-    const { hideElement } = view;
+    const { hideElement, displaySearchResults } = view;
     hideElement(searchReset);
     searchInput.value = '';
     searchInput.focus();
     tasksTitle.textContent = 'Searching for ""';
+    // Reset also the search view
+    displaySearchResults([]);
   };
 
   const handleSearchBlur = (e) => {
