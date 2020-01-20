@@ -52,7 +52,7 @@ const initializeDOMElements = () => {
   searchInput.placeholder = 'Search';
   searchInput.autocomplete = 'off';
   searchReset.insertAdjacentHTML('beforeEnd', removeSVG);
-  addClass(searchReset, 'text-button');
+  addClass(searchReset, 'text-button', 'hide');
   searchContainer.append(searchIcon, searchInput, searchReset, searchOverlay);
   header.append(menuButton, wrap(searchContainer, 'search-wrapper'));
   // The left block containing all projects
@@ -353,7 +353,7 @@ const initializeDOMElements = () => {
   const refreshTodoItemsPositions = () => {
     const selectedProject = getElement('.list.selected');
 
-    if (selectedProject.dataset.index === '4') {
+    if (selectedProject && selectedProject.dataset.index === '4') {
       todoList.style.height = '';
       const listsTime = todoList.querySelectorAll('ul.todo-list-time');
       Array.from(listsTime).forEach((list) => {
@@ -413,7 +413,7 @@ const initializeDOMElements = () => {
   const repositionTodosOnMenuToggle = () => {
     const selectedProject = getElement('.list.selected');
 
-    if (selectedProject.dataset.index === '4') {
+    if (selectedProject && selectedProject.dataset.index === '4') {
       const listsTime = todoList.querySelectorAll('ul.todo-list-time');
       Array.from(listsTime).forEach((list) => {
         if (list.children.length > 0) {
@@ -538,6 +538,8 @@ const initializeDOMElements = () => {
     sortIndicator,
     setSortIndicator,
     removeSortIndicator,
+    searchInput,
+    searchReset,
   };
 };
 

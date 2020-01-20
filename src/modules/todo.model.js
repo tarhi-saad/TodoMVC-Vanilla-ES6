@@ -171,11 +171,14 @@ const todoApp = (() => {
   const state = {
     projects: [...defaultStores],
     selected: 4,
+    lastSelected: 4,
   };
 
   const getProjects = () => state.projects;
 
   const getSelected = () => state.selected;
+
+  const getLastSelected = () => state.lastSelected;
 
   /**
    * We use index of the array instead of the ID of the project, to easily switch selection
@@ -184,6 +187,8 @@ const todoApp = (() => {
    */
   const setSelected = (index) => {
     state.selected = index;
+
+    if (index || index === 0) state.lastSelected = index;
   };
 
   const addProject = (name) => {
@@ -206,6 +211,8 @@ const todoApp = (() => {
   const { getItemByID: getProjectByID } = todoStoreHelper(getProjects);
 
   const getSelectedProject = () => {
+    if (!getSelected()) return null;
+
     const { id } = getProjects()[getSelected()];
     return getProjectByID(id);
   };
@@ -216,6 +223,7 @@ const todoApp = (() => {
     removeProject,
     getSelected,
     setSelected,
+    getLastSelected,
     getProjectByID,
     getSelectedProject,
   };

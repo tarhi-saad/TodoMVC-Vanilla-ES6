@@ -37,6 +37,7 @@ const todoView = () => {
     tasksSVG,
     importantSVG,
     daySVG,
+    notFoundSVG,
   } = assets();
 
   const elements = initializeDOMElements();
@@ -208,7 +209,7 @@ const todoView = () => {
     // List name indicator for default projects
     const selectedProject = getElement('.list.selected');
 
-    if (['1', '2', '3', '4'].includes(selectedProject.dataset.index)) {
+    if (!selectedProject || ['1', '2', '3', '4'].includes(selectedProject.dataset.index)) {
       const projectName = getElement(`.list[data-index="${todo.projectID}"] .project-name`)
         .textContent;
       const projectNameIndicator = createElement('span', '.project-name-indicator');
@@ -253,7 +254,7 @@ const todoView = () => {
     // Appended elements
     li.append(label, checkbox, titleBlock, deleteBtn);
 
-    if (selectedProject.dataset.index === '4') plannedListView(li, todo.date);
+    if (selectedProject && selectedProject.dataset.index === '4') plannedListView(li, todo.date);
     else elements.todoList.prepend(li);
 
     // Animate list addition
@@ -284,7 +285,7 @@ const todoView = () => {
       `.todo-item[data-index="${index}"].todo-item[data-project-index="${projectIndex}"]`,
     );
     const selectedProject = getElement('.list.selected');
-    const isPlannedProject = selectedProject.dataset.index === '4';
+    const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
 
     // Update todoCount in current list if todo is not completed
     if (!todoItem.classList.contains('completed')) {
@@ -364,7 +365,10 @@ const todoView = () => {
   const removeProject = (id) => {
     // Remove all of its tasks if the selected project is a default one
     const selectedProject = getElement('.list.selected');
-    const index = Number(selectedProject.dataset.index);
+    let index = null;
+
+    if (selectedProject) index = Number(selectedProject.dataset.index);
+
     const defaultIndexes = [1, 2, 3, 4];
 
     if (defaultIndexes.includes(index)) {
@@ -476,6 +480,52 @@ const todoView = () => {
 
     // Choose the right empty state to show for the chosen project
     switchEmptyState(selectedProject);
+  };
+
+  /**
+   * Display all todos in the project list
+   * @param {Object[]} todos List of todo objects
+   */
+  const displaySearchResults = (todos, query) => {
+    // Reset todo details - we remove details view before appending todos
+    resetDetails();
+    // Hide view details on list switch & on add list
+    removeClass(elements.detailsView, 'show');
+
+    if (elements.tasksView.dataset.projectIndex) {
+      // Set task view index
+      elements.tasksView.dataset.projectIndex = '';
+      // Unselect project
+      const selectedList = getElement('.lists .list.selected');
+      removeClass(selectedList, 'selected');
+      // Remove add todo form
+      elements.newTodo.remove();
+      // Choose the right empty state to show for the chosen project
+      const emptyState = document.getElementById('empty-state');
+      const emptyStateText = emptyState.querySelector('p');
+      const currentSVG = emptyState.querySelector('svg');
+
+      if (currentSVG) currentSVG.remove();
+
+      emptyState.insertAdjacentHTML('afterBegin', notFoundSVG);
+      emptyStateText.textContent = "Sorry, we couldn't find what you're looking for.";
+      // Link todo view with selected project: prevent editing title
+      addClass(elements.tasksView, 'pinned');
+    }
+
+    empty(elements.todoList);
+
+    // Animate list - reset todoList Height
+    elements.todoList.style.height = 0;
+
+    todos.forEach((todo) => {
+      addTodo(todo);
+    });
+
+    // Check if list is empty or not to Show/Hide "Empty State"
+    todos.length === 0
+      ? removeClass(elements.emptyState, 'hide-empty-state')
+      : addClass(elements.emptyState, 'hide-empty-state');
   };
 
   let flatCalendar = null;
@@ -701,11 +751,14 @@ const todoView = () => {
         liveNoteIndicator.remove();
         toggleIndicatorClass();
       }
+
+      // Refresh todo list on note change for a responsive behavior
+      sort.refreshSort(currentProject, selectedTodo);
     };
 
     const handleDateChange = (e) => {
       const { target } = e;
-      const isPlannedProject = selectedProject.dataset.index === '4';
+      const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
 
       // If removeDate button is clicked don't run this function
       if (!target.value) return;
@@ -800,7 +853,7 @@ const todoView = () => {
       toggleIndicatorClass();
 
       // Remove todo if it's in "Planned" project
-      const isPlannedProject = selectedProject.dataset.index === '4';
+      const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
       if (isPlannedProject) {
         const todoListTime = selectedTodo.closest('ul.todo-list-time');
         const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
@@ -844,7 +897,7 @@ const todoView = () => {
       addClass(selectedTodo, priorityClass);
 
       // Sort tasks on priority change
-      if (sort.type() === 'Priority') {
+      if (sort && sort.type() === 'Priority') {
         sort.refreshSort(currentProject);
       }
     };
@@ -1053,7 +1106,7 @@ const todoView = () => {
         updateTodoCount(importantCount, false);
 
         // If we are editing in "Important" project then remove todo
-        if (selectedProject.dataset.index === '3') selectedTodo.remove();
+        if (selectedProject && selectedProject.dataset.index === '3') selectedTodo.remove();
       } else {
         addClass(importantBlock, 'important');
         indicators.append(elements.importantIndicatorFn());
@@ -1063,7 +1116,7 @@ const todoView = () => {
         updateTodoCount(importantCount, true);
 
         // If we are still editing in "Important" project then append todo
-        if (selectedProject.dataset.index === '3') {
+        if (selectedProject && selectedProject.dataset.index === '3') {
           elements.todoList.append(selectedTodo);
         }
       }
@@ -1090,7 +1143,7 @@ const todoView = () => {
       updateTodoCount(myDayCount, true);
 
       // If we are still editing in "Important" project then append todo
-      if (selectedProject.dataset.index === '2') {
+      if (selectedProject && selectedProject.dataset.index === '2') {
         elements.todoList.append(selectedTodo);
       }
 
@@ -1112,7 +1165,7 @@ const todoView = () => {
       updateTodoCount(myDayCount, false);
 
       // If we are editing in "Important" project then remove todo
-      if (selectedProject.dataset.index === '2') selectedTodo.remove();
+      if (selectedProject && selectedProject.dataset.index === '2') selectedTodo.remove();
 
       // Sort tasks on remove My Day
       sort.refreshSort(currentProject, selectedTodo);
@@ -1250,6 +1303,30 @@ const todoView = () => {
     on(elements.todoList, 'click', handler);
   };
 
+  /**
+   * Call handleSearchInput function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSearchInput = (handler) => {
+    on(elements.searchInput, 'input', handler);
+  };
+
+  /**
+   * Call handleSearchReset function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSearchReset = (handler) => {
+    on(elements.searchReset, 'click', handler);
+  };
+
+  /**
+   * Call handleSearchBlur function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSearchBlur = (handler) => {
+    on(elements.searchInput, 'blur', handler);
+  };
+
   return {
     displayList,
     removeProject,
@@ -1268,11 +1345,14 @@ const todoView = () => {
     bindSortList,
     bindSortIndicator,
     bindPlannedClick,
+    bindSearchInput,
+    bindSearchReset,
     empty,
     toggleEditMode,
     displayDetails,
     bindSwitchTodo,
     hideElement,
+    showElement,
     confirmRemoval,
     updateTodoCount,
     resetDetails,
@@ -1285,6 +1365,8 @@ const todoView = () => {
     addClass,
     getElement,
     enableTransition,
+    displaySearchResults,
+    bindSearchBlur,
   };
 };
 

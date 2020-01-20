@@ -13,6 +13,9 @@ const todoController = (() => {
 
     // Default project items
     const defaultItems = [];
+
+    if (!todoApp.getSelected()) todoApp.setSelected(todoApp.getLastSelected());
+
     const selectedID = todoApp.getSelectedProject().id;
 
     // To check if it's a new day
@@ -111,12 +114,15 @@ const todoController = (() => {
 
   // Helper function - refresh list for sorting
   const refreshCurrentTodoList = (currentProject, selectedTodo = null) => {
+    let projectID = null;
+
+    if (currentProject) projectID = currentProject.id;
     // We don't use sort in Planned project
-    if (currentProject.id === 4) return;
+    if (projectID === 4) return;
 
     const items = [];
 
-    switch (currentProject.id) {
+    switch (projectID) {
       // All tasks case
       case 1:
         todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
@@ -144,7 +150,8 @@ const todoController = (() => {
         break;
 
       default:
-        view.refreshTodos(currentProject.getSortedItems(), selectedTodo);
+        if (currentProject) view.refreshTodos(currentProject.getSortedItems(), selectedTodo);
+        else view.refreshTodos([], selectedTodo);
         break;
     }
   };
@@ -288,8 +295,8 @@ const todoController = (() => {
       view.updateTodoCount(myDayCount, !todo.isComplete);
     }
 
-    // refresh sorting
-    refreshCurrentTodoList(project);
+    // refresh sorting if a project is selected
+    if (todoApp.getSelectedProject()) refreshCurrentTodoList(project);
   };
 
   const handleAddList = (e) => {
@@ -307,6 +314,16 @@ const todoController = (() => {
     const name = project.getName();
     const items = project.getItems();
     view.displayList(id, name, items, true);
+
+    // Reset input search - before displayTodos (setting the new projectIndex value)
+    const wasSearchMode = !view.elements.tasksView.dataset.projectIndex;
+    if (wasSearchMode) {
+      view.elements.searchInput.value = '';
+      view.hideElement(view.elements.searchReset);
+      // Append add todo form
+      view.elements.tasksView.append(view.elements.newTodo);
+    }
+
     view.displayTodos(items);
 
     // Hide "Add" button After submit
@@ -315,29 +332,50 @@ const todoController = (() => {
     // Add sort button
     view.elements.toggleSort();
 
+    // Set indicator to none by default
+    view.elements.setSortIndicator('none');
+
     // Scroll to bottom of the list of projects, only when adding a new list
     const { lists } = view.elements;
     lists.scrollTop = lists.scrollHeight;
   };
 
   const handleSwitchList = (e) => {
-    const { target } = e;
-    const list = target.closest('.list');
-    const lists = target.closest('.lists').querySelectorAll('.list');
-    const selectedList = lists[todoApp.getSelected()];
+    let projectIndex = null;
+    let list = null;
 
-    if (list === selectedList || !list || target.closest('.delete-btn')) {
-      return;
+    if (e.type === 'click') {
+      const { target } = e;
+      list = target.closest('.list');
+      const lists = target.closest('.lists').querySelectorAll('.list');
+      const selectedList = lists[todoApp.getSelected()];
+
+      if (list === selectedList || !list || target.closest('.delete-btn')) {
+        return;
+      }
+
+      Array.from(lists).some((li, index) => {
+        projectIndex = index;
+        return li === list;
+      });
+
+      if (selectedList) selectedList.classList.remove('selected');
+
+      // Reset input search
+      const wasSearchMode = !view.elements.tasksView.dataset.projectIndex;
+      if (wasSearchMode) {
+        view.elements.searchInput.value = '';
+        view.hideElement(view.elements.searchReset);
+      }
+    } else if (e.type === 'blur') {
+      projectIndex = todoApp.getLastSelected();
+      list = document.querySelector('.lists').children[projectIndex];
     }
 
-    let projectIndex = null;
-    Array.from(lists).some((li, index) => {
-      projectIndex = index;
-      return li === list;
-    });
-    selectedList.classList.remove('selected');
     todoApp.setSelected(projectIndex);
     list.classList.add('selected');
+    // Append add todo form
+    view.elements.tasksView.append(view.elements.newTodo);
 
     // Clean slot for My Day project if it's a new day
     const currentDate = new Date(view.getConvertedCurrentDate());
@@ -452,6 +490,21 @@ const todoController = (() => {
           // Update todo view
           view.displayTodos(todoApp.getSelectedProject().getItems());
         }
+      } else if (listIndex === -1) {
+        // Search mode
+        const listToBeSelected = target.closest('.list').previousElementSibling;
+        const NewListIndex = Array.from(lists).indexOf(listToBeSelected);
+        todoApp.setSelected(NewListIndex);
+        lists[NewListIndex].classList.add('selected');
+
+        // Update todo view
+        view.displayTodos(todoApp.getSelectedProject().getItems());
+
+        // Reset input search
+        view.elements.searchInput.value = '';
+        view.hideElement(view.elements.searchReset);
+        // Append add todo form
+        view.elements.tasksView.append(view.elements.newTodo);
       }
 
       view.removeProject(listID);
@@ -488,7 +541,12 @@ const todoController = (() => {
     const { target } = e;
     const selectedProject = view.elements.lists.querySelector('li.selected');
 
-    if (selectedProject.classList.contains('pinned')) return;
+    if (
+      (selectedProject && selectedProject.classList.contains('pinned')) ||
+      view.elements.tasksView.classList.contains('pinned')
+    ) {
+      return;
+    }
 
     const updateProject = (value) => {
       todoApp.getSelectedProject().setName(value);
@@ -526,14 +584,24 @@ const todoController = (() => {
     const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
     const todo = todoApp.getProjectByID(projectID).getItemByID(id);
 
-    // Inject sort state to the view
+    // If mode search disable sort system, otherwise inject sort data
     const currentProject = todoApp.getSelectedProject();
-    const sortType = currentProject.getSelectedSortType;
-    const sort = {
-      type: sortType,
-      refreshSort: refreshCurrentTodoList,
-    };
-    view.displayDetails(todo, currentProject, sort);
+    if (currentProject) {
+      // Inject sort state to the view
+      const sortType = currentProject.getSelectedSortType;
+      const sort = {
+        type: sortType,
+        refreshSort: refreshCurrentTodoList,
+      };
+      view.displayDetails(todo, currentProject, sort);
+    } else {
+      const sortType = () => 'none';
+      const sort = {
+        type: sortType,
+        refreshSort: refreshCurrentTodoList,
+      };
+      view.displayDetails(todo, currentProject, sort);
+    }
 
     // Reposition todo items on show details view
     view.refreshTodoItemsPositions();
@@ -695,6 +763,62 @@ const todoController = (() => {
     }
   };
 
+  // Search events
+  const handleSearchInput = (e) => {
+    const { target } = e;
+    const { showElement, hideElement } = view;
+    const { searchReset, searchInput } = view.elements;
+    const inputValue = target.value.toLowerCase();
+    todoApp.setSelected(null);
+    view.elements.toggleSort(true);
+    view.elements.setSortIndicator('none');
+    const items = [];
+    // Set task view title
+    view.elements.tasksTitle.textContent = `Searching for "${inputValue}"`;
+
+    if (inputValue !== '') {
+      showElement(searchReset);
+
+      todoApp.getProjects().forEach((project) => {
+        project.getItems().forEach((item) => {
+          if (item.title.toLowerCase().includes(inputValue)) items.push(item);
+        });
+      });
+
+      items.sort((itemA, itemB) => {
+        const nameA = itemA.title.toUpperCase();
+        const nameB = itemB.title.toUpperCase();
+
+        if (nameA < nameB) return 1;
+
+        if (nameA > nameB) return -1;
+
+        return 0;
+      });
+    } else {
+      hideElement(searchReset);
+    }
+
+    view.displaySearchResults(items, inputValue);
+  };
+
+  const handleSearchReset = () => {
+    const { searchReset, searchInput } = view.elements;
+    const { hideElement } = view;
+    hideElement(searchReset);
+    searchInput.value = '';
+    searchInput.focus();
+  };
+
+  const handleSearchBlur = (e) => {
+    const { searchInput } = view.elements;
+    const { projectIndex } = view.elements.tasksView.dataset;
+
+    if (searchInput.value || projectIndex) return;
+
+    handleSwitchList(e);
+  };
+
   /**
    * Initialize the todo app (display default data to the user)
    */
@@ -712,6 +836,9 @@ const todoController = (() => {
     view.bindSortList(handleSortList);
     view.bindSortIndicator(handleSortIndicator);
     view.bindPlannedClick(handlePlannedClick);
+    view.bindSearchInput(handleSearchInput);
+    view.bindSearchReset(handleSearchReset);
+    view.bindSearchBlur(handleSearchBlur);
   };
 
   return {

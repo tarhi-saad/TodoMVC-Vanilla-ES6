@@ -123,7 +123,7 @@ const viewHelpers = (elements) => {
     empty(elements.detailsView);
 
     // Unselect todos in Planned Project
-    if (selectedProject.dataset.index === '4') {
+    if (selectedProject && selectedProject.dataset.index === '4') {
       const lists = elements.todoList.querySelectorAll('ul.todo-list-time');
       Array.from(lists).forEach((list) => {
         if (list.children) unselect(list);
@@ -335,7 +335,10 @@ const viewHelpers = (elements) => {
     const selectedProject = getElement('.list.selected');
     const indicators = target.closest('.indicators');
     const isDateIndicator = target.classList.contains('date-indicator-label');
-    const isPlannedProject = selectedProject.dataset.index === '4';
+    let isPlannedProject = false;
+
+    if (selectedProject) isPlannedProject = selectedProject.dataset.index === '4';
+
     const isTransitionDisabled = todoList.style.transitionProperty === 'none';
     let skip = false;
 
@@ -455,7 +458,7 @@ const viewHelpers = (elements) => {
     const selectedProject = getElement('.list.selected');
     let todoList = null;
 
-    if (selectedProject.dataset.index === '4') {
+    if (selectedProject && selectedProject.dataset.index === '4') {
       todoList = removedChild.closest('.todo-list-time');
       elements.todoList.style.height = '';
     } else todoList = elements.todoList;
