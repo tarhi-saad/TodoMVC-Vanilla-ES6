@@ -486,12 +486,12 @@ const todoView = () => {
    * Display all todos in the project list
    * @param {Object[]} todos List of todo objects
    */
-  const displaySearchResults = (todos, query) => {
-    // Reset todo details - we remove details view before appending todos
+  const displaySearchResults = (todos) => {
+    // Reset todo details & hide view
     resetDetails();
-    // Hide view details on list switch & on add list
     removeClass(elements.detailsView, 'show');
 
+    // To execute first time in search mode
     if (elements.tasksView.dataset.projectIndex) {
       // Set task view index
       elements.tasksView.dataset.projectIndex = '';

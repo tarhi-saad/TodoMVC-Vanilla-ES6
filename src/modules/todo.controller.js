@@ -767,24 +767,30 @@ const todoController = (() => {
   const handleSearchInput = (e) => {
     const { target } = e;
     const { showElement, hideElement } = view;
-    const { searchReset, searchInput } = view.elements;
+    const { searchReset, tasksView, tasksTitle, toggleSort, setSortIndicator } = view.elements;
     const inputValue = target.value.toLowerCase();
-    todoApp.setSelected(null);
-    view.elements.toggleSort(true);
-    view.elements.setSortIndicator('none');
     const items = [];
     // Set task view title
-    view.elements.tasksTitle.textContent = `Searching for "${inputValue}"`;
+    tasksTitle.textContent = `Searching for "${inputValue}"`;
+
+    // To execute first time in search mode
+    if (tasksView.dataset.projectIndex) {
+      todoApp.setSelected(null);
+      toggleSort(true);
+      setSortIndicator('none');
+    }
 
     if (inputValue !== '') {
       showElement(searchReset);
 
+      // Get items from all projects that match our query
       todoApp.getProjects().forEach((project) => {
         project.getItems().forEach((item) => {
           if (item.title.toLowerCase().includes(inputValue)) items.push(item);
         });
       });
 
+      // Sort items alphabetically
       items.sort((itemA, itemB) => {
         const nameA = itemA.title.toUpperCase();
         const nameB = itemB.title.toUpperCase();
@@ -799,15 +805,16 @@ const todoController = (() => {
       hideElement(searchReset);
     }
 
-    view.displaySearchResults(items, inputValue);
+    view.displaySearchResults(items);
   };
 
   const handleSearchReset = () => {
-    const { searchReset, searchInput } = view.elements;
+    const { searchReset, searchInput, tasksTitle } = view.elements;
     const { hideElement } = view;
     hideElement(searchReset);
     searchInput.value = '';
     searchInput.focus();
+    tasksTitle.textContent = 'Searching for ""';
   };
 
   const handleSearchBlur = (e) => {
