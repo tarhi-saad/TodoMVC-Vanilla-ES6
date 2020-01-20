@@ -211,7 +211,7 @@ const todoApp = (() => {
   const { getItemByID: getProjectByID } = todoStoreHelper(getProjects);
 
   const getSelectedProject = () => {
-    if (!getSelected()) return null;
+    if (!getSelected() && getSelected() !== 0) return null;
 
     const { id } = getProjects()[getSelected()];
     return getProjectByID(id);
