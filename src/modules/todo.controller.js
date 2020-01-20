@@ -763,6 +763,20 @@ const todoController = (() => {
     }
   };
 
+  // Helper function - Sort items alphabetically
+  const sortByName = (list) => {
+    list.sort((itemA, itemB) => {
+      const nameA = itemA.title.toUpperCase();
+      const nameB = itemB.title.toUpperCase();
+
+      if (nameA < nameB) return 1;
+
+      if (nameA > nameB) return -1;
+
+      return 0;
+    });
+  };
+
   // Search events
   const handleSearchInput = (e) => {
     const { target } = e;
@@ -790,17 +804,7 @@ const todoController = (() => {
         });
       });
 
-      // Sort items alphabetically
-      items.sort((itemA, itemB) => {
-        const nameA = itemA.title.toUpperCase();
-        const nameB = itemB.title.toUpperCase();
-
-        if (nameA < nameB) return 1;
-
-        if (nameA > nameB) return -1;
-
-        return 0;
-      });
+      sortByName(items);
     } else {
       hideElement(searchReset);
     }
