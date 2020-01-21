@@ -235,6 +235,20 @@ const todoView = () => {
       if (totalSubtasks === completedSubtasks) {
         addClass(subtaskIndicator, 'completed');
       }
+
+      // Setup & update subtasks tooltip
+      const remainingSubTasks = totalSubtasks - completedSubtasks;
+      if (remainingSubTasks === 1) {
+        subtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+        subtaskIndicator.dataset.tooltip = '';
+      } else if (remainingSubTasks === 0) {
+        subtaskIndicator.dataset.tooltip = 'All subtasks are completed';
+      } else {
+        subtaskIndicatorLabel.dataset.tooltip = `
+        ${remainingSubTasks} remaining subtasks to complete
+        `;
+        subtaskIndicator.dataset.tooltip = '';
+      }
     }
 
     if (todo.date !== '') {
@@ -562,6 +576,7 @@ const todoView = () => {
     importantInput.type = 'checkbox';
     importantLabel.htmlFor = 'important-check';
     importantLabel.insertAdjacentHTML('beforeEnd', importantSVG);
+    importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
     importantBlock.append(importantLabel, importantInput);
     nameBlock.append(importantBlock);
 
@@ -676,6 +691,10 @@ const todoView = () => {
     priorityLow.insertAdjacentHTML('beforeEnd', prioritySVG);
     priorityMedium.insertAdjacentHTML('beforeEnd', prioritySVG);
     priorityHigh.insertAdjacentHTML('beforeEnd', prioritySVG);
+    // Add tooltip to priorities
+    priorityLow.dataset.tooltip = 'Low';
+    priorityMedium.dataset.tooltip = 'Medium';
+    priorityHigh.dataset.tooltip = 'High';
     priorityList.append(priorityLow, priorityMedium, priorityHigh);
     addClass(priorityList.querySelector(`.${todo.priority.toLowerCase()}`), 'selected');
     priorityBlock.append(priorityTitle, priorityList);
@@ -727,6 +746,9 @@ const todoView = () => {
 
       // sort tasks on name change
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update Bookmark tooltip
+      importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
     };
 
     const noteHeight = getComputedStyle(note).height;
@@ -937,7 +959,7 @@ const todoView = () => {
       hideElement(subTasksSubmit);
 
       // Indicator
-      const liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
+      let liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
@@ -952,6 +974,17 @@ const todoView = () => {
         toggleIndicatorClass();
       } else if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+      }
+
+      // Setup & update subtasks tooltip
+      liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
+      const remainingSubTasks = totalSubtasks - completedSubtasks;
+      if (remainingSubTasks === 1) {
+        liveSubtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+      } else {
+        liveSubtaskIndicatorLabel.dataset.tooltip = `
+        ${remainingSubTasks} remaining subtasks to complete
+        `;
       }
 
       // Refresh tasks positions on add subTask
@@ -982,6 +1015,16 @@ const todoView = () => {
       } else if (!totalSubtasks) {
         liveSubtaskIndicatorLabel.closest('.subtask-indicator').remove();
         toggleIndicatorClass();
+      }
+
+      // Setup & update subtasks tooltip
+      const remainingSubTasks = totalSubtasks - completedSubtasks;
+      if (remainingSubTasks === 1) {
+        liveSubtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+      } else {
+        liveSubtaskIndicatorLabel.dataset.tooltip = `
+        ${remainingSubTasks} remaining subtasks to complete
+        `;
       }
 
       // Refresh tasks positions on remove subTask
@@ -1026,6 +1069,20 @@ const todoView = () => {
         addClass(subtaskIndicator, 'completed');
       } else {
         removeClass(subtaskIndicator, 'completed');
+      }
+
+      // Setup & update subtasks tooltip
+      const remainingSubTasks = totalSubtasks - completedSubtasks;
+      if (remainingSubTasks === 1) {
+        liveSubtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+        subtaskIndicator.dataset.tooltip = '';
+      } else if (remainingSubTasks === 0) {
+        subtaskIndicator.dataset.tooltip = 'All subtasks are completed';
+      } else {
+        liveSubtaskIndicatorLabel.dataset.tooltip = `
+        ${remainingSubTasks} remaining subtasks to complete
+        `;
+        subtaskIndicator.dataset.tooltip = '';
       }
 
       // Refresh tasks positions on toggle subTask
@@ -1107,6 +1164,9 @@ const todoView = () => {
 
         // If we are editing in "Important" project then remove todo
         if (selectedProject && selectedProject.dataset.index === '3') selectedTodo.remove();
+
+        // Update Bookmark tooltip
+        importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
       } else {
         addClass(importantBlock, 'important');
         indicators.append(elements.importantIndicatorFn());
@@ -1119,10 +1179,16 @@ const todoView = () => {
         if (selectedProject && selectedProject.dataset.index === '3') {
           elements.todoList.append(selectedTodo);
         }
+
+        // Update Bookmark tooltip
+        importantLabel.dataset.tooltip = `<em>${todo.title}</em> is bookmarked`;
       }
 
       // Sort tasks on Importance change
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Live update of tooltip span
+      getElement('.tooltip').innerHTML = importantLabel.dataset.tooltip;
     };
 
     const handleMyDayClick = (e) => {

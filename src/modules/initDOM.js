@@ -1,5 +1,6 @@
 import DOMHelpers from './DOMHelpers';
 import assets from './assets';
+import tooltip from './todo.tooltip';
 
 const {
   createElement,
@@ -299,6 +300,7 @@ const initializeDOMElements = () => {
   const importantIndicatorFn = () => {
     const importantIndicator = createElement('span', '.important-indicator');
     importantIndicator.insertAdjacentHTML('beforeEnd', importantSVG);
+    importantIndicator.querySelector('svg').dataset.tooltip = 'Task bookmarked';
 
     return importantIndicator;
   };
@@ -307,6 +309,7 @@ const initializeDOMElements = () => {
   const myDayIndicatorFn = () => {
     const myDayIndicator = createElement('span', '.my-day-indicator');
     myDayIndicator.insertAdjacentHTML('beforeEnd', daySVG);
+    myDayIndicator.querySelector('svg').dataset.tooltip = 'Task added to My Day';
 
     return myDayIndicator;
   };
@@ -318,6 +321,9 @@ const initializeDOMElements = () => {
   tasksView.append(tasksHeader, todoList, emptyState, newTodo);
 
   root.append(header, listsMenu, tasksView, detailsView, modal, audioBlock);
+
+  // Init tooltip
+  tooltip(document);
 
   // Helper function - 'refreshTodoItemsPositions' helper
   const refreshTodoItemsPositionsHelper = (list, isTabClosed = false) => {

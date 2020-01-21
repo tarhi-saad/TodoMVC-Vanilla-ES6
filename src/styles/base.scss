@@ -37,6 +37,45 @@ body {
   transition: none !important;
 }
 
+.tooltip {
+  /* some styles for the tooltip, you can use your own instead */
+  position: fixed;
+  padding: 6px 10px;
+  border-radius: 3px;
+  border: 1px solid #333333;
+  text-align: center;
+  font-size: 13px;
+  line-height: 15px;
+  font-weight: 500;
+  color: #fff;
+  background: #333333;
+  white-space: nowrap;
+  z-index: 99;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background-color: #333333;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  &.bottom-left::before {
+    left: auto;
+    right: 11px;
+    transform: rotate(45deg);
+  }
+
+  &.top::before {
+    top: auto;
+    bottom: -4px;
+  }
+}
+
 .text-button {
   font-size: 0.875rem;
   font-weight: 500;

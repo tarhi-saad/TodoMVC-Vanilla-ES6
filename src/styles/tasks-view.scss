@@ -353,7 +353,7 @@ $line-spacing: 48px;
             color: $grey-color;
             display: flex;
             font-size: 12px;
-            margin-right: 6px;
+            padding-right: 6px;
             transition: color 0.3s ease;
 
             &::before {
@@ -409,6 +409,10 @@ $line-spacing: 48px;
           .subtask-indicator.completed {
             svg {
               display: inherit;
+            }
+
+            .subtask-indicator-label {
+              pointer-events: none;
             }
           }
 
@@ -545,6 +549,7 @@ $line-spacing: 48px;
           .important-indicator,
           .my-day-indicator {
             color: $second-color-darker;
+            pointer-events: none;
 
             svg {
               fill: $second-color-darker;
