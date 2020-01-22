@@ -77,7 +77,7 @@ const initializeDOMElements = () => {
   newListInput.autocomplete = 'off';
   newListSubmit.type = 'submit';
   newListSubmit.value = '+ Add';
-  addClass(newListSubmit, 'hide');
+  addClass(newListSubmit, 'hide', 'text-button');
 
   // The center block which will display our todos/tasks
   const tasksView = createElement('div', '.tasks-view');

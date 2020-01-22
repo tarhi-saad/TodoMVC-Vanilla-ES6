@@ -54,6 +54,10 @@
     .delete-btn {
       display: none;
     }
+
+    .submit-btn {
+      display: none;
+    }
   }
 
   .lists {
@@ -240,7 +244,7 @@
     #newList {
       background: none;
       border: none;
-      padding-right: 10px;
+      padding-right: 60px;
       min-height: 2.6rem;
       width: 100%;
 
@@ -250,22 +254,24 @@
     }
 
     .submit-btn {
-      background: #fff;
+      background-color: #fff;
       border: none;
       border-radius: 5px;
-      color: $base-color-light;
-      font-size: 13px;
-      font-weight: bold;
-      right: 10px;
+      color: $base-color;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.8rem;
+      letter-spacing: initial;
+      right: 0;
       text-transform: uppercase;
       @include vertical-center-absolute;
 
-      &:focus:active {
-        color: $base-color-dark;
+      &:hover {
+        background: #0080ff14;
       }
 
-      &:hover {
-        color: $base-color;
+      &:active:focus {
+        background: #0080ff40;
       }
     }
   }

@@ -593,7 +593,7 @@ const todoView = () => {
     const subTasksSubmit = createElement('input', '.submit-btn');
     subTasksSubmit.type = 'submit';
     subTasksSubmit.value = '+ Add';
-    addClass(subTasksSubmit, 'hide');
+    addClass(subTasksSubmit, 'hide', 'text-button');
     subTasksForm.append(subTasksInput, subTasksSubmit);
     const subTasksBlock = wrap(subTasksForm, 'subtask-block');
     const subtasksList = createElement('ul', '.subtasks-list');

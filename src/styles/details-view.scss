@@ -297,6 +297,7 @@
         background: none;
         border: none;
         padding: 0 10px;
+        padding-right: 55px;
         min-height: 2.6rem;
         width: 100%;
 
@@ -309,19 +310,21 @@
         background: #fff;
         border: none;
         border-radius: 5px;
-        color: $base-color-light;
-        font-size: 13px;
-        font-weight: bold;
-        right: 10px;
+        color: $base-color;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.8rem;
+        letter-spacing: initial;
+        right: 0;
         text-transform: uppercase;
         @include vertical-center-absolute;
 
         &:focus:active {
-          color: $base-color-dark;
+          background: #0080ff40;
         }
 
         &:hover {
-          color: $base-color;
+          background: #0080ff14;
         }
       }
     }
