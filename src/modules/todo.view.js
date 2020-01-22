@@ -959,6 +959,7 @@ const todoView = () => {
       hideElement(subTasksSubmit);
 
       // Indicator
+      const liveSubtaskIndicator = selectedTodo.querySelector('.subtask-indicator');
       let liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
@@ -973,6 +974,7 @@ const todoView = () => {
         appendIndicator(subtaskIndicator, selectedTodo);
         toggleIndicatorClass();
       } else if (totalSubtasks) {
+        removeClass(liveSubtaskIndicator, 'completed');
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
       }
 
@@ -1003,6 +1005,7 @@ const todoView = () => {
       li.remove();
 
       // Indicator
+      const subtaskIndicator = selectedTodo.querySelector('.subtask-indicator');
       const liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
@@ -1012,8 +1015,12 @@ const todoView = () => {
 
       if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+
+        if (totalSubtasks === completedSubtasks) {
+          addClass(subtaskIndicator, 'completed');
+        }
       } else if (!totalSubtasks) {
-        liveSubtaskIndicatorLabel.closest('.subtask-indicator').remove();
+        subtaskIndicator.remove();
         toggleIndicatorClass();
       }
 
@@ -1021,6 +1028,8 @@ const todoView = () => {
       const remainingSubTasks = totalSubtasks - completedSubtasks;
       if (remainingSubTasks === 1) {
         liveSubtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+      } else if (remainingSubTasks === 0) {
+        subtaskIndicator.dataset.tooltip = 'All subtasks are completed';
       } else {
         liveSubtaskIndicatorLabel.dataset.tooltip = `
         ${remainingSubTasks} remaining subtasks to complete
