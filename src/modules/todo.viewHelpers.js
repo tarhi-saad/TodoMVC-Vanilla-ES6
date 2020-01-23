@@ -329,6 +329,102 @@ const viewHelpers = (elements) => {
     todoList.style.height = `${fullHeight + 8}px`;
   };
 
+  // Helper function - Animating todo list
+  const animateAddSubTaskList = () => {
+    const subTaskList = getElement('.subtasks-list');
+    const newSubTask = getElement('#newSubTask');
+
+    // Enable transition
+    subTaskList.style.transition = '';
+
+    const { children } = subTaskList;
+    let fullHeight = 0;
+    let lastChildFullHeight = 0;
+
+    Array.from(children).forEach((child, index) => {
+      const height = child.offsetHeight;
+      const { marginBottom } = getComputedStyle(child);
+      fullHeight += height + parseInt(marginBottom, 10);
+
+      // Enable transition
+      child.style.transition = '';
+
+      if (index === 0) {
+        lastChildFullHeight = fullHeight;
+        // Add a nice effect for the added item
+        addClass(child, 'selected');
+
+        return;
+      }
+
+      const oldTranslateY =
+        child.style.transform === '' ? 0 : getNumberFromString(child.style.transform);
+      child.style.transform = `translateY(${lastChildFullHeight + oldTranslateY}px)`;
+    });
+
+    // Do not animate list when there is only one item
+    if (children.length === 1) {
+      subTaskList.style.transition = 'none';
+      const todoItem = children[0];
+      const handleTransition = () => {
+        subTaskList.style.transition = '';
+        off(todoItem, 'transitionend', handleTransition);
+      };
+      on(todoItem, 'transitionend', handleTransition);
+    }
+
+    // Disable addTodo input during animation
+    toggleReadOnly(newSubTask);
+    // Remove the effect of the added item after the end of the animation
+    const lastItem = children[children.length - 1];
+
+    const handleItemTransition = () => {
+      removeClass(children[0], 'selected');
+      off(lastItem, 'transitionend', handleItemTransition);
+
+      // Enable addTodo input after end of animation
+      toggleReadOnly(newSubTask);
+    };
+    on(lastItem, 'transitionend', handleItemTransition);
+
+    // The number 8 is added to give room to items to grow/shrink and not be hidden
+    subTaskList.style.height = `${fullHeight + 8}px`;
+  };
+
+  // Helper function - Animating todo list
+  const repositionSubTaskList = () => {
+    const subTaskList = getElement('.subtasks-list');
+
+    // Disable transition
+    subTaskList.style.transition = 'none';
+
+    const { children } = subTaskList;
+    let fullHeight = 0;
+    let lastChildFullHeight = 0;
+
+    Array.from(children).forEach((child, index) => {
+      const height = child.offsetHeight;
+      const { marginBottom } = getComputedStyle(child);
+      fullHeight += height + parseInt(marginBottom, 10);
+
+      // Disable transition
+      child.style.transition = 'none';
+
+      if (index === 0) {
+        lastChildFullHeight = fullHeight;
+
+        return;
+      }
+
+      const oldTranslateY =
+        child.style.transform === '' ? 0 : getNumberFromString(child.style.transform);
+      child.style.transform = `translateY(${lastChildFullHeight + oldTranslateY}px)`;
+    });
+
+    // The number 8 is added to give room to items to grow/shrink and not be hidden
+    subTaskList.style.height = `${fullHeight + 8}px`;
+  };
+
   // Mutation observer
   const observerCallbackHelper = (todoList, mutation) => {
     const { target, addedNodes, removedNodes } = mutation;
@@ -504,6 +600,41 @@ const viewHelpers = (elements) => {
       // Update todoList height
       todoList.style.height = `${fullHeight - removeChildFullHeight}px`;
     }
+  };
+
+  const animateRemoveSubTask = (removedChild) => {
+    const subTaskList = getElement('.subtasks-list');
+
+    const { children } = subTaskList;
+    const indexOfRemoved = Array.from(children).indexOf(removedChild);
+
+    const fullHeight = subTaskList.offsetHeight;
+
+    let removeChildFullHeight = 0;
+    // Enable all transitions
+    subTaskList.style.transition = '';
+
+    Array.from(children).forEach((child, index) => {
+      // Enable all transitions
+      child.style.transition = '';
+
+      if (index < indexOfRemoved) return;
+
+      if (index === indexOfRemoved) {
+        const height = child.offsetHeight;
+        const { marginBottom } = getComputedStyle(child);
+        removeChildFullHeight = height + parseInt(marginBottom, 10);
+
+        return;
+      }
+
+      const oldTranslateY =
+        child.style.transform === '' ? 0 : getNumberFromString(child.style.transform);
+      child.style.transform = `translateY(${oldTranslateY - removeChildFullHeight}px)`;
+    });
+
+    // Update subTaskList height
+    subTaskList.style.height = `${fullHeight - removeChildFullHeight}px`;
   };
 
   // Helper function - planned list DOM elements
@@ -785,6 +916,9 @@ const viewHelpers = (elements) => {
     switchEmptyState,
     playCompleteSound,
     initPlannedDateTabs,
+    animateAddSubTaskList,
+    repositionSubTaskList,
+    animateRemoveSubTask,
   };
 };
 

@@ -61,6 +61,9 @@ const todoView = () => {
     switchEmptyState,
     playCompleteSound,
     initPlannedDateTabs,
+    animateAddSubTaskList,
+    repositionSubTaskList,
+    animateRemoveSubTask,
   } = viewHelpers(elements);
 
   /**
@@ -598,31 +601,6 @@ const todoView = () => {
     const subTasksBlock = wrap(subTasksForm, 'subtask-block');
     const subtasksList = createElement('ul', '.subtasks-list');
     subTasksBlock.prepend(subtasksList);
-    todo.getSubTasks().forEach((subTask) => {
-      const li = createElement('li', '.subtask');
-      li.dataset.index = subTask.id;
-
-      if (subTask.isComplete) addClass(li, 'completed');
-
-      // Setting up the checkbox to toggle "completed" state
-      const checkbox = createElement('input', `#subtask-checkbox${subTask.id}`);
-      const label = createElement('label');
-      const span = createElement('span');
-      span.insertAdjacentHTML('beforeEnd', checkSVG);
-      checkbox.type = 'checkbox';
-      checkbox.checked = subTask.isComplete;
-      label.htmlFor = `subtask-checkbox${subTask.id}`;
-      label.append(span);
-      // Setting up "subTask" name
-      const subTaskName = createElement('span', '.subtask-name');
-      subTaskName.textContent = subTask.name;
-      // Delete Elements
-      const deleteBtn = createElement('button', '.delete-btn');
-      deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
-      // Appended elements
-      li.append(label, checkbox, subTaskName, deleteBtn);
-      subtasksList.append(li);
-    });
     const subtaskNameInput = createElement('input', '#subtaskNameInput');
     subtaskNameInput.autocomplete = 'off';
     // Note block of todo
@@ -714,6 +692,36 @@ const todoView = () => {
       wrap(note, 'note-block'),
       creationDate,
     );
+
+    // Add subtasks to list
+    todo.getSubTasks().forEach((subTask) => {
+      const li = createElement('li', '.subtask');
+      li.dataset.index = subTask.id;
+
+      if (subTask.isComplete) addClass(li, 'completed');
+
+      // Setting up the checkbox to toggle "completed" state
+      const checkbox = createElement('input', `#subtask-checkbox${subTask.id}`);
+      const label = createElement('label');
+      const span = createElement('span');
+      span.insertAdjacentHTML('beforeEnd', checkSVG);
+      checkbox.type = 'checkbox';
+      checkbox.checked = subTask.isComplete;
+      label.htmlFor = `subtask-checkbox${subTask.id}`;
+      label.append(span);
+      // Setting up "subTask" name
+      const subTaskName = createElement('span', '.subtask-name');
+      subTaskName.textContent = subTask.name;
+      // Delete Elements
+      const deleteBtn = createElement('button', '.delete-btn');
+      deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+      // Appended elements
+      li.append(label, checkbox, subTaskName, deleteBtn);
+      subtasksList.prepend(li);
+
+      // reposition subtasks
+      repositionSubTaskList();
+    });
 
     // Show overlay on mobile
     if (document.body.offsetWidth < 770) {
@@ -953,10 +961,13 @@ const todoView = () => {
       deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
       // Appended elements
       li.append(label, checkbox, subTaskName, deleteBtn);
-      subtasksList.append(li);
+      subtasksList.prepend(li);
 
       // Hide "Add" button After submit
       hideElement(subTasksSubmit);
+
+      // Animate add subtask
+      animateAddSubTaskList();
 
       // Indicator
       const liveSubtaskIndicator = selectedTodo.querySelector('.subtask-indicator');
@@ -1002,6 +1013,10 @@ const todoView = () => {
       const li = target.closest('.subtask');
       const id = Number(li.dataset.index);
       todo.removeSubTask(id);
+
+      // Animate remove subtask
+      animateRemoveSubTask(li);
+
       li.remove();
 
       // Indicator

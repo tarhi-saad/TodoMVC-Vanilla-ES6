@@ -99,15 +99,27 @@
 
     .subtasks-list {
       padding-bottom: 5px;
+      position: relative;
+      transition: height 0.6s ease;
 
       .subtask {
+        background-color: #fff;
         border: 1px solid $second-color-darker;
+        border-radius: 4px;
         margin-bottom: 10px;
         padding: 10px;
         transition: $transition;
+        transition: transform 0.6s ease, box-shadow 0.25s ease-out, border-color 0.15s linear;
+        position: absolute !important;
+        width: 100%;
 
         &:hover {
-          border-color: $base-color;
+          box-shadow: 0 0 4px rgba(0, 128, 255, 0.7);
+          border-color: #fff;
+        }
+
+        &:first-child {
+          z-index: 1;
         }
 
         .subtask-name {
@@ -275,10 +287,8 @@
       }
 
       .subtask.selected {
-        border-color: $base-color;
-        box-shadow: 0 2px 5px 0 $shadow-color;
-        transform: scale(1.005);
-        transition-duration: 0.1s;
+        border-width: 0;
+        box-shadow: 0 0 0 2px rgba(0, 128, 255, 0.3), 0 0 10px rgba(0, 128, 255, 0.3);
       }
 
       .subtask.selected:not(.completed) {
