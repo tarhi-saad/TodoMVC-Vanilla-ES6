@@ -550,7 +550,7 @@ const todoView = () => {
    * Display details of the selected todo object
    * @param {Object} todo The selected todo object
    */
-  const displayDetails = (todo, currentProject, sort) => {
+  const displayDetails = (todo, currentProject, sort, saveData) => {
     // Do some DOM selections
     const selectedTodo = getElement(
       `.todo-item[data-index="${todo.id}"].todo-item[data-project-index="${todo.projectID}"]`,
@@ -579,7 +579,8 @@ const todoView = () => {
     importantInput.type = 'checkbox';
     importantLabel.htmlFor = 'important-check';
     importantLabel.insertAdjacentHTML('beforeEnd', importantSVG);
-    importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
+    if (!todo.isImportant) importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
+    else importantLabel.dataset.tooltip = `<em>${todo.title}</em> is bookmarked`;
     importantBlock.append(importantLabel, importantInput);
     nameBlock.append(importantBlock);
 
@@ -593,6 +594,7 @@ const todoView = () => {
     const subTasksInput = createElement('input', '#newSubTask');
     subTasksInput.type = 'text';
     subTasksInput.placeholder = '+ Add new subtask';
+    subTasksInput.autocomplete = 'off';
     const subTasksSubmit = createElement('input', '.submit-btn');
     subTasksSubmit.type = 'submit';
     subTasksSubmit.value = '+ Add';
@@ -757,6 +759,9 @@ const todoView = () => {
 
       // Update Bookmark tooltip
       importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
+
+      // Update localStorage
+      saveData();
     };
 
     const noteHeight = getComputedStyle(note).height;
@@ -784,6 +789,9 @@ const todoView = () => {
 
       // Refresh todo list on note change for a responsive behavior
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleDateChange = (e) => {
@@ -866,6 +874,9 @@ const todoView = () => {
 
       // Sort tasks on date change
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleRemoveDateClick = () => {
@@ -910,6 +921,9 @@ const todoView = () => {
 
       // Sort tasks on date remove
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handlePriorityClick = (e) => {
@@ -930,6 +944,9 @@ const todoView = () => {
       if (sort && sort.type() === 'Priority') {
         sort.refreshSort(currentProject);
       }
+
+      // Update localStorage
+      saveData();
     };
 
     const handleSubmit = (e) => {
@@ -1002,6 +1019,9 @@ const todoView = () => {
 
       // Refresh tasks positions on add subTask
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleDeleteSubtask = (e) => {
@@ -1053,6 +1073,9 @@ const todoView = () => {
 
       // Refresh tasks positions on remove subTask
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleToggleSubtask = (e) => {
@@ -1111,6 +1134,9 @@ const todoView = () => {
 
       // Refresh tasks positions on toggle subTask
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleSwitchSubtask = (e) => {
@@ -1134,6 +1160,9 @@ const todoView = () => {
 
       const updateName = (value) => {
         todo.editSubTaskName(id, value);
+
+        // Update localStorage
+        saveData();
       };
 
       const args = [subtaskName, subtaskNameInput, updateName];
@@ -1213,6 +1242,9 @@ const todoView = () => {
 
       // Live update of tooltip span
       getElement('.tooltip').innerHTML = importantLabel.dataset.tooltip;
+
+      // Update localStorage
+      saveData();
     };
 
     const handleMyDayClick = (e) => {
@@ -1239,6 +1271,9 @@ const todoView = () => {
 
       // Sort tasks on add My Day
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleRemoveMyDayClick = () => {
@@ -1259,6 +1294,9 @@ const todoView = () => {
 
       // Sort tasks on remove My Day
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     // Set event listeners

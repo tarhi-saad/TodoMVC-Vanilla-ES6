@@ -203,12 +203,26 @@ const todoSort = () => {
     state.selectedDirection = direction;
   };
 
+  const getSortDirections = () => state.typeDirections;
+
+  const setSortDirections = (directions) => {
+    state.typeDirections.Alphabetically = directions.Alphabetically;
+    state.typeDirections.Completed = directions.Completed;
+    state.typeDirections['Added to My Day'] = directions['Added to My Day'];
+    state.typeDirections.Bookmarked = directions.Bookmarked;
+    state.typeDirections['Due date'] = directions['Due date'];
+    state.typeDirections['Creation date'] = directions['Creation date'];
+    state.typeDirections.Priority = directions.Priority;
+  };
+
   return {
     getSortedItems,
     setSelectedSortType,
     setSelectedDirection,
     getSelectedSortType,
     getSelectedDirection,
+    getSortDirections,
+    setSortDirections,
   };
 };
 

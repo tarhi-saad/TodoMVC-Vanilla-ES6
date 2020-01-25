@@ -1,5 +1,6 @@
 import todoApp from './todo.model';
 import { todoView } from './todo.view';
+import todoLocalStorage from './localStorage';
 
 const todoController = (() => {
   /**
@@ -7,6 +8,9 @@ const todoController = (() => {
    * @param {Object} view The object view created by todoView factory
    */
   const displayLists = (view) => {
+    // Init localStorage
+    if (localStorage.getItem('todoApp')) todoLocalStorage.initApp(todoApp);
+
     const projects = todoApp.getProjects();
     const { lists } = view.elements;
     view.empty(lists);
@@ -219,6 +223,9 @@ const todoController = (() => {
     };
 
     view.addTodo(todo, true, sort);
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleDeleteTodo = (e) => {
@@ -252,6 +259,9 @@ const todoController = (() => {
       // Remove todo
       project.removeTodo(todoID);
       view.removeTodo(todoID, projectID);
+
+      // Update localStorage
+      todoLocalStorage.populateStorage(todoApp);
     };
 
     // Confirm deletion of incomplete task
@@ -262,6 +272,7 @@ const todoController = (() => {
         Delete <span class="name">"${name}"</span> anyway?
       `;
       view.confirmRemoval(removeTodo, msg);
+
       return;
     }
 
@@ -297,6 +308,9 @@ const todoController = (() => {
 
     // refresh sorting if a project is selected
     if (todoApp.getSelectedProject()) refreshCurrentTodoList(project);
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleAddList = (e) => {
@@ -338,6 +352,9 @@ const todoController = (() => {
     // Scroll to bottom of the list of projects, only when adding a new list
     const { lists } = view.elements;
     lists.scrollTop = lists.scrollHeight;
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleSwitchList = (e) => {
@@ -455,6 +472,9 @@ const todoController = (() => {
         view.displayTodos(todoApp.getProjects()[projectIndex].getSortedItems());
         break;
     }
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleDeleteList = (e) => {
@@ -515,6 +535,9 @@ const todoController = (() => {
 
       // If the value did change, let's update it in the model
       if (listIndex !== listIndexUpdate) todoApp.setSelected(listIndexUpdate);
+
+      // Update localStorage
+      todoLocalStorage.populateStorage(todoApp);
     };
 
     // Confirm removal if list is not empty
@@ -551,6 +574,9 @@ const todoController = (() => {
     const updateProject = (value) => {
       todoApp.getSelectedProject().setName(value);
       selectedProject.querySelector('.project-name').textContent = value;
+
+      // Update localStorage
+      todoLocalStorage.populateStorage(todoApp);
     };
 
     const args = [target, view.elements.tasksTitleInput, updateProject];
@@ -584,6 +610,9 @@ const todoController = (() => {
     const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
     const todo = todoApp.getProjectByID(projectID).getItemByID(id);
 
+    // Update localStorage callback
+    const saveData = () => todoLocalStorage.populateStorage(todoApp);
+
     // If mode search disable sort system, otherwise inject sort data
     const currentProject = todoApp.getSelectedProject();
     if (currentProject) {
@@ -593,14 +622,14 @@ const todoController = (() => {
         type: sortType,
         refreshSort: refreshCurrentTodoList,
       };
-      view.displayDetails(todo, currentProject, sort);
+      view.displayDetails(todo, currentProject, sort, saveData);
     } else {
       const sortType = () => 'none';
       const sort = {
         type: sortType,
         refreshSort: refreshCurrentTodoList,
       };
-      view.displayDetails(todo, currentProject, sort);
+      view.displayDetails(todo, currentProject, sort, saveData);
     }
 
     // Reposition todo items on show details view
@@ -673,6 +702,9 @@ const todoController = (() => {
       currentProject.getSelectedDirection(selectedSortType),
       true,
     );
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleSortIndicator = (e) => {
@@ -732,6 +764,9 @@ const todoController = (() => {
 
       view.elements.removeSortIndicator();
     }
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   // Listen to todoList in Planned project to close/open lists Events
@@ -761,6 +796,9 @@ const todoController = (() => {
       todoListTime.style.height = 0;
       plannedProject.tabStates[headerIndex] = 'closed';
     }
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   // Helper function - Sort items alphabetically
