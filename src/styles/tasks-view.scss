@@ -31,6 +31,10 @@ $line-spacing: 48px;
       height: auto;
 
       li.list-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+
         button.open-close {
           border: 0;
           background: none;
