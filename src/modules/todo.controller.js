@@ -173,7 +173,7 @@ const todoController = (() => {
     // If default project then add to "Tasks" list
     if ([1, 2, 3, 4].includes(selectedProject.id)) {
       const defaultProject = todoApp.getProjectByID(5);
-      defaultProject.addTodo(todoTitle, 5);
+      defaultProject.addTodo(todoTitle);
       const todoItems = defaultProject.getItems();
       todo = todoItems[todoItems.length - 1];
 
@@ -209,7 +209,7 @@ const todoController = (() => {
           break;
       }
     } else {
-      selectedProject.addTodo(todoTitle, selectedProject.id);
+      selectedProject.addTodo(todoTitle);
       const todoItems = selectedProject.getItems();
       todo = todoItems[todoItems.length - 1];
     }
@@ -298,16 +298,12 @@ const todoController = (() => {
 
     if (todo.date) view.updateTodoCount(plannedCount, !todo.isComplete);
 
-    if (todo.isImportant) {
-      view.updateTodoCount(importantCount, !todo.isComplete);
-    }
+    if (todo.isImportant) view.updateTodoCount(importantCount, !todo.isComplete);
 
-    if (todo.isMyDay) {
-      view.updateTodoCount(myDayCount, !todo.isComplete);
-    }
+    if (todo.isMyDay) view.updateTodoCount(myDayCount, !todo.isComplete);
 
-    // refresh sorting if a project is selected
-    if (todoApp.getSelectedProject()) refreshCurrentTodoList(project);
+    // refresh sorting if a project is selected (not in search mode)
+    if (todoApp.getSelectedProject()) refreshCurrentTodoList(todoApp.getSelectedProject());
 
     // Update localStorage
     todoLocalStorage.populateStorage(todoApp);
@@ -734,7 +730,7 @@ const todoController = (() => {
         // All tasks case
         case 1:
           todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
-          view.refreshTodos(currentProject.getItems(items));
+          view.refreshTodos(currentProject.getSortedItems(items));
           break;
 
         // My Day case
@@ -744,7 +740,7 @@ const todoController = (() => {
               if (item.isMyDay) items.push(item);
             });
           });
-          view.refreshTodos(currentProject.getItems(items));
+          view.refreshTodos(currentProject.getSortedItems(items));
           break;
 
         // Important case
@@ -754,7 +750,7 @@ const todoController = (() => {
               if (item.isImportant) items.push(item);
             });
           });
-          view.refreshTodos(currentProject.getItems(items));
+          view.refreshTodos(currentProject.getSortedItems(items));
           break;
 
         default:

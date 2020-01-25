@@ -108,19 +108,23 @@ const todoStore = (name = '') => {
 
   const getItems = () => state.items;
 
-  const getSortedItems = (items = state.items) => sort.getSortedItems(items);
+  function getSortedItems(items = state.items) {
+    const isGeneratedProject = [1, 2, 3].includes(this.id);
+
+    return sort.getSortedItems(items, isGeneratedProject);
+  }
 
   const { getItemByID } = todoStoreHelper(getItems);
 
-  const addTodo = (title, id) => {
+  function addTodo(title) {
     if (!title) return;
 
     const item = todoItem(title);
     item.id = state.items.length > 0 ? state.items[state.items.length - 1].id + 1 : 1;
-    item.projectID = id;
+    item.projectID = this.id;
 
     state.items.push(item);
-  };
+  }
 
   const removeTodo = (id) => {
     const items = getItems();

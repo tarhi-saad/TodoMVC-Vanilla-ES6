@@ -91,6 +91,16 @@ const todoSort = () => {
     });
   };
 
+  const DefaultSorting = (sortedItems) => {
+    sortedItems.sort((itemA, itemB) => {
+      if (itemA.creationDate < itemB.creationDate) return -1;
+
+      if (itemA.creationDate > itemB.creationDate) return 1;
+
+      return 0;
+    });
+  };
+
   const sortByPriority = (sortedItems) => {
     sortedItems.sort((itemA, itemB) => {
       let a = null;
@@ -144,7 +154,7 @@ const todoSort = () => {
     });
   };
 
-  const getSortedItems = (items) => {
+  const getSortedItems = (items, isGeneratedProject) => {
     const sortedItems = [...items];
 
     if (state.selectedDirection) {
@@ -152,6 +162,8 @@ const todoSort = () => {
     }
 
     order = state.typeDirections[state.selectedType] === 'asc' ? -1 : 1;
+
+    if (isGeneratedProject) DefaultSorting(sortedItems);
 
     switch (state.selectedType) {
       case 'Alphabetically':

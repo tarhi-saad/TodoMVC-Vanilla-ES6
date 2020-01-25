@@ -418,7 +418,11 @@ const todoView = () => {
     // Sort DOM elements from model data
     todos.forEach((todo, i) => {
       Array.from(children).some((list, j) => {
-        if (todo.id === Number(list.dataset.index) && i !== children.length - 1 - j) {
+        if (
+          todo.id === Number(list.dataset.index) &&
+          todo.projectID === Number(list.dataset.projectIndex) &&
+          i !== children.length - 1 - j
+        ) {
           swapElements(list, children[children.length - 1 - i]);
 
           return true;
