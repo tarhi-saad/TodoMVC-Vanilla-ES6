@@ -300,7 +300,7 @@ const initializeDOMElements = () => {
   const importantIndicatorFn = () => {
     const importantIndicator = createElement('span', '.important-indicator');
     importantIndicator.insertAdjacentHTML('beforeEnd', importantSVG);
-    importantIndicator.querySelector('svg').dataset.tooltip = 'Task bookmarked';
+    importantIndicator.querySelector('svg').dataset.tooltip = 'Bookmarked task';
 
     return importantIndicator;
   };
