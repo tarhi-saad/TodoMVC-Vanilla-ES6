@@ -1504,6 +1504,8 @@ const todoView = () => {
     enableTransition,
     displaySearchResults,
     bindSearchBlur,
+    on,
+    off,
   };
 };
 

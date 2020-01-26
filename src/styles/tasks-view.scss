@@ -17,6 +17,12 @@ $line-spacing: 48px;
   padding-bottom: 60px;
   position: relative;
 
+  &[data-project-index='4'] {
+    .todo-list {
+      height: auto;
+    }
+  }
+
   &.pinned {
     .tasks-header {
       h1 {

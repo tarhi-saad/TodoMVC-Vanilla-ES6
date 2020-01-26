@@ -793,6 +793,26 @@ const todoController = (() => {
       plannedProject.tabStates[headerIndex] = 'closed';
     }
 
+    // Fix grow items issue
+    const { todoList } = view.elements;
+    todoList.querySelectorAll('.todo-item').forEach((item) => {
+      item.style.width = `${item.offsetWidth}px`;
+    });
+
+    const handleTransition = () => {
+      if (todoList.scrollHeight > todoList.offsetHeight) {
+        view.addClass(todoList, 'grow-items');
+      } else if (todoList.scrollHeight === todoList.offsetHeight) {
+        view.removeClass(todoList, 'grow-items');
+      }
+
+      todoList.querySelectorAll('.todo-item').forEach((item) => {
+        item.style.width = '';
+      });
+      view.off(todoListTime, 'transitionend', handleTransition);
+    };
+    view.on(todoListTime, 'transitionend', handleTransition);
+
     // Update localStorage
     todoLocalStorage.populateStorage(todoApp);
   };

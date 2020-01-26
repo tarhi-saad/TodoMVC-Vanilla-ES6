@@ -882,6 +882,7 @@ const viewHelpers = (elements) => {
 
   // Set close/open Planned date tabs on switchList/initApp
   const initPlannedDateTabs = (plannedProject) => {
+    const { todoList } = elements;
     const todoListTimes = elements.todoList.querySelectorAll('.todo-list-time');
     const toggleButtons = elements.todoList.querySelectorAll('.list-header button');
     const { tabStates } = plannedProject;
@@ -895,6 +896,13 @@ const viewHelpers = (elements) => {
         list.style.height = 0;
       }
     });
+
+    // Fix grow items issue
+    if (todoList.scrollHeight > todoList.offsetHeight) {
+      addClass(todoList, 'grow-items');
+    } else if (todoList.scrollHeight === todoList.offsetHeight) {
+      removeClass(todoList, 'grow-items');
+    }
   };
 
   return {
