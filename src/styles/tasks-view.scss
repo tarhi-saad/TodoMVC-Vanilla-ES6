@@ -17,6 +17,26 @@ $line-spacing: 48px;
   padding-bottom: 60px;
   position: relative;
 
+  &[data-project-index='2'] {
+    .tasks-header {
+      .sort-menu {
+        #sortByMyDay {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &[data-project-index='3'] {
+    .tasks-header {
+      .sort-menu {
+        #sortByBookmarked {
+          display: none;
+        }
+      }
+    }
+  }
+
   &[data-project-index='4'] {
     .todo-list {
       height: auto;
