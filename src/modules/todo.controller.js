@@ -33,6 +33,22 @@ const todoController = (() => {
 
       view.displayList(id, name, items, isSelected);
 
+      // Clean slot for My Day project if it's a new day
+      const currentDate = new Date(view.getConvertedCurrentDate());
+      const MSDay = 1000 * 60 * 60 * 24;
+      const myDayProject = todoApp.getProjectByID(2);
+
+      if (currentDate.getTime() - myDayProject.date >= MSDay) {
+        myDayProject.date = currentDate.getTime();
+        newDay = true;
+      }
+
+      if (newDay) {
+        items.forEach((item) => {
+          if (item.isMyDay) item.isMyDay = false;
+        });
+      }
+
       switch (selectedID) {
         // All tasks case
         case 1:
@@ -65,22 +81,6 @@ const todoController = (() => {
             view.displayTodos(project.getSortedItems());
           }
           break;
-      }
-
-      // Clean slot for My Day project if it's a new day
-      const currentDate = new Date(view.getConvertedCurrentDate());
-      const MSDay = 1000 * 60 * 60 * 24;
-      const myDayProject = todoApp.getProjectByID(2);
-
-      if (currentDate - myDayProject.date >= MSDay) {
-        myDayProject.date = currentDate;
-        newDay = true;
-      }
-
-      if (newDay) {
-        items.forEach((item) => {
-          if (item.isMyDay) item.isMyDay = false;
-        });
       }
     });
 
@@ -396,8 +396,8 @@ const todoController = (() => {
     const myDayProject = todoApp.getProjectByID(2);
     let newDay = false;
 
-    if (currentDate - myDayProject.date >= MSDay) {
-      myDayProject.date = currentDate;
+    if (currentDate.getTime() - myDayProject.date >= MSDay) {
+      myDayProject.date = currentDate.getTime();
       newDay = true;
     }
 
