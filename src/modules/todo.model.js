@@ -120,7 +120,9 @@ const todoStore = (name = '') => {
     if (!title) return;
 
     const item = todoItem(title);
-    item.id = state.items.length > 0 ? state.items[state.items.length - 1].id + 1 : 1;
+    const maxID = Math.max(...state.items.map((todo) => todo.id));
+    item.id = state.items.length > 0 ? maxID + 1 : 1;
+    // item.id = state.items.length > 0 ? state.items[state.items.length - 1].id + 1 : 1;
     item.projectID = this.id;
 
     state.items.push(item);

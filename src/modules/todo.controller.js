@@ -1,5 +1,6 @@
 import todoApp from './todo.model';
 import { todoView } from './todo.view';
+import draggable from './draggable';
 import todoLocalStorage from './localStorage';
 
 const todoController = (() => {
@@ -906,6 +907,8 @@ const todoController = (() => {
     view.bindSearchInput(handleSearchInput);
     view.bindSearchReset(handleSearchReset);
     view.bindSearchBlur(handleSearchBlur);
+    // Init draggable module
+    draggable(todoApp, todoLocalStorage);
   };
 
   return {

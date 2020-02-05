@@ -331,7 +331,7 @@ $line-spacing: 48px;
       min-height: 3.13rem !important;
       padding: 6px 11px;
       transition: transform 0.6s ease, box-shadow 0.25s ease-out, border-color 0.15s linear;
-      position: absolute !important;
+      position: absolute;
       left: 15px;
       top: 5px;
       width: calc(100% - 30px);
@@ -638,6 +638,21 @@ $line-spacing: 48px;
       padding: 7px 13px 7px 11px;
     }
 
+    .todo-item.dragged {
+      box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+        0 6px 30px 5px rgba(0, 0, 0, 0.12);
+      cursor: grabbing !important;
+      z-index: 1000;
+
+      &:hover {
+        border-color: #cecece;
+
+        & .delete-btn {
+          opacity: 0 !important;
+        }
+      }
+    }
+
     li.low {
     }
 
@@ -661,6 +676,13 @@ $line-spacing: 48px;
           transition: all 0.2s ease;
         }
       }
+    }
+
+    .fix-height {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
     }
   }
 

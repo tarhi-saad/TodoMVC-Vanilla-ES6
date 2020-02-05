@@ -23,6 +23,7 @@ body {
   color: $text-color;
   font-family: 'Roboto', sans-serif;
   font-size: $font-size;
+  overflow: hidden;
 }
 
 .show {
@@ -99,6 +100,13 @@ body {
   }
 }
 
+.drag-overlay {
+  background-color: transparent;
+  cursor: grabbing;
+  position: absolute;
+  z-index: 1001;
+}
+
 #root {
   height: 100vh;
   display: grid;
@@ -120,7 +128,6 @@ body {
     align-items: center;
     min-height: 2.6rem;
     overflow: hidden;
-    position: relative;
 
     .delete-btn {
       background: none;
