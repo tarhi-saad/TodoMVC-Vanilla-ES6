@@ -99,9 +99,14 @@ $line-spacing: 48px;
     h1 {
       margin: 0;
       padding: 10px;
+      font-size: 20px;
       font-weight: bold;
       overflow: hidden;
       width: 100%;
+
+      @media screen and (min-width: $breakpoint-sm) {
+        font-size: 25px;
+      }
 
       span,
       input {
