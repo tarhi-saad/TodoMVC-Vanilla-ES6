@@ -1225,7 +1225,14 @@ const todoView = () => {
         updateTodoCount(importantCount, false);
 
         // If we are editing in "Important" project then remove todo
-        if (selectedProject && selectedProject.dataset.index === '3') selectedTodo.remove();
+        if (selectedProject && selectedProject.dataset.index === '3') {
+          selectedTodo.remove();
+
+          // Show "empty state" block in "Bookmarked" project if it's empty
+          if (elements.todoList.children.length === 0) {
+            removeClass(elements.emptyState, 'hide-empty-state');
+          }
+        }
 
         // Update Bookmark tooltip
         importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
@@ -1240,6 +1247,11 @@ const todoView = () => {
         // If we are still editing in "Important" project then append todo
         if (selectedProject && selectedProject.dataset.index === '3') {
           elements.todoList.append(selectedTodo);
+
+          // Hide "empty state" block in "Bookmarked" project if it's not empty
+          if (elements.todoList.children.length === 1) {
+            addClass(elements.emptyState, 'hide-empty-state');
+          }
         }
 
         // Update Bookmark tooltip
@@ -1276,6 +1288,11 @@ const todoView = () => {
       // If we are still editing in "Important" project then append todo
       if (selectedProject && selectedProject.dataset.index === '2') {
         elements.todoList.append(selectedTodo);
+
+        // Hide "empty state" block in "My Day" project if it was empty
+        if (elements.todoList.children.length === 1) {
+          addClass(elements.emptyState, 'hide-empty-state');
+        }
       }
 
       // Sort tasks on add My Day
@@ -1299,7 +1316,14 @@ const todoView = () => {
       updateTodoCount(myDayCount, false);
 
       // If we are editing in "Important" project then remove todo
-      if (selectedProject && selectedProject.dataset.index === '2') selectedTodo.remove();
+      if (selectedProject && selectedProject.dataset.index === '2') {
+        selectedTodo.remove();
+
+        // Show "empty state" block in "My Day" project if it's empty
+        if (elements.todoList.children.length === 0) {
+          removeClass(elements.emptyState, 'hide-empty-state');
+        }
+      }
 
       // Sort tasks on remove My Day
       sort.refreshSort(currentProject, selectedTodo);

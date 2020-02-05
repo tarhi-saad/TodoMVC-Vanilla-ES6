@@ -38,14 +38,18 @@ header {
     align-items: center;
     justify-content: center;
     flex-grow: 1;
-    padding-right: 54px;
+    padding-right: 20px;
 
     .search-container {
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 400px;
+      width: 260px;
+
+      @media screen and (min-width: $breakpoint-sm) {
+        width: 400px;
+      }
 
       .search-icon {
         position: absolute;
