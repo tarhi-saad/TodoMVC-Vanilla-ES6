@@ -1,5 +1,7 @@
 import todoApp from './todo.model';
 import { todoView } from './todo.view';
+import draggable from './draggable';
+import todoLocalStorage from './localStorage';
 
 const todoController = (() => {
   /**
@@ -7,12 +9,18 @@ const todoController = (() => {
    * @param {Object} view The object view created by todoView factory
    */
   const displayLists = (view) => {
+    // Init localStorage
+    if (localStorage.getItem('todoApp')) todoLocalStorage.initApp(todoApp);
+
     const projects = todoApp.getProjects();
     const { lists } = view.elements;
     view.empty(lists);
 
     // Default project items
     const defaultItems = [];
+
+    if (!todoApp.getSelected()) todoApp.setSelected(todoApp.getLastSelected());
+
     const selectedID = todoApp.getSelectedProject().id;
 
     // To check if it's a new day
@@ -25,6 +33,22 @@ const todoController = (() => {
       const isSelected = index === todoApp.getSelected();
 
       view.displayList(id, name, items, isSelected);
+
+      // Clean slot for My Day project if it's a new day
+      const currentDate = new Date(view.getConvertedCurrentDate());
+      const MSDay = 1000 * 60 * 60 * 24;
+      const myDayProject = todoApp.getProjectByID(2);
+
+      if (currentDate.getTime() - myDayProject.date >= MSDay) {
+        myDayProject.date = currentDate.getTime();
+        newDay = true;
+      }
+
+      if (newDay) {
+        items.forEach((item) => {
+          if (item.isMyDay) item.isMyDay = false;
+        });
+      }
 
       switch (selectedID) {
         // All tasks case
@@ -58,22 +82,6 @@ const todoController = (() => {
             view.displayTodos(project.getSortedItems());
           }
           break;
-      }
-
-      // Clean slot for My Day project if it's a new day
-      const currentDate = new Date(view.getConvertedCurrentDate());
-      const MSDay = 1000 * 60 * 60 * 24;
-      const myDayProject = todoApp.getProjectByID(2);
-
-      if (currentDate - myDayProject.date >= MSDay) {
-        myDayProject.date = currentDate;
-        newDay = true;
-      }
-
-      if (newDay) {
-        items.forEach((item) => {
-          if (item.isMyDay) item.isMyDay = false;
-        });
       }
     });
 
@@ -111,12 +119,15 @@ const todoController = (() => {
 
   // Helper function - refresh list for sorting
   const refreshCurrentTodoList = (currentProject, selectedTodo = null) => {
+    let projectID = null;
+
+    if (currentProject) projectID = currentProject.id;
     // We don't use sort in Planned project
-    if (currentProject.id === 4) return;
+    if (projectID === 4) return;
 
     const items = [];
 
-    switch (currentProject.id) {
+    switch (projectID) {
       // All tasks case
       case 1:
         todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
@@ -144,7 +155,8 @@ const todoController = (() => {
         break;
 
       default:
-        view.refreshTodos(currentProject.getSortedItems(), selectedTodo);
+        if (currentProject) view.refreshTodos(currentProject.getSortedItems(), selectedTodo);
+        else view.refreshTodos([], selectedTodo);
         break;
     }
   };
@@ -162,7 +174,7 @@ const todoController = (() => {
     // If default project then add to "Tasks" list
     if ([1, 2, 3, 4].includes(selectedProject.id)) {
       const defaultProject = todoApp.getProjectByID(5);
-      defaultProject.addTodo(todoTitle, 5);
+      defaultProject.addTodo(todoTitle);
       const todoItems = defaultProject.getItems();
       todo = todoItems[todoItems.length - 1];
 
@@ -198,7 +210,7 @@ const todoController = (() => {
           break;
       }
     } else {
-      selectedProject.addTodo(todoTitle, selectedProject.id);
+      selectedProject.addTodo(todoTitle);
       const todoItems = selectedProject.getItems();
       todo = todoItems[todoItems.length - 1];
     }
@@ -212,6 +224,9 @@ const todoController = (() => {
     };
 
     view.addTodo(todo, true, sort);
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleDeleteTodo = (e) => {
@@ -245,6 +260,9 @@ const todoController = (() => {
       // Remove todo
       project.removeTodo(todoID);
       view.removeTodo(todoID, projectID);
+
+      // Update localStorage
+      todoLocalStorage.populateStorage(todoApp);
     };
 
     // Confirm deletion of incomplete task
@@ -255,6 +273,7 @@ const todoController = (() => {
         Delete <span class="name">"${name}"</span> anyway?
       `;
       view.confirmRemoval(removeTodo, msg);
+
       return;
     }
 
@@ -280,16 +299,15 @@ const todoController = (() => {
 
     if (todo.date) view.updateTodoCount(plannedCount, !todo.isComplete);
 
-    if (todo.isImportant) {
-      view.updateTodoCount(importantCount, !todo.isComplete);
-    }
+    if (todo.isImportant) view.updateTodoCount(importantCount, !todo.isComplete);
 
-    if (todo.isMyDay) {
-      view.updateTodoCount(myDayCount, !todo.isComplete);
-    }
+    if (todo.isMyDay) view.updateTodoCount(myDayCount, !todo.isComplete);
 
-    // refresh sorting
-    refreshCurrentTodoList(project);
+    // refresh sorting if a project is selected (not in search mode)
+    if (todoApp.getSelectedProject()) refreshCurrentTodoList(todoApp.getSelectedProject());
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleAddList = (e) => {
@@ -307,34 +325,71 @@ const todoController = (() => {
     const name = project.getName();
     const items = project.getItems();
     view.displayList(id, name, items, true);
+
+    // Reset input search - before displayTodos (setting the new projectIndex value)
+    const wasSearchMode = !view.elements.tasksView.dataset.projectIndex;
+    if (wasSearchMode) {
+      view.elements.searchInput.value = '';
+      view.hideElement(view.elements.searchReset);
+      // Append add todo form
+      view.elements.tasksView.append(view.elements.newTodo);
+    }
+
     view.displayTodos(items);
 
     // Hide "Add" button After submit
     view.hideElement(view.elements.newListSubmit);
 
+    // Add sort button
+    view.elements.toggleSort();
+
+    // Set indicator to none by default
+    view.elements.setSortIndicator('none');
+
     // Scroll to bottom of the list of projects, only when adding a new list
     const { lists } = view.elements;
     lists.scrollTop = lists.scrollHeight;
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleSwitchList = (e) => {
-    const { target } = e;
-    const list = target.closest('.list');
-    const lists = target.closest('.lists').querySelectorAll('.list');
-    const selectedList = lists[todoApp.getSelected()];
+    let projectIndex = null;
+    let list = null;
 
-    if (list === selectedList || !list || target.closest('.delete-btn')) {
-      return;
+    if (e.type === 'click') {
+      const { target } = e;
+      list = target.closest('.list');
+      const lists = target.closest('.lists').querySelectorAll('.list');
+      const selectedList = lists[todoApp.getSelected()];
+
+      if (list === selectedList || !list || target.closest('.delete-btn')) {
+        return;
+      }
+
+      Array.from(lists).some((li, index) => {
+        projectIndex = index;
+        return li === list;
+      });
+
+      if (selectedList) selectedList.classList.remove('selected');
+
+      // Reset input search
+      const wasSearchMode = !view.elements.tasksView.dataset.projectIndex;
+      if (wasSearchMode) {
+        view.elements.searchInput.value = '';
+        view.hideElement(view.elements.searchReset);
+      }
+    } else if (e.type === 'blur') {
+      projectIndex = todoApp.getLastSelected();
+      list = document.querySelector('.lists').children[projectIndex];
     }
 
-    let projectIndex = null;
-    Array.from(lists).some((li, index) => {
-      projectIndex = index;
-      return li === list;
-    });
-    selectedList.classList.remove('selected');
     todoApp.setSelected(projectIndex);
     list.classList.add('selected');
+    // Append add todo form
+    view.elements.tasksView.append(view.elements.newTodo);
 
     // Clean slot for My Day project if it's a new day
     const currentDate = new Date(view.getConvertedCurrentDate());
@@ -342,8 +397,8 @@ const todoController = (() => {
     const myDayProject = todoApp.getProjectByID(2);
     let newDay = false;
 
-    if (currentDate - myDayProject.date >= MSDay) {
-      myDayProject.date = currentDate;
+    if (currentDate.getTime() - myDayProject.date >= MSDay) {
+      myDayProject.date = currentDate.getTime();
       newDay = true;
     }
 
@@ -414,6 +469,9 @@ const todoController = (() => {
         view.displayTodos(todoApp.getProjects()[projectIndex].getSortedItems());
         break;
     }
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleDeleteList = (e) => {
@@ -449,6 +507,21 @@ const todoController = (() => {
           // Update todo view
           view.displayTodos(todoApp.getSelectedProject().getItems());
         }
+      } else if (listIndex === -1) {
+        // Search mode
+        const listToBeSelected = target.closest('.list').previousElementSibling;
+        const NewListIndex = Array.from(lists).indexOf(listToBeSelected);
+        todoApp.setSelected(NewListIndex);
+        lists[NewListIndex].classList.add('selected');
+
+        // Update todo view
+        view.displayTodos(todoApp.getSelectedProject().getItems());
+
+        // Reset input search
+        view.elements.searchInput.value = '';
+        view.hideElement(view.elements.searchReset);
+        // Append add todo form
+        view.elements.tasksView.append(view.elements.newTodo);
       }
 
       view.removeProject(listID);
@@ -459,6 +532,9 @@ const todoController = (() => {
 
       // If the value did change, let's update it in the model
       if (listIndex !== listIndexUpdate) todoApp.setSelected(listIndexUpdate);
+
+      // Update localStorage
+      todoLocalStorage.populateStorage(todoApp);
     };
 
     // Confirm removal if list is not empty
@@ -485,11 +561,19 @@ const todoController = (() => {
     const { target } = e;
     const selectedProject = view.elements.lists.querySelector('li.selected');
 
-    if (selectedProject.classList.contains('pinned')) return;
+    if (
+      (selectedProject && selectedProject.classList.contains('pinned')) ||
+      view.elements.tasksView.classList.contains('pinned')
+    ) {
+      return;
+    }
 
     const updateProject = (value) => {
       todoApp.getSelectedProject().setName(value);
       selectedProject.querySelector('.project-name').textContent = value;
+
+      // Update localStorage
+      todoLocalStorage.populateStorage(todoApp);
     };
 
     const args = [target, view.elements.tasksTitleInput, updateProject];
@@ -523,14 +607,27 @@ const todoController = (() => {
     const projectID = Number(target.closest('.todo-item').dataset.projectIndex);
     const todo = todoApp.getProjectByID(projectID).getItemByID(id);
 
-    // Inject sort state to the view
+    // Update localStorage callback
+    const saveData = () => todoLocalStorage.populateStorage(todoApp);
+
+    // If mode search disable sort system, otherwise inject sort data
     const currentProject = todoApp.getSelectedProject();
-    const sortType = currentProject.getSelectedSortType;
-    const sort = {
-      type: sortType,
-      refreshSort: refreshCurrentTodoList,
-    };
-    view.displayDetails(todo, currentProject, sort);
+    if (currentProject) {
+      // Inject sort state to the view
+      const sortType = currentProject.getSelectedSortType;
+      const sort = {
+        type: sortType,
+        refreshSort: refreshCurrentTodoList,
+      };
+      view.displayDetails(todo, currentProject, sort, saveData);
+    } else {
+      const sortType = () => 'none';
+      const sort = {
+        type: sortType,
+        refreshSort: refreshCurrentTodoList,
+      };
+      view.displayDetails(todo, currentProject, sort, saveData);
+    }
 
     // Reposition todo items on show details view
     view.refreshTodoItemsPositions();
@@ -602,6 +699,9 @@ const todoController = (() => {
       currentProject.getSelectedDirection(selectedSortType),
       true,
     );
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   const handleSortIndicator = (e) => {
@@ -631,7 +731,7 @@ const todoController = (() => {
         // All tasks case
         case 1:
           todoApp.getProjects().forEach((project) => items.push(...project.getItems()));
-          view.refreshTodos(currentProject.getItems(items));
+          view.refreshTodos(currentProject.getSortedItems(items));
           break;
 
         // My Day case
@@ -641,7 +741,7 @@ const todoController = (() => {
               if (item.isMyDay) items.push(item);
             });
           });
-          view.refreshTodos(currentProject.getItems(items));
+          view.refreshTodos(currentProject.getSortedItems(items));
           break;
 
         // Important case
@@ -651,7 +751,7 @@ const todoController = (() => {
               if (item.isImportant) items.push(item);
             });
           });
-          view.refreshTodos(currentProject.getItems(items));
+          view.refreshTodos(currentProject.getSortedItems(items));
           break;
 
         default:
@@ -661,6 +761,9 @@ const todoController = (() => {
 
       view.elements.removeSortIndicator();
     }
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
   };
 
   // Listen to todoList in Planned project to close/open lists Events
@@ -690,6 +793,98 @@ const todoController = (() => {
       todoListTime.style.height = 0;
       plannedProject.tabStates[headerIndex] = 'closed';
     }
+
+    // Fix grow items issue
+    const { todoList } = view.elements;
+    todoList.querySelectorAll('.todo-item').forEach((item) => {
+      item.style.width = `${item.offsetWidth}px`;
+    });
+
+    const handleTransition = () => {
+      if (todoList.scrollHeight > todoList.offsetHeight) {
+        view.addClass(todoList, 'grow-items');
+      } else if (todoList.scrollHeight === todoList.offsetHeight) {
+        view.removeClass(todoList, 'grow-items');
+      }
+
+      todoList.querySelectorAll('.todo-item').forEach((item) => {
+        item.style.width = '';
+      });
+      view.off(todoListTime, 'transitionend', handleTransition);
+    };
+    view.on(todoListTime, 'transitionend', handleTransition);
+
+    // Update localStorage
+    todoLocalStorage.populateStorage(todoApp);
+  };
+
+  // Helper function - Sort items alphabetically
+  const sortByName = (list) => {
+    list.sort((itemA, itemB) => {
+      const nameA = itemA.title.toUpperCase();
+      const nameB = itemB.title.toUpperCase();
+
+      if (nameA < nameB) return 1;
+
+      if (nameA > nameB) return -1;
+
+      return 0;
+    });
+  };
+
+  // Search events
+  const handleSearchInput = (e) => {
+    const { target } = e;
+    const { showElement, hideElement } = view;
+    const { searchReset, tasksView, tasksTitle, toggleSort, setSortIndicator } = view.elements;
+    const inputValue = target.value.toLowerCase();
+    const items = [];
+    // Set task view title
+    tasksTitle.textContent = `Searching for "${inputValue}"`;
+
+    // To execute first time in search mode
+    if (tasksView.dataset.projectIndex) {
+      todoApp.setSelected(null);
+      toggleSort(true);
+      setSortIndicator('none');
+    }
+
+    if (inputValue !== '') {
+      showElement(searchReset);
+
+      // Get items from all projects that match our query
+      todoApp.getProjects().forEach((project) => {
+        project.getItems().forEach((item) => {
+          if (item.title.toLowerCase().includes(inputValue)) items.push(item);
+        });
+      });
+
+      sortByName(items);
+    } else {
+      hideElement(searchReset);
+    }
+
+    view.displaySearchResults(items);
+  };
+
+  const handleSearchReset = () => {
+    const { searchReset, searchInput, tasksTitle } = view.elements;
+    const { hideElement, displaySearchResults } = view;
+    hideElement(searchReset);
+    searchInput.value = '';
+    searchInput.focus();
+    tasksTitle.textContent = 'Searching for ""';
+    // Reset also the search view
+    displaySearchResults([]);
+  };
+
+  const handleSearchBlur = (e) => {
+    const { searchInput } = view.elements;
+    const { projectIndex } = view.elements.tasksView.dataset;
+
+    if (searchInput.value || projectIndex) return;
+
+    handleSwitchList(e);
   };
 
   /**
@@ -709,6 +904,11 @@ const todoController = (() => {
     view.bindSortList(handleSortList);
     view.bindSortIndicator(handleSortIndicator);
     view.bindPlannedClick(handlePlannedClick);
+    view.bindSearchInput(handleSearchInput);
+    view.bindSearchReset(handleSearchReset);
+    view.bindSearchBlur(handleSearchBlur);
+    // Init draggable module
+    draggable(todoApp, todoLocalStorage);
   };
 
   return {

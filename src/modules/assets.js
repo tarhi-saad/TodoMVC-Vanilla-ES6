@@ -23,6 +23,8 @@ import sortSVG from '../images/sort.svg';
 import sortNameSVG from '../images/sort-name.svg';
 import sortCompletedSVG from '../images/completed.svg';
 import sortCreationDateSVG from '../images/creation-date.svg';
+import searchSVG from '../images/search.svg';
+import notFoundSVG from '../images/not_found.svg';
 import completeSound from '../audio/complete.wav';
 
 const assets = () => ({
@@ -51,7 +53,9 @@ const assets = () => ({
   emptyStateMyDaySVG,
   emptyStateBookmarkSVG,
   emptyStatePlannedSVG,
+  searchSVG,
   completeSound,
+  notFoundSVG,
 });
 
 export default assets;

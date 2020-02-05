@@ -91,6 +91,16 @@ const todoSort = () => {
     });
   };
 
+  const DefaultSorting = (sortedItems) => {
+    sortedItems.sort((itemA, itemB) => {
+      if (itemA.creationDate < itemB.creationDate) return -1;
+
+      if (itemA.creationDate > itemB.creationDate) return 1;
+
+      return 0;
+    });
+  };
+
   const sortByPriority = (sortedItems) => {
     sortedItems.sort((itemA, itemB) => {
       let a = null;
@@ -144,7 +154,7 @@ const todoSort = () => {
     });
   };
 
-  const getSortedItems = (items) => {
+  const getSortedItems = (items, isGeneratedProject) => {
     const sortedItems = [...items];
 
     if (state.selectedDirection) {
@@ -152,6 +162,8 @@ const todoSort = () => {
     }
 
     order = state.typeDirections[state.selectedType] === 'asc' ? -1 : 1;
+
+    if (isGeneratedProject) DefaultSorting(sortedItems);
 
     switch (state.selectedType) {
       case 'Alphabetically':
@@ -203,12 +215,26 @@ const todoSort = () => {
     state.selectedDirection = direction;
   };
 
+  const getSortDirections = () => state.typeDirections;
+
+  const setSortDirections = (directions) => {
+    state.typeDirections.Alphabetically = directions.Alphabetically;
+    state.typeDirections.Completed = directions.Completed;
+    state.typeDirections['Added to My Day'] = directions['Added to My Day'];
+    state.typeDirections.Bookmarked = directions.Bookmarked;
+    state.typeDirections['Due date'] = directions['Due date'];
+    state.typeDirections['Creation date'] = directions['Creation date'];
+    state.typeDirections.Priority = directions.Priority;
+  };
+
   return {
     getSortedItems,
     setSelectedSortType,
     setSelectedDirection,
     getSelectedSortType,
     getSelectedDirection,
+    getSortDirections,
+    setSortDirections,
   };
 };
 

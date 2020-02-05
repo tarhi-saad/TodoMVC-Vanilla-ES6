@@ -1,5 +1,6 @@
 import DOMHelpers from './DOMHelpers';
 import assets from './assets';
+import tooltip from './todo.tooltip';
 
 const {
   createElement,
@@ -10,6 +11,7 @@ const {
   removeClass,
   toggleClass,
   disableTransition,
+  wrap,
 } = DOMHelpers();
 
 const {
@@ -30,6 +32,7 @@ const {
   sortCreationDateSVG,
   completeSound,
   chevronSVG,
+  searchSVG,
 } = assets();
 
 const initializeDOMElements = () => {
@@ -40,7 +43,19 @@ const initializeDOMElements = () => {
   const menuButton = createElement('button', '.menu-btn');
   menuButton.dataset.state = 'open';
   menuButton.insertAdjacentHTML('beforeEnd', menuSVG);
-  header.append(menuButton);
+  const searchContainer = createElement('div', '.search-container');
+  const searchIcon = createElement('span', '.search-icon');
+  const searchInput = createElement('input', '#search-input');
+  const searchReset = createElement('button', '.search-reset');
+  const searchOverlay = createElement('div', '.search-overlay');
+  searchIcon.insertAdjacentHTML('beforeEnd', searchSVG);
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Search';
+  searchInput.autocomplete = 'off';
+  searchReset.insertAdjacentHTML('beforeEnd', removeSVG);
+  addClass(searchReset, 'text-button', 'hide');
+  searchContainer.append(searchIcon, searchInput, searchReset, searchOverlay);
+  header.append(menuButton, wrap(searchContainer, 'search-wrapper'));
   // The left block containing all projects
   const listsMenu = createElement('div', '.lists-menu');
   // close menu if mobile
@@ -62,7 +77,7 @@ const initializeDOMElements = () => {
   newListInput.autocomplete = 'off';
   newListSubmit.type = 'submit';
   newListSubmit.value = '+ Add';
-  addClass(newListSubmit, 'hide');
+  addClass(newListSubmit, 'hide', 'text-button');
 
   // The center block which will display our todos/tasks
   const tasksView = createElement('div', '.tasks-view');
@@ -285,6 +300,7 @@ const initializeDOMElements = () => {
   const importantIndicatorFn = () => {
     const importantIndicator = createElement('span', '.important-indicator');
     importantIndicator.insertAdjacentHTML('beforeEnd', importantSVG);
+    importantIndicator.querySelector('svg').dataset.tooltip = 'Bookmarked task';
 
     return importantIndicator;
   };
@@ -293,6 +309,7 @@ const initializeDOMElements = () => {
   const myDayIndicatorFn = () => {
     const myDayIndicator = createElement('span', '.my-day-indicator');
     myDayIndicator.insertAdjacentHTML('beforeEnd', daySVG);
+    myDayIndicator.querySelector('svg').dataset.tooltip = 'Task added to My Day';
 
     return myDayIndicator;
   };
@@ -304,6 +321,9 @@ const initializeDOMElements = () => {
   tasksView.append(tasksHeader, todoList, emptyState, newTodo);
 
   root.append(header, listsMenu, tasksView, detailsView, modal, audioBlock);
+
+  // Init tooltip
+  tooltip(document);
 
   // Helper function - 'refreshTodoItemsPositions' helper
   const refreshTodoItemsPositionsHelper = (list, isTabClosed = false) => {
@@ -339,7 +359,7 @@ const initializeDOMElements = () => {
   const refreshTodoItemsPositions = () => {
     const selectedProject = getElement('.list.selected');
 
-    if (selectedProject.dataset.index === '4') {
+    if (selectedProject && selectedProject.dataset.index === '4') {
       todoList.style.height = '';
       const listsTime = todoList.querySelectorAll('ul.todo-list-time');
       Array.from(listsTime).forEach((list) => {
@@ -399,7 +419,7 @@ const initializeDOMElements = () => {
   const repositionTodosOnMenuToggle = () => {
     const selectedProject = getElement('.list.selected');
 
-    if (selectedProject.dataset.index === '4') {
+    if (selectedProject && selectedProject.dataset.index === '4') {
       const listsTime = todoList.querySelectorAll('ul.todo-list-time');
       Array.from(listsTime).forEach((list) => {
         if (list.children.length > 0) {
@@ -524,6 +544,8 @@ const initializeDOMElements = () => {
     sortIndicator,
     setSortIndicator,
     removeSortIndicator,
+    searchInput,
+    searchReset,
   };
 };
 

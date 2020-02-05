@@ -17,6 +17,32 @@ $line-spacing: 48px;
   padding-bottom: 60px;
   position: relative;
 
+  &[data-project-index='2'] {
+    .tasks-header {
+      .sort-menu {
+        #sortByMyDay {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &[data-project-index='3'] {
+    .tasks-header {
+      .sort-menu {
+        #sortByBookmarked {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &[data-project-index='4'] {
+    .todo-list {
+      height: auto;
+    }
+  }
+
   &.pinned {
     .tasks-header {
       h1 {
@@ -31,6 +57,10 @@ $line-spacing: 48px;
       height: auto;
 
       li.list-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+
         button.open-close {
           border: 0;
           background: none;
@@ -70,6 +100,7 @@ $line-spacing: 48px;
       margin: 0;
       padding: 10px;
       font-weight: bold;
+      overflow: hidden;
       width: 100%;
 
       span,
@@ -80,6 +111,9 @@ $line-spacing: 48px;
       span {
         display: block;
         padding: 6px 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
         &:hover {
           background: #f5f5f5;
@@ -297,7 +331,7 @@ $line-spacing: 48px;
       min-height: 3.13rem !important;
       padding: 6px 11px;
       transition: transform 0.6s ease, box-shadow 0.25s ease-out, border-color 0.15s linear;
-      position: absolute !important;
+      position: absolute;
       left: 15px;
       top: 5px;
       width: calc(100% - 30px);
@@ -349,7 +383,7 @@ $line-spacing: 48px;
             color: $grey-color;
             display: flex;
             font-size: 12px;
-            margin-right: 6px;
+            padding-right: 6px;
             transition: color 0.3s ease;
 
             &::before {
@@ -405,6 +439,10 @@ $line-spacing: 48px;
           .subtask-indicator.completed {
             svg {
               display: inherit;
+            }
+
+            .subtask-indicator-label {
+              pointer-events: none;
             }
           }
 
@@ -541,6 +579,7 @@ $line-spacing: 48px;
           .important-indicator,
           .my-day-indicator {
             color: $second-color-darker;
+            pointer-events: none;
 
             svg {
               fill: $second-color-darker;
@@ -599,6 +638,21 @@ $line-spacing: 48px;
       padding: 7px 13px 7px 11px;
     }
 
+    .todo-item.dragged {
+      box-shadow: 0 8px 10px -5px rgba(0, 0, 0, 0.2), 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+        0 6px 30px 5px rgba(0, 0, 0, 0.12);
+      cursor: grabbing !important;
+      z-index: 1000;
+
+      &:hover {
+        border-color: #cecece;
+
+        & .delete-btn {
+          opacity: 0 !important;
+        }
+      }
+    }
+
     li.low {
     }
 
@@ -622,6 +676,13 @@ $line-spacing: 48px;
           transition: all 0.2s ease;
         }
       }
+    }
+
+    .fix-height {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
     }
   }
 

@@ -37,6 +37,7 @@ const todoView = () => {
     tasksSVG,
     importantSVG,
     daySVG,
+    notFoundSVG,
   } = assets();
 
   const elements = initializeDOMElements();
@@ -60,6 +61,9 @@ const todoView = () => {
     switchEmptyState,
     playCompleteSound,
     initPlannedDateTabs,
+    animateAddSubTaskList,
+    repositionSubTaskList,
+    animateRemoveSubTask,
   } = viewHelpers(elements);
 
   /**
@@ -79,10 +83,11 @@ const todoView = () => {
     const todoCount = createElement('span', '.todo-count');
     let count = 0;
 
-    // Get todo count for default project on init()
+    // Get todo count elements for default project on init()
     let myDayCount = null;
     let ImportantCount = null;
     let PlannedCount = null;
+
     if (id > 4) {
       myDayCount = getElement('.list[data-index="2"] .todo-count');
       ImportantCount = getElement('.list[data-index="3"] .todo-count');
@@ -90,26 +95,30 @@ const todoView = () => {
     }
 
     items.forEach((todo) => {
-      if (!todo.isComplete) count += 1;
+      if (todo.isComplete) return;
 
-      if (todo.isMyDay) {
-        myDayCount.textContent = Number(myDayCount.textContent) + 1;
-      }
-      if (todo.isImportant) {
-        ImportantCount.textContent = Number(ImportantCount.textContent) + 1;
-      }
-      if (todo.date) {
-        PlannedCount.textContent = Number(PlannedCount.textContent) + 1;
-      }
+      count += 1;
 
-      if (id > 4) {
-        if (myDayCount.textContent === '1') showElement(myDayCount);
+      if (todo.isMyDay) myDayCount.textContent = Number(myDayCount.textContent) + 1;
 
-        if (ImportantCount.textContent === '1') showElement(ImportantCount);
+      if (todo.isImportant) ImportantCount.textContent = Number(ImportantCount.textContent) + 1;
 
-        if (PlannedCount.textContent === '1') showElement(PlannedCount);
-      }
+      if (todo.date) PlannedCount.textContent = Number(PlannedCount.textContent) + 1;
     });
+
+    if (id > 4) {
+      if (myDayCount.classList.contains('hide') && Number(myDayCount.textContent) > 0) {
+        showElement(myDayCount);
+      }
+
+      if (ImportantCount.classList.contains('hide') && Number(ImportantCount.textContent) > 0) {
+        showElement(ImportantCount);
+      }
+
+      if (PlannedCount.classList.contains('hide') && Number(PlannedCount.textContent) > 0) {
+        showElement(PlannedCount);
+      }
+    }
 
     todoCount.textContent = count;
 
@@ -208,7 +217,7 @@ const todoView = () => {
     // List name indicator for default projects
     const selectedProject = getElement('.list.selected');
 
-    if (['1', '2', '3', '4'].includes(selectedProject.dataset.index)) {
+    if (!selectedProject || ['1', '2', '3', '4'].includes(selectedProject.dataset.index)) {
       const projectName = getElement(`.list[data-index="${todo.projectID}"] .project-name`)
         .textContent;
       const projectNameIndicator = createElement('span', '.project-name-indicator');
@@ -234,6 +243,20 @@ const todoView = () => {
       if (totalSubtasks === completedSubtasks) {
         addClass(subtaskIndicator, 'completed');
       }
+
+      // Setup & update subtasks tooltip
+      const remainingSubTasks = totalSubtasks - completedSubtasks;
+      if (remainingSubTasks === 1) {
+        subtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+        subtaskIndicator.dataset.tooltip = '';
+      } else if (remainingSubTasks === 0) {
+        subtaskIndicator.dataset.tooltip = 'All subtasks are completed';
+      } else {
+        subtaskIndicatorLabel.dataset.tooltip = `
+        ${remainingSubTasks} remaining subtasks to complete
+        `;
+        subtaskIndicator.dataset.tooltip = '';
+      }
     }
 
     if (todo.date !== '') {
@@ -253,7 +276,7 @@ const todoView = () => {
     // Appended elements
     li.append(label, checkbox, titleBlock, deleteBtn);
 
-    if (selectedProject.dataset.index === '4') plannedListView(li, todo.date);
+    if (selectedProject && selectedProject.dataset.index === '4') plannedListView(li, todo.date);
     else elements.todoList.prepend(li);
 
     // Animate list addition
@@ -284,7 +307,7 @@ const todoView = () => {
       `.todo-item[data-index="${index}"].todo-item[data-project-index="${projectIndex}"]`,
     );
     const selectedProject = getElement('.list.selected');
-    const isPlannedProject = selectedProject.dataset.index === '4';
+    const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
 
     // Update todoCount in current list if todo is not completed
     if (!todoItem.classList.contains('completed')) {
@@ -364,7 +387,10 @@ const todoView = () => {
   const removeProject = (id) => {
     // Remove all of its tasks if the selected project is a default one
     const selectedProject = getElement('.list.selected');
-    const index = Number(selectedProject.dataset.index);
+    let index = null;
+
+    if (selectedProject) index = Number(selectedProject.dataset.index);
+
     const defaultIndexes = [1, 2, 3, 4];
 
     if (defaultIndexes.includes(index)) {
@@ -397,7 +423,11 @@ const todoView = () => {
     // Sort DOM elements from model data
     todos.forEach((todo, i) => {
       Array.from(children).some((list, j) => {
-        if (todo.id === Number(list.dataset.index) && i !== children.length - 1 - j) {
+        if (
+          todo.id === Number(list.dataset.index) &&
+          todo.projectID === Number(list.dataset.projectIndex) &&
+          i !== children.length - 1 - j
+        ) {
           swapElements(list, children[children.length - 1 - i]);
 
           return true;
@@ -478,12 +508,58 @@ const todoView = () => {
     switchEmptyState(selectedProject);
   };
 
+  /**
+   * Display all todos in the project list
+   * @param {Object[]} todos List of todo objects
+   */
+  const displaySearchResults = (todos) => {
+    // Reset todo details & hide view
+    resetDetails();
+    removeClass(elements.detailsView, 'show');
+
+    // To execute first time in search mode
+    if (elements.tasksView.dataset.projectIndex) {
+      // Set task view index
+      elements.tasksView.dataset.projectIndex = '';
+      // Unselect project
+      const selectedList = getElement('.lists .list.selected');
+      removeClass(selectedList, 'selected');
+      // Remove add todo form
+      elements.newTodo.remove();
+      // Choose the right empty state to show for the chosen project
+      const emptyState = document.getElementById('empty-state');
+      const emptyStateText = emptyState.querySelector('p');
+      const currentSVG = emptyState.querySelector('svg');
+
+      if (currentSVG) currentSVG.remove();
+
+      emptyState.insertAdjacentHTML('afterBegin', notFoundSVG);
+      emptyStateText.textContent = "Sorry, we couldn't find what you're looking for.";
+      // Link todo view with selected project: prevent editing title
+      addClass(elements.tasksView, 'pinned');
+    }
+
+    empty(elements.todoList);
+
+    // Animate list - reset todoList Height
+    elements.todoList.style.height = 0;
+
+    todos.forEach((todo) => {
+      addTodo(todo);
+    });
+
+    // Check if list is empty or not to Show/Hide "Empty State"
+    todos.length === 0
+      ? removeClass(elements.emptyState, 'hide-empty-state')
+      : addClass(elements.emptyState, 'hide-empty-state');
+  };
+
   let flatCalendar = null;
   /**
    * Display details of the selected todo object
    * @param {Object} todo The selected todo object
    */
-  const displayDetails = (todo, currentProject, sort) => {
+  const displayDetails = (todo, currentProject, sort, saveData) => {
     // Do some DOM selections
     const selectedTodo = getElement(
       `.todo-item[data-index="${todo.id}"].todo-item[data-project-index="${todo.projectID}"]`,
@@ -512,6 +588,8 @@ const todoView = () => {
     importantInput.type = 'checkbox';
     importantLabel.htmlFor = 'important-check';
     importantLabel.insertAdjacentHTML('beforeEnd', importantSVG);
+    if (!todo.isImportant) importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
+    else importantLabel.dataset.tooltip = `<em>${todo.title}</em> is bookmarked`;
     importantBlock.append(importantLabel, importantInput);
     nameBlock.append(importantBlock);
 
@@ -525,39 +603,15 @@ const todoView = () => {
     const subTasksInput = createElement('input', '#newSubTask');
     subTasksInput.type = 'text';
     subTasksInput.placeholder = '+ Add new subtask';
+    subTasksInput.autocomplete = 'off';
     const subTasksSubmit = createElement('input', '.submit-btn');
     subTasksSubmit.type = 'submit';
     subTasksSubmit.value = '+ Add';
-    addClass(subTasksSubmit, 'hide');
+    addClass(subTasksSubmit, 'hide', 'text-button');
     subTasksForm.append(subTasksInput, subTasksSubmit);
     const subTasksBlock = wrap(subTasksForm, 'subtask-block');
     const subtasksList = createElement('ul', '.subtasks-list');
     subTasksBlock.prepend(subtasksList);
-    todo.getSubTasks().forEach((subTask) => {
-      const li = createElement('li', '.subtask');
-      li.dataset.index = subTask.id;
-
-      if (subTask.isComplete) addClass(li, 'completed');
-
-      // Setting up the checkbox to toggle "completed" state
-      const checkbox = createElement('input', `#subtask-checkbox${subTask.id}`);
-      const label = createElement('label');
-      const span = createElement('span');
-      span.insertAdjacentHTML('beforeEnd', checkSVG);
-      checkbox.type = 'checkbox';
-      checkbox.checked = subTask.isComplete;
-      label.htmlFor = `subtask-checkbox${subTask.id}`;
-      label.append(span);
-      // Setting up "subTask" name
-      const subTaskName = createElement('span', '.subtask-name');
-      subTaskName.textContent = subTask.name;
-      // Delete Elements
-      const deleteBtn = createElement('button', '.delete-btn');
-      deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
-      // Appended elements
-      li.append(label, checkbox, subTaskName, deleteBtn);
-      subtasksList.append(li);
-    });
     const subtaskNameInput = createElement('input', '#subtaskNameInput');
     subtaskNameInput.autocomplete = 'off';
     // Note block of todo
@@ -626,6 +680,10 @@ const todoView = () => {
     priorityLow.insertAdjacentHTML('beforeEnd', prioritySVG);
     priorityMedium.insertAdjacentHTML('beforeEnd', prioritySVG);
     priorityHigh.insertAdjacentHTML('beforeEnd', prioritySVG);
+    // Add tooltip to priorities
+    priorityLow.dataset.tooltip = 'Low';
+    priorityMedium.dataset.tooltip = 'Medium';
+    priorityHigh.dataset.tooltip = 'High';
     priorityList.append(priorityLow, priorityMedium, priorityHigh);
     addClass(priorityList.querySelector(`.${todo.priority.toLowerCase()}`), 'selected');
     priorityBlock.append(priorityTitle, priorityList);
@@ -645,6 +703,36 @@ const todoView = () => {
       wrap(note, 'note-block'),
       creationDate,
     );
+
+    // Add subtasks to list
+    todo.getSubTasks().forEach((subTask) => {
+      const li = createElement('li', '.subtask');
+      li.dataset.index = subTask.id;
+
+      if (subTask.isComplete) addClass(li, 'completed');
+
+      // Setting up the checkbox to toggle "completed" state
+      const checkbox = createElement('input', `#subtask-checkbox${subTask.id}`);
+      const label = createElement('label');
+      const span = createElement('span');
+      span.insertAdjacentHTML('beforeEnd', checkSVG);
+      checkbox.type = 'checkbox';
+      checkbox.checked = subTask.isComplete;
+      label.htmlFor = `subtask-checkbox${subTask.id}`;
+      label.append(span);
+      // Setting up "subTask" name
+      const subTaskName = createElement('span', '.subtask-name');
+      subTaskName.textContent = subTask.name;
+      // Delete Elements
+      const deleteBtn = createElement('button', '.delete-btn');
+      deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
+      // Appended elements
+      li.append(label, checkbox, subTaskName, deleteBtn);
+      subtasksList.prepend(li);
+
+      // reposition subtasks
+      repositionSubTaskList();
+    });
 
     // Show overlay on mobile
     if (document.body.offsetWidth < 770) {
@@ -677,6 +765,12 @@ const todoView = () => {
 
       // sort tasks on name change
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update Bookmark tooltip
+      importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
+
+      // Update localStorage
+      saveData();
     };
 
     const noteHeight = getComputedStyle(note).height;
@@ -701,11 +795,17 @@ const todoView = () => {
         liveNoteIndicator.remove();
         toggleIndicatorClass();
       }
+
+      // Refresh todo list on note change for a responsive behavior
+      sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleDateChange = (e) => {
       const { target } = e;
-      const isPlannedProject = selectedProject.dataset.index === '4';
+      const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
 
       // If removeDate button is clicked don't run this function
       if (!target.value) return;
@@ -783,6 +883,9 @@ const todoView = () => {
 
       // Sort tasks on date change
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleRemoveDateClick = () => {
@@ -800,7 +903,7 @@ const todoView = () => {
       toggleIndicatorClass();
 
       // Remove todo if it's in "Planned" project
-      const isPlannedProject = selectedProject.dataset.index === '4';
+      const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
       if (isPlannedProject) {
         const todoListTime = selectedTodo.closest('ul.todo-list-time');
         const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
@@ -827,6 +930,9 @@ const todoView = () => {
 
       // Sort tasks on date remove
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handlePriorityClick = (e) => {
@@ -844,9 +950,12 @@ const todoView = () => {
       addClass(selectedTodo, priorityClass);
 
       // Sort tasks on priority change
-      if (sort.type() === 'Priority') {
+      if (sort && sort.type() === 'Priority') {
         sort.refreshSort(currentProject);
       }
+
+      // Update localStorage
+      saveData();
     };
 
     const handleSubmit = (e) => {
@@ -878,13 +987,17 @@ const todoView = () => {
       deleteBtn.insertAdjacentHTML('beforeEnd', deleteSVG);
       // Appended elements
       li.append(label, checkbox, subTaskName, deleteBtn);
-      subtasksList.append(li);
+      subtasksList.prepend(li);
 
       // Hide "Add" button After submit
       hideElement(subTasksSubmit);
 
+      // Animate add subtask
+      animateAddSubTaskList();
+
       // Indicator
-      const liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
+      const liveSubtaskIndicator = selectedTodo.querySelector('.subtask-indicator');
+      let liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
       todo.getSubTasks().forEach((subtask) => {
@@ -898,11 +1011,26 @@ const todoView = () => {
         appendIndicator(subtaskIndicator, selectedTodo);
         toggleIndicatorClass();
       } else if (totalSubtasks) {
+        removeClass(liveSubtaskIndicator, 'completed');
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+      }
+
+      // Setup & update subtasks tooltip
+      liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
+      const remainingSubTasks = totalSubtasks - completedSubtasks;
+      if (remainingSubTasks === 1) {
+        liveSubtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+      } else {
+        liveSubtaskIndicatorLabel.dataset.tooltip = `
+        ${remainingSubTasks} remaining subtasks to complete
+        `;
       }
 
       // Refresh tasks positions on add subTask
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleDeleteSubtask = (e) => {
@@ -914,9 +1042,14 @@ const todoView = () => {
       const li = target.closest('.subtask');
       const id = Number(li.dataset.index);
       todo.removeSubTask(id);
+
+      // Animate remove subtask
+      animateRemoveSubTask(li);
+
       li.remove();
 
       // Indicator
+      const subtaskIndicator = selectedTodo.querySelector('.subtask-indicator');
       const liveSubtaskIndicatorLabel = selectedTodo.querySelector('.subtask-indicator-label');
       const totalSubtasks = todo.getSubTasks().length;
       let completedSubtasks = 0;
@@ -926,13 +1059,32 @@ const todoView = () => {
 
       if (totalSubtasks) {
         liveSubtaskIndicatorLabel.innerHTML = `${completedSubtasks} of ${totalSubtasks}`;
+
+        if (totalSubtasks === completedSubtasks) {
+          addClass(subtaskIndicator, 'completed');
+        }
       } else if (!totalSubtasks) {
-        liveSubtaskIndicatorLabel.closest('.subtask-indicator').remove();
+        subtaskIndicator.remove();
         toggleIndicatorClass();
+      }
+
+      // Setup & update subtasks tooltip
+      const remainingSubTasks = totalSubtasks - completedSubtasks;
+      if (remainingSubTasks === 1) {
+        liveSubtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+      } else if (remainingSubTasks === 0) {
+        subtaskIndicator.dataset.tooltip = 'All subtasks are completed';
+      } else {
+        liveSubtaskIndicatorLabel.dataset.tooltip = `
+        ${remainingSubTasks} remaining subtasks to complete
+        `;
       }
 
       // Refresh tasks positions on remove subTask
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleToggleSubtask = (e) => {
@@ -975,8 +1127,25 @@ const todoView = () => {
         removeClass(subtaskIndicator, 'completed');
       }
 
+      // Setup & update subtasks tooltip
+      const remainingSubTasks = totalSubtasks - completedSubtasks;
+      if (remainingSubTasks === 1) {
+        liveSubtaskIndicatorLabel.dataset.tooltip = 'One remaining subtask to complete';
+        subtaskIndicator.dataset.tooltip = '';
+      } else if (remainingSubTasks === 0) {
+        subtaskIndicator.dataset.tooltip = 'All subtasks are completed';
+      } else {
+        liveSubtaskIndicatorLabel.dataset.tooltip = `
+        ${remainingSubTasks} remaining subtasks to complete
+        `;
+        subtaskIndicator.dataset.tooltip = '';
+      }
+
       // Refresh tasks positions on toggle subTask
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleSwitchSubtask = (e) => {
@@ -1000,6 +1169,9 @@ const todoView = () => {
 
       const updateName = (value) => {
         todo.editSubTaskName(id, value);
+
+        // Update localStorage
+        saveData();
       };
 
       const args = [subtaskName, subtaskNameInput, updateName];
@@ -1053,7 +1225,10 @@ const todoView = () => {
         updateTodoCount(importantCount, false);
 
         // If we are editing in "Important" project then remove todo
-        if (selectedProject.dataset.index === '3') selectedTodo.remove();
+        if (selectedProject && selectedProject.dataset.index === '3') selectedTodo.remove();
+
+        // Update Bookmark tooltip
+        importantLabel.dataset.tooltip = `Bookmark <em>${todo.title}</em>`;
       } else {
         addClass(importantBlock, 'important');
         indicators.append(elements.importantIndicatorFn());
@@ -1063,13 +1238,22 @@ const todoView = () => {
         updateTodoCount(importantCount, true);
 
         // If we are still editing in "Important" project then append todo
-        if (selectedProject.dataset.index === '3') {
+        if (selectedProject && selectedProject.dataset.index === '3') {
           elements.todoList.append(selectedTodo);
         }
+
+        // Update Bookmark tooltip
+        importantLabel.dataset.tooltip = `<em>${todo.title}</em> is bookmarked`;
       }
 
       // Sort tasks on Importance change
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Live update of tooltip span
+      getElement('.tooltip').innerHTML = importantLabel.dataset.tooltip;
+
+      // Update localStorage
+      saveData();
     };
 
     const handleMyDayClick = (e) => {
@@ -1090,12 +1274,15 @@ const todoView = () => {
       updateTodoCount(myDayCount, true);
 
       // If we are still editing in "Important" project then append todo
-      if (selectedProject.dataset.index === '2') {
+      if (selectedProject && selectedProject.dataset.index === '2') {
         elements.todoList.append(selectedTodo);
       }
 
       // Sort tasks on add My Day
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     const handleRemoveMyDayClick = () => {
@@ -1112,10 +1299,13 @@ const todoView = () => {
       updateTodoCount(myDayCount, false);
 
       // If we are editing in "Important" project then remove todo
-      if (selectedProject.dataset.index === '2') selectedTodo.remove();
+      if (selectedProject && selectedProject.dataset.index === '2') selectedTodo.remove();
 
       // Sort tasks on remove My Day
       sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
     };
 
     // Set event listeners
@@ -1250,6 +1440,30 @@ const todoView = () => {
     on(elements.todoList, 'click', handler);
   };
 
+  /**
+   * Call handleSearchInput function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSearchInput = (handler) => {
+    on(elements.searchInput, 'input', handler);
+  };
+
+  /**
+   * Call handleSearchReset function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSearchReset = (handler) => {
+    on(elements.searchReset, 'click', handler);
+  };
+
+  /**
+   * Call handleSearchBlur function on synthetic event
+   * @param {Function} handler Function called on synthetic event.
+   */
+  const bindSearchBlur = (handler) => {
+    on(elements.searchInput, 'blur', handler);
+  };
+
   return {
     displayList,
     removeProject,
@@ -1268,11 +1482,14 @@ const todoView = () => {
     bindSortList,
     bindSortIndicator,
     bindPlannedClick,
+    bindSearchInput,
+    bindSearchReset,
     empty,
     toggleEditMode,
     displayDetails,
     bindSwitchTodo,
     hideElement,
+    showElement,
     confirmRemoval,
     updateTodoCount,
     resetDetails,
@@ -1285,6 +1502,10 @@ const todoView = () => {
     addClass,
     getElement,
     enableTransition,
+    displaySearchResults,
+    bindSearchBlur,
+    on,
+    off,
   };
 };
 

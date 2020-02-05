@@ -33,4 +33,74 @@ header {
       fill: #fff;
     }
   }
+  .search-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    padding-right: 54px;
+
+    .search-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 400px;
+
+      .search-icon {
+        position: absolute;
+        left: 10px;
+        transform: rotate(88deg);
+
+        svg {
+          fill: $base-color;
+          width: 16px;
+        }
+      }
+
+      #search-input {
+        border: 0;
+        font-size: 14px;
+        height: 32px;
+        width: 400px;
+        padding: 0 40px;
+        border-radius: 4px;
+        color: $text-color;
+
+        &::placeholder {
+          color: $base-color;
+        }
+      }
+
+      .search-reset {
+        position: absolute;
+        right: 2px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 28px;
+        width: 28px;
+
+        svg {
+          fill: $base-color;
+          width: 16px;
+        }
+      }
+
+      .search-overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 128, 255, 0.18);
+        pointer-events: none;
+        transition: background-color 0.3s ease;
+      }
+
+      &:hover {
+        .search-overlay {
+          background-color: transparent;
+        }
+      }
+    }
+  }
 }

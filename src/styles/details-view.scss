@@ -99,20 +99,35 @@
 
     .subtasks-list {
       padding-bottom: 5px;
+      position: relative;
+      transition: height 0.6s ease;
 
       .subtask {
+        background-color: #fff;
         border: 1px solid $second-color-darker;
+        border-radius: 4px;
         margin-bottom: 10px;
         padding: 10px;
         transition: $transition;
+        transition: transform 0.6s ease, box-shadow 0.25s ease-out, border-color 0.15s linear;
+        position: absolute !important;
+        width: 100%;
 
         &:hover {
-          border-color: $base-color;
+          box-shadow: 0 0 4px rgba(0, 128, 255, 0.7);
+          border-color: #fff;
+        }
+
+        &:first-child {
+          z-index: 1;
         }
 
         .subtask-name {
           margin-left: 15px;
           transition: color 0.3s ease;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
 
           &::before {
             background: $second-color-darker;
@@ -272,10 +287,8 @@
       }
 
       .subtask.selected {
-        border-color: $base-color;
-        box-shadow: 0 2px 5px 0 $shadow-color;
-        transform: scale(1.005);
-        transition-duration: 0.1s;
+        border-width: 0;
+        box-shadow: 0 0 0 2px rgba(0, 128, 255, 0.3), 0 0 10px rgba(0, 128, 255, 0.3);
       }
 
       .subtask.selected:not(.completed) {
@@ -294,6 +307,7 @@
         background: none;
         border: none;
         padding: 0 10px;
+        padding-right: 55px;
         min-height: 2.6rem;
         width: 100%;
 
@@ -306,19 +320,21 @@
         background: #fff;
         border: none;
         border-radius: 5px;
-        color: $base-color-light;
-        font-size: 13px;
-        font-weight: bold;
-        right: 10px;
+        color: $base-color;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.8rem;
+        letter-spacing: initial;
+        right: 0;
         text-transform: uppercase;
         @include vertical-center-absolute;
 
         &:focus:active {
-          color: $base-color-dark;
+          background: #0080ff40;
         }
 
         &:hover {
-          color: $base-color;
+          background: #0080ff14;
         }
       }
     }
