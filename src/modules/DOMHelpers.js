@@ -18,7 +18,7 @@ const DOMHelpers = () => {
     return elem;
   };
 
-  const on = (target, type, callback) => target.addEventListener(type, callback);
+  const on = (target, type, callback, options) => target.addEventListener(type, callback, options);
 
   const off = (target, type, callback) => target.removeEventListener(type, callback);
 
