@@ -622,6 +622,7 @@ const todoView = () => {
     const date = createElement('input', '#date');
     flatCalendar = flatpickr(date, {
       defaultDate: todo.date,
+      disableMobile: true,
     });
     date.type = 'text';
     date.value = todo.date;

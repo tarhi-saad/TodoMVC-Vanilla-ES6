@@ -557,6 +557,7 @@
     bottom: 0;
     right: 0;
     width: 360px;
+    max-width: calc(100% - 55px);
     border-radius: 0;
     margin-bottom: 0;
 
@@ -571,7 +572,7 @@
   width: 360px;
   z-index: 70;
   right: 0;
-  top: 48px;
+  top: 54px;
   height: calc(100% - 88px); // Minus "top" + "margin-bottom" values
   max-width: 100%;
 
@@ -588,5 +589,10 @@
     opacity: 0.65;
     pointer-events: none;
     user-select: none;
+  }
+
+  .creation-date {
+    opacity: 1;
+    color: $grey-color;
   }
 }

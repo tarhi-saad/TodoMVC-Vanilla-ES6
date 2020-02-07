@@ -1,6 +1,6 @@
 import todoApp from './todo.model';
 import { todoView } from './todo.view';
-import draggable from './draggable';
+import draggable from './features/draggable/draggable';
 import todoLocalStorage from './localStorage';
 
 const todoController = (() => {

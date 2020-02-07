@@ -1,163 +1,14 @@
-import DOMHelpers from './DOMHelpers';
+import helpers from './helpers';
 
-const draggable = (todoApp, todoLocalStorage) => {
+const mouse = (todoApp, DOMHelpers, todoLocalStorage) => {
   const {
-    createElement,
-    on,
-    off,
-    empty,
-    getElement,
-    getElements,
-    wrap,
-    unselect,
-    addClass,
-    removeClass,
-    toggleClass,
-    hideElement,
-    showElement,
-    resetClassList,
-    getNumberFromString,
-    disableTransition,
-    enableTransition,
-    toggleTransition,
-    swapElements,
-  } = DOMHelpers();
-
-  const getUpdatedList = (items, draggedItem, belowItem) => {
-    const arrayHolder = [...items];
-    const getIndex = (id) => arrayHolder.findIndex((item) => item.id === id);
-
-    const draggedID = Number(draggedItem.dataset.index);
-    const belowID = Number(belowItem.dataset.index);
-    const belowIndex = getIndex(belowID);
-    const draggedIndex = getIndex(draggedID);
-
-    items.sort((itemA, itemB) => {
-      if (draggedIndex > belowIndex) {
-        if (itemA.id === draggedID && getIndex(itemB.id) >= belowIndex) return -1;
-
-        if (itemB.id === draggedID && getIndex(itemA.id) <= belowIndex) return 1;
-      } else {
-        if (itemB.id === draggedID && getIndex(itemA.id) <= belowIndex) return -1;
-
-        if (itemA.id === draggedID && getIndex(itemB.id) >= belowIndex) return 1;
-      }
-
-      return 0;
-    });
-
-    return items;
-  };
-
-  const getItemsToTranslate = (items, container, draggedItem, belowItem) => {
-    const getTaskFromID = (id) => container.querySelector(`.todo-item[data-index="${id}"]`);
-    const getIndex = (id) => items.findIndex((item) => item.id === id);
-
-    const draggedID = Number(draggedItem.dataset.index);
-    const belowID = Number(belowItem.dataset.index);
-    const draggedIndex = getIndex(draggedID);
-    const belowIndex = getIndex(belowID);
-    const list = [];
-
-    items.forEach((item, index) => {
-      if (draggedIndex > belowIndex) {
-        if (index < draggedIndex && index >= belowIndex) list.push(getTaskFromID(item.id));
-      } else if (index > draggedIndex && index <= belowIndex) {
-        list.push(getTaskFromID(item.id));
-      }
-    });
-
-    return list;
-  };
-
-  const enterDroppable = (items, list, draggedItem, belowItem) => {
-    const getIndex = (id) => items.findIndex((item) => item.id === id);
-
-    const draggedID = Number(draggedItem.dataset.index);
-    const belowID = Number(belowItem.dataset.index);
-    const draggedIndex = getIndex(draggedID);
-    const belowIndex = getIndex(belowID);
-    const todoItemHeight =
-      draggedItem.offsetHeight + parseInt(getComputedStyle(draggedItem).marginBottom, 10);
-    const belowTranslateY = belowItem.style.transform
-      ? getNumberFromString(belowItem.style.transform)
-      : 0;
-
-    if (draggedIndex > belowIndex) {
-      list.forEach((item) => {
-        if (item === draggedItem) {
-          item.style.transform = `translateY(${belowTranslateY -
-            (draggedItem.offsetHeight - belowItem.offsetHeight)})px`;
-
-          return;
-        }
-
-        const translateY = item.style.transform ? getNumberFromString(item.style.transform) : 0;
-        item.style.transform = `translateY(${translateY - todoItemHeight}px)`;
-      });
-    } else {
-      list.forEach((item) => {
-        if (item === draggedItem) {
-          item.style.transform = `translateY(${belowTranslateY})px`;
-
-          return;
-        }
-
-        const translateY = item.style.transform ? getNumberFromString(item.style.transform) : 0;
-        item.style.transform = `translateY(${translateY + todoItemHeight}px)`;
-      });
-    }
-  };
-
-  const scrollListDown = (container) => {
-    const scrollDiff = container.scrollHeight - container.offsetHeight;
-    let scrolledDistance = container.scrollTop;
-    const timerIDs = [];
-
-    let multiplier = 0;
-
-    while (scrolledDistance < scrollDiff) {
-      const timerID = setTimeout(() => {
-        container.scrollBy(0, 1);
-      }, 5 * multiplier);
-
-      multiplier += 1;
-      scrolledDistance += 1;
-      timerIDs.push(timerID);
-    }
-
-    return timerIDs;
-  };
-
-  const scrollListTop = (container) => {
-    let scrolledDistance = container.scrollTop;
-    const timerIDs = [];
-
-    let multiplier = 0;
-
-    while (scrolledDistance >= 0) {
-      const timerID = setTimeout(() => {
-        container.scrollBy(0, -1);
-      }, 5 * multiplier);
-
-      multiplier += 1;
-      scrolledDistance -= 1;
-      timerIDs.push(timerID);
-    }
-
-    return timerIDs;
-  };
-
-  // Reorder a list of DOM elements without removing them from a given array
-  const reOrderDOMList = (list, items) => {
-    const orderedIDs = [];
-    items.forEach((item) => orderedIDs.push(item.id));
-
-    orderedIDs.forEach((id) => {
-      const item = list.querySelector(`.todo-item[data-index="${id}"]`);
-      list.prepend(item);
-    });
-  };
+    getUpdatedList,
+    getItemsToTranslate,
+    enterDroppable,
+    scrollListDown,
+    scrollListTop,
+    reOrderDOMList,
+  } = helpers(DOMHelpers.getNumberFromString);
 
   const handleMouseDown = (e) => {
     if (
@@ -177,13 +28,13 @@ const draggable = (todoApp, todoLocalStorage) => {
     const container = todoItem.closest('.todo-list');
 
     // Enable transitions
-    enableTransition(container);
+    DOMHelpers.enableTransition(container);
 
     // Get initial Y coords
     const initialPageX = e.pageX;
     const initialPageY = e.pageY;
     const initialItemTranslateY = todoItem.style.transform
-      ? getNumberFromString(todoItem.style.transform)
+      ? DOMHelpers.getNumberFromString(todoItem.style.transform)
       : 0;
 
     // currentTodoItemBelow
@@ -202,7 +53,7 @@ const draggable = (todoApp, todoLocalStorage) => {
     const timerIDs = [];
 
     // Create an element inside todoList to fix its height
-    const fixHeight = createElement('div', '.fix-height');
+    const fixHeight = DOMHelpers.createElement('div', '.fix-height');
     fixHeight.style.height = `${container.scrollHeight}px`;
 
     // Correct positioning: to get the exact spot on the element on 'mousedown'
@@ -210,7 +61,7 @@ const draggable = (todoApp, todoLocalStorage) => {
     const shiftY = e.clientY - todoItem.getBoundingClientRect().top;
 
     // Create an overlay over our Item
-    const overlay = createElement('div', '.drag-overlay');
+    const overlay = DOMHelpers.createElement('div', '.drag-overlay');
     document.body.append(overlay);
 
     // Get initial value on mousedown
@@ -267,7 +118,7 @@ const draggable = (todoApp, todoLocalStorage) => {
 
         if (!todoItem.classList.contains('dragged')) {
           setDraggableStyles();
-          addClass(todoItem, 'dragged');
+          DOMHelpers.addClass(todoItem, 'dragged');
         }
 
         // Scroll List if dragged item is on bottom/top edges
@@ -316,12 +167,12 @@ const draggable = (todoApp, todoLocalStorage) => {
       overlay.style.top = `${event.pageY - shiftY}px`;
 
       // Hide the element that we drag
-      addClass(todoItem, 'hide');
-      addClass(overlay, 'hide');
+      DOMHelpers.addClass(todoItem, 'hide');
+      DOMHelpers.addClass(overlay, 'hide');
       // elemBelow is the element below the todoItem, may be droppable
       const elemBelow = document.elementFromPoint(event.clientX, event.clientY);
-      removeClass(todoItem, 'hide');
-      removeClass(overlay, 'hide');
+      DOMHelpers.removeClass(todoItem, 'hide');
+      DOMHelpers.removeClass(overlay, 'hide');
 
       if (!elemBelow) return;
 
@@ -340,7 +191,7 @@ const draggable = (todoApp, todoLocalStorage) => {
         if (currentTodoItemBelow) {
           // the logic to process "flying in" of the droppable
           const belowTranslateY = currentTodoItemBelow.style.transform
-            ? getNumberFromString(currentTodoItemBelow.style.transform)
+            ? DOMHelpers.getNumberFromString(currentTodoItemBelow.style.transform)
             : 0;
           updatedTranslateY =
             updatedTranslateY > belowTranslateY
@@ -364,7 +215,7 @@ const draggable = (todoApp, todoLocalStorage) => {
 
       // Place item in its new position
       const initialTranslateY = todoItem.style.transform
-        ? getNumberFromString(todoItem.style.transform)
+        ? DOMHelpers.getNumberFromString(todoItem.style.transform)
         : 0;
 
       resetDraggableStyles();
@@ -377,36 +228,36 @@ const draggable = (todoApp, todoLocalStorage) => {
         todoItem.style.transition = 'box-shadow .25s ease-out, transform 0.15s ease';
 
         const handleTransition = () => {
-          removeClass(todoItem, 'dragged');
+          DOMHelpers.removeClass(todoItem, 'dragged');
           // fixHeight.remove();
           // Reset todo item transition
           todoItem.style.transition = '';
-          off(todoItem, 'transitionend', handleTransition);
+          DOMHelpers.off(todoItem, 'transitionend', handleTransition);
 
           // re-order todoList
           const items = todoApp.getSelectedProject().getItems();
           reOrderDOMList(container, items);
         };
-        on(todoItem, 'transitionend', handleTransition);
+        DOMHelpers.on(todoItem, 'transitionend', handleTransition);
       } else {
-        removeClass(todoItem, 'dragged');
+        DOMHelpers.removeClass(todoItem, 'dragged');
       }
 
-      off(document, 'mousemove', onMouseMove);
-      off(document, 'mouseup', onMouseUp);
+      DOMHelpers.off(document, 'mousemove', onMouseMove);
+      DOMHelpers.off(document, 'mouseup', onMouseUp);
       todoItem.onclick = null;
 
       // Update localStorage
       todoLocalStorage.populateStorage(todoApp);
     };
 
-    on(document, 'mousemove', onMouseMove);
-    on(document, 'mouseup', onMouseUp);
+    DOMHelpers.on(document, 'mousemove', onMouseMove);
+    DOMHelpers.on(document, 'mouseup', onMouseUp);
 
     todoItem.ondragstart = () => false;
   };
 
-  on(document.body, 'mousedown', handleMouseDown);
+  return handleMouseDown;
 };
 
-export default draggable;
+export default mouse;
