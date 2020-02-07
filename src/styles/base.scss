@@ -18,12 +18,17 @@
   user-select: none;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   background: $white-smoke;
   color: $text-color;
   font-family: 'Roboto', sans-serif;
   font-size: $font-size;
   overflow: hidden;
+  height: 100%;
 }
 
 .show {
@@ -108,7 +113,7 @@ body {
 }
 
 #root {
-  height: 100vh;
+  height: 100%;
   display: grid;
   grid-template-areas: 'header';
   grid-template-columns: auto;

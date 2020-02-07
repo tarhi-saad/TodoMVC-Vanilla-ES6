@@ -166,6 +166,7 @@ $line-spacing: 48px;
       visibility: hidden;
       width: 0;
       height: 0;
+      max-height: calc(100% - 65px);
       opacity: 0;
       transform: translateY(-10px);
       transition: opacity 0.3s ease, transform 0.3s ease;
@@ -177,6 +178,7 @@ $line-spacing: 48px;
         transform: translateY(0);
         width: initial;
         height: initial;
+        height: 393px;
       }
 
       .sort-title {
@@ -191,6 +193,12 @@ $line-spacing: 48px;
       .sort-list {
         font-size: 16px;
         padding: 8px 0;
+        height: calc(100% - 43px);
+        overflow-x: auto;
+
+        @media screen and (min-height: 560px) {
+          overflow-x: unset;
+        }
 
         .sort-type {
           .sort-type-btn {
@@ -697,6 +705,7 @@ $line-spacing: 48px;
     display: flex;
     flex-direction: column;
     max-width: 100%;
+    padding: 0 5px;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
