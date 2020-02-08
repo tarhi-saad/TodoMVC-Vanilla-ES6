@@ -31,7 +31,6 @@ const touch = (todoApp, DOMHelpers, todoLocalStorage) => {
     DOMHelpers.enableTransition(container);
 
     // Get initial Y coords
-    const initialPageX = e.touches[0].pageX;
     const initialPageY = e.touches[0].pageY;
     const initialItemTranslateY = todoItem.style.transform
       ? DOMHelpers.getNumberFromString(todoItem.style.transform)
@@ -111,9 +110,6 @@ const touch = (todoApp, DOMHelpers, todoLocalStorage) => {
       if (event.cancelable) event.preventDefault();
     };
 
-    // On mobile this prevents the default page scrolling while dragging an item.
-    container.addEventListener('touchmove', preventScrolling, false);
-
     // Prevent 'context menu' on long press
     const preventContextMenu = (event) => event.preventDefault();
     DOMHelpers.on(todoItem, 'contextmenu', preventContextMenu);
@@ -122,6 +118,8 @@ const touch = (todoApp, DOMHelpers, todoLocalStorage) => {
     const activateDrag = (event = e) => {
       if (!todoItem.classList.contains('dragged')) {
         container.append(fixHeight);
+        // On mobile this prevents the default page scrolling while dragging an item.
+        container.addEventListener('touchmove', preventScrolling, false);
       }
 
       const translateY = initialItemTranslateY - initialPageY + event.touches[0].pageY;
@@ -175,14 +173,12 @@ const touch = (todoApp, DOMHelpers, todoLocalStorage) => {
      * @param {Event} event event parameter of 'mousemove' Event
      */
     const handleTouchMove = (event) => {
-      if (!todoItem.classList.contains('dragged')) return;
+      if (!todoItem.classList.contains('dragged')) {
+        clearTimeout(longPressID);
+        container.removeEventListener('touchmove', preventScrolling, false);
 
-      // // Activate movement after 5px
-      // if (
-      //   Math.abs(initialPageX - event.touches[0].pageX) > 5 ||
-      //   Math.abs(initialPageY - event.touches[0].pageY) > 5
-      // ) {
-      // }
+        return;
+      }
 
       activateDrag(event);
 
