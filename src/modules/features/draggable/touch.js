@@ -114,66 +114,77 @@ const touch = (todoApp, DOMHelpers, todoLocalStorage) => {
     // On mobile this prevents the default page scrolling while dragging an item.
     container.addEventListener('touchmove', preventScrolling, false);
 
+    // Prevent 'context menu' on long press
+    const preventContextMenu = (event) => event.preventDefault();
+    DOMHelpers.on(todoItem, 'contextmenu', preventContextMenu);
+
+    // Activate movement on long press
+    const activateDrag = (event = e) => {
+      if (!todoItem.classList.contains('dragged')) {
+        container.append(fixHeight);
+      }
+
+      const translateY = initialItemTranslateY - initialPageY + event.touches[0].pageY;
+      moveAt(translateY);
+
+      if (!todoItem.classList.contains('dragged')) {
+        setDraggableStyles();
+        DOMHelpers.addClass(todoItem, 'dragged');
+      }
+
+      // Scroll List if dragged item is on bottom/top edges
+      if (
+        event.touches[0].pageY > containerBottom - 40 &&
+        (currentPageY === null || currentPageY <= containerBottom - 40)
+      ) {
+        // Scroll move
+        // const speed = Math.floor(event.touches[0].pageY - containerBottom + 40);
+        timerIDs.push(...scrollListDown(container));
+
+        currentPageY = event.touches[0].pageY;
+      } else if (
+        event.touches[0].pageY <= containerBottom - 40 &&
+        currentPageY > containerBottom - 40
+      ) {
+        currentPageY = event.touches[0].pageY;
+
+        timerIDs.forEach((timerID) => clearTimeout(timerID));
+        timerIDs.length = 0;
+      }
+
+      if (
+        event.touches[0].pageY < containerTop + 40 &&
+        (currentPageY === null || currentPageY >= containerTop + 40)
+      ) {
+        // Scroll move
+        timerIDs.push(...scrollListTop(container, e));
+
+        currentPageY = event.touches[0].pageY;
+      } else if (event.touches[0].pageY >= containerTop + 40 && currentPageY < containerTop + 40) {
+        currentPageY = event.touches[0].pageY;
+
+        timerIDs.forEach((timerID) => clearTimeout(timerID));
+        timerIDs.length = 0;
+      }
+    };
+
+    const longPressID = setTimeout(activateDrag, 500);
+
     /**
      * We get the coords of the cursor on the document and get the element under it
      * @param {Event} event event parameter of 'mousemove' Event
      */
     const handleTouchMove = (event) => {
-      if (!todoItem.classList.contains('dragged')) {
-        container.append(fixHeight);
-      }
+      if (!todoItem.classList.contains('dragged')) return;
 
-      // Activate movement after 5px
-      if (
-        Math.abs(initialPageX - event.touches[0].pageX) > 5 ||
-        Math.abs(initialPageY - event.touches[0].pageY) > 5
-      ) {
-        const translateY = initialItemTranslateY - initialPageY + event.touches[0].pageY;
-        moveAt(translateY);
+      // // Activate movement after 5px
+      // if (
+      //   Math.abs(initialPageX - event.touches[0].pageX) > 5 ||
+      //   Math.abs(initialPageY - event.touches[0].pageY) > 5
+      // ) {
+      // }
 
-        if (!todoItem.classList.contains('dragged')) {
-          setDraggableStyles();
-          DOMHelpers.addClass(todoItem, 'dragged');
-        }
-
-        // Scroll List if dragged item is on bottom/top edges
-        if (
-          event.touches[0].pageY > containerBottom - 40 &&
-          (currentPageY === null || currentPageY <= containerBottom - 40)
-        ) {
-          // Scroll move
-          // const speed = Math.floor(event.touches[0].pageY - containerBottom + 40);
-          timerIDs.push(...scrollListDown(container));
-
-          currentPageY = event.touches[0].pageY;
-        } else if (
-          event.touches[0].pageY <= containerBottom - 40 &&
-          currentPageY > containerBottom - 40
-        ) {
-          currentPageY = event.touches[0].pageY;
-
-          timerIDs.forEach((timerID) => clearTimeout(timerID));
-          timerIDs.length = 0;
-        }
-
-        if (
-          event.touches[0].pageY < containerTop + 40 &&
-          (currentPageY === null || currentPageY >= containerTop + 40)
-        ) {
-          // Scroll move
-          timerIDs.push(...scrollListTop(container, event));
-
-          currentPageY = event.touches[0].pageY;
-        } else if (
-          event.touches[0].pageY >= containerTop + 40 &&
-          currentPageY < containerTop + 40
-        ) {
-          currentPageY = event.touches[0].pageY;
-
-          timerIDs.forEach((timerID) => clearTimeout(timerID));
-          timerIDs.length = 0;
-        }
-      }
+      activateDrag(event);
 
       if (!overlay.style.left) {
         overlay.style.left = `${event.touches[0].pageX - shiftX}px`;
@@ -231,6 +242,9 @@ const touch = (todoApp, DOMHelpers, todoLocalStorage) => {
     };
 
     const handleTouchEnd = () => {
+      clearTimeout(longPressID);
+      DOMHelpers.off(todoItem, 'contextmenu', preventContextMenu);
+
       overlay.remove();
 
       // Place item in its new position
