@@ -119,6 +119,10 @@ const touch = (todoApp, DOMHelpers, todoLocalStorage) => {
      * @param {Event} event event parameter of 'mousemove' Event
      */
     const handleTouchMove = (event) => {
+      if (!todoItem.classList.contains('dragged')) {
+        container.append(fixHeight);
+      }
+
       // Activate movement after 5px
       if (
         Math.abs(initialPageX - event.touches[0].pageX) > 5 ||
@@ -169,10 +173,6 @@ const touch = (todoApp, DOMHelpers, todoLocalStorage) => {
           timerIDs.forEach((timerID) => clearTimeout(timerID));
           timerIDs.length = 0;
         }
-      }
-
-      if (!todoItem.classList.contains('dragged')) {
-        container.append(fixHeight);
       }
 
       if (!overlay.style.left) {
