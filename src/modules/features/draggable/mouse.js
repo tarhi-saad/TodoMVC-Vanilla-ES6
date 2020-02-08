@@ -73,6 +73,9 @@ const mouse = (todoApp, DOMHelpers, todoLocalStorage) => {
     const todoItemHeight =
       todoItem.offsetHeight + parseInt(getComputedStyle(todoItem).marginBottom, 10);
 
+    // Initial scroll top
+    const initialScrollTop = container.scrollTop;
+
     // min/max translateY
     const maxTranslateY =
       containerBottom - todoItemHeight - 1 - initialTodoItemTop + initialItemTranslateY;
@@ -219,6 +222,7 @@ const mouse = (todoApp, DOMHelpers, todoLocalStorage) => {
         : 0;
 
       resetDraggableStyles();
+      const containerIsScrolled = initialScrollTop !== container.scrollTop;
       timerIDs.forEach((timerID) => clearTimeout(timerID));
 
       if (initialTranslateY !== updatedTranslateY) {
@@ -229,7 +233,6 @@ const mouse = (todoApp, DOMHelpers, todoLocalStorage) => {
 
         const handleTransition = () => {
           DOMHelpers.removeClass(todoItem, 'dragged');
-          // fixHeight.remove();
           // Reset todo item transition
           todoItem.style.transition = '';
           DOMHelpers.off(todoItem, 'transitionend', handleTransition);
@@ -238,9 +241,20 @@ const mouse = (todoApp, DOMHelpers, todoLocalStorage) => {
           const items = todoApp.getSelectedProject().getItems();
           reOrderDOMList(container, items);
         };
-        DOMHelpers.on(todoItem, 'transitionend', handleTransition);
+
+        if (containerIsScrolled) {
+          handleTransition();
+        } else {
+          DOMHelpers.on(todoItem, 'transitionend', handleTransition);
+        }
       } else {
         DOMHelpers.removeClass(todoItem, 'dragged');
+
+        if (initialItemTranslateY !== updatedTranslateY) {
+          // re-order todoList
+          const items = todoApp.getSelectedProject().getItems();
+          reOrderDOMList(container, items);
+        }
       }
 
       DOMHelpers.off(document, 'mousemove', onMouseMove);
