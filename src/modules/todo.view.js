@@ -670,7 +670,7 @@ const todoView = () => {
     const dateBlock = wrap(dateLabel, 'date-block');
     dateBlock.insertAdjacentHTML('beforeEnd', calendarSVG);
 
-    if (dateLabel.classList.contains('is-set')) dateBlock.append(removeDate);
+    if (dateLabel.classList.contains('is-set') && !isMobile) dateBlock.append(removeDate);
 
     // My Day block of todo
     const myDay = createElement('div', '.my-day');
@@ -822,12 +822,65 @@ const todoView = () => {
       saveData();
     };
 
+    const handleRemoveDateClick = () => {
+      if (flatCalendar) flatCalendar.clear();
+      else date.value = '';
+
+      todo.date = date.value;
+      dateMessage.innerHTML = 'Add due date';
+      removeClass(dateLabel, 'is-set');
+      removeClass(dateLabel, 'overdue');
+      removeClass(dateLabel, 'today');
+      removeDate.remove();
+
+      // Set date indicator
+      const liveDateIndicator = selectedTodo.querySelector('.date-indicator');
+      liveDateIndicator.remove();
+      toggleIndicatorClass();
+
+      // Remove todo if it's in "Planned" project
+      const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
+      if (isPlannedProject) {
+        const todoListTime = selectedTodo.closest('ul.todo-list-time');
+        const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
+
+        if (todoListTime.children.length === 1) {
+          hideElement(todoListHeader);
+          todoListTime.style.height = 0;
+        }
+
+        // Animate removing list
+        animateRemoveTodoList(selectedTodo);
+
+        selectedTodo.remove();
+
+        // Show the "Empty state" block if all lists are empty
+        if (!getElement('.todo-list-time .todo-item')) {
+          removeClass(elements.emptyState, 'hide-empty-state');
+        }
+      }
+
+      // Update todoCount of "Planned" project
+      const plannedCount = getElement('.list[data-index="4"] .todo-count');
+      updateTodoCount(plannedCount, false);
+
+      // Sort tasks on date remove
+      sort.refreshSort(currentProject, selectedTodo);
+
+      // Update localStorage
+      saveData();
+    };
+
     const handleDateChange = (e) => {
       const { target } = e;
       const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
 
       // If removeDate button is clicked don't run this function
-      if (!target.value) return;
+      if (!target.value) {
+        if (isMobile) handleRemoveDateClick();
+
+        return;
+      }
 
       todo.date = target.value;
       dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
@@ -898,58 +951,9 @@ const todoView = () => {
         );
       }
 
-      if (!dateBlock.contains(removeDate)) dateBlock.append(removeDate);
+      if (!dateBlock.contains(removeDate) && !isMobile) dateBlock.append(removeDate);
 
       // Sort tasks on date change
-      sort.refreshSort(currentProject, selectedTodo);
-
-      // Update localStorage
-      saveData();
-    };
-
-    const handleRemoveDateClick = () => {
-      if (flatCalendar) flatCalendar.clear();
-      else date.value = '';
-
-      todo.date = date.value;
-      dateMessage.innerHTML = 'Add due date';
-      removeClass(dateLabel, 'is-set');
-      removeClass(dateLabel, 'overdue');
-      removeClass(dateLabel, 'today');
-      removeDate.remove();
-
-      // Set date indicator
-      const liveDateIndicator = selectedTodo.querySelector('.date-indicator');
-      liveDateIndicator.remove();
-      toggleIndicatorClass();
-
-      // Remove todo if it's in "Planned" project
-      const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
-      if (isPlannedProject) {
-        const todoListTime = selectedTodo.closest('ul.todo-list-time');
-        const todoListHeader = getElement(`#${todoListTime.dataset.time}`);
-
-        if (todoListTime.children.length === 1) {
-          hideElement(todoListHeader);
-          todoListTime.style.height = 0;
-        }
-
-        // Animate removing list
-        animateRemoveTodoList(selectedTodo);
-
-        selectedTodo.remove();
-
-        // Show the "Empty state" block if all lists are empty
-        if (!getElement('.todo-list-time .todo-item')) {
-          removeClass(elements.emptyState, 'hide-empty-state');
-        }
-      }
-
-      // Update todoCount of "Planned" project
-      const plannedCount = getElement('.list[data-index="4"] .todo-count');
-      updateTodoCount(plannedCount, false);
-
-      // Sort tasks on date remove
       sort.refreshSort(currentProject, selectedTodo);
 
       // Update localStorage
