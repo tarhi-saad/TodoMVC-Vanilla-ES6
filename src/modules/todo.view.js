@@ -833,11 +833,6 @@ const todoView = () => {
       removeClass(dateLabel, 'today');
       removeDate.remove();
 
-      // Set date indicator
-      const liveDateIndicator = selectedTodo.querySelector('.date-indicator');
-      liveDateIndicator.remove();
-      toggleIndicatorClass();
-
       // Remove todo if it's in "Planned" project
       const isPlannedProject = selectedProject && selectedProject.dataset.index === '4';
       if (isPlannedProject) {
@@ -859,6 +854,11 @@ const todoView = () => {
           removeClass(elements.emptyState, 'hide-empty-state');
         }
       }
+
+      // Set date indicator
+      const liveDateIndicator = selectedTodo.querySelector('.date-indicator');
+      liveDateIndicator.remove();
+      toggleIndicatorClass();
 
       // Update todoCount of "Planned" project
       const plannedCount = getElement('.list[data-index="4"] .todo-count');
@@ -886,7 +886,9 @@ const todoView = () => {
       dateMessage.innerHTML = getFriendlyDate(todo.date, dateLabel);
 
       // Check if "date" wasn't set before
-      if (!dateLabel.classList.contains('is-set')) {
+      const isDateSet = dateLabel.classList.contains('is-set');
+
+      if (!isDateSet) {
         addClass(dateLabel, 'is-set');
 
         // Update todoCount of "Planned" project
@@ -897,8 +899,6 @@ const todoView = () => {
         if (isPlannedProject) {
           selectedTodo.style = '';
           plannedListView(selectedTodo, todo.date);
-          // Animate list addition
-          animateAddTodoList(selectedTodo);
 
           // hide "Empty state" block if todo list is not empty anymore
           if (getElements('.todo-list-time .todo-item').length === 1) {
@@ -949,6 +949,11 @@ const todoView = () => {
           todo.date,
           liveDateIndicator,
         );
+      }
+
+      // Animate list addition
+      if (!isDateSet && isPlannedProject) {
+        animateAddTodoList(selectedTodo);
       }
 
       if (!dateBlock.contains(removeDate) && !isMobile) dateBlock.append(removeDate);
