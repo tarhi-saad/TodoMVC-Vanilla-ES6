@@ -209,6 +209,7 @@ $line-spacing: 48px;
             padding: 0 15px;
             display: flex;
             width: 100%;
+            align-items: center;
 
             &:hover {
               background-color: $white-smoke;
@@ -409,6 +410,7 @@ $line-spacing: 48px;
               fill: $grey-color;
               margin-right: 5px;
               width: 10px;
+              height: 18px;
               transition: fill 0.3s ease;
             }
           }
