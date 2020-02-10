@@ -12,11 +12,11 @@ const helpers = (getNumberFromString) => {
       if (draggedIndex > belowIndex) {
         if (itemA.id === draggedID && getIndex(itemB.id) >= belowIndex) return -1;
 
-        if (itemB.id === draggedID && getIndex(itemA.id) <= belowIndex) return 1;
+        if (itemB.id === draggedID && getIndex(itemA.id) >= belowIndex) return 1;
       } else {
         if (itemB.id === draggedID && getIndex(itemA.id) <= belowIndex) return -1;
 
-        if (itemA.id === draggedID && getIndex(itemB.id) >= belowIndex) return 1;
+        if (itemA.id === draggedID && getIndex(itemB.id) <= belowIndex) return 1;
       }
 
       return 0;
