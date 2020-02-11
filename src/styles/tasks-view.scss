@@ -20,6 +20,10 @@ $line-spacing: 48px;
   &[data-project-index='2'] {
     .tasks-header {
       .sort-menu {
+        &.open {
+          height: 345px;
+        }
+
         #sortByMyDay {
           display: none;
         }
@@ -30,6 +34,10 @@ $line-spacing: 48px;
   &[data-project-index='3'] {
     .tasks-header {
       .sort-menu {
+        &.open {
+          height: 345px;
+        }
+
         #sortByBookmarked {
           display: none;
         }
@@ -95,6 +103,7 @@ $line-spacing: 48px;
     display: grid;
     align-items: center;
     grid-template-columns: 1fr auto;
+    grid-auto-rows: max-content;
 
     h1 {
       margin: 0;
