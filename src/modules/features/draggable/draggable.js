@@ -1,4 +1,4 @@
-import DOMHelpers from '../../DOMHelpers';
+import DOMHelpers from '../../helpers/DOMHelpers';
 import mouse from './mouse';
 import touch from './touch';
 

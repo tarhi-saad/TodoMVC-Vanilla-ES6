@@ -1,4 +1,4 @@
-import assets from './assets';
+import assets from '../init/assets';
 import DOMHelpers from './DOMHelpers';
 
 const viewHelpers = (elements) => {

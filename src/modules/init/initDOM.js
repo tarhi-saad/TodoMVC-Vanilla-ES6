@@ -1,6 +1,6 @@
-import DOMHelpers from './DOMHelpers';
+import DOMHelpers from '../helpers/DOMHelpers';
 import assets from './assets';
-import tooltip from './todo.tooltip';
+import tooltip from '../features/todo.tooltip';
 
 const {
   createElement,
