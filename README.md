@@ -44,36 +44,37 @@ Here is the working live demo:
 - [Webpack 4](https://webpack.js.org/)
 - [Jest framework](https://jestjs.io/) (Unit testing)
 
-<img width="64" height="64" src="https://user-images.githubusercontent.com/14235870/74346940-99e92e00-4db0-11ea-9507-5d02d47afc11.png">
-<img width="64" height="64" src="https://user-images.githubusercontent.com/14235870/74348100-76bf7e00-4db2-11ea-966a-7e708614fa1e.png">
+<img width="64" height="64" src="https://user-images.githubusercontent.com/14235870/74346940-99e92e00-4db0-11ea-9507-5d02d47afc11.png"><img width="64" height="64" src="https://user-images.githubusercontent.com/14235870/74348100-76bf7e00-4db2-11ea-966a-7e708614fa1e.png">
 
 ## Features & instructions
 
 ### 1- App structure
 
-- There are default projects and we can **(create / delete / edit name)** of new ones.
-- In every project we can **(create / delete / edit / set as completed)** our todos.
+- There are default projects and you can **(create / delete / edit name)** of new ones.
+- In every project you can **(create / delete / edit / set as completed)** our todos.
 - Every todo has details.
 
 ### 2- Todo details
 
+You can select a todo to access its details to do the following:
+
 - Edit name
 - Bookmark todo
 - Add subtasks
-- Add to **My Day** (more on that later)
+- Add to **My Day** (see _Default projects_ below for more details)
 - Add due date
 - Set priority
 - Add note
 
-### 3- Default project
+### 3- Default projects
 
-- **All Tasks**: Here we can find and manipulate all todos from every project.\
+- **All Tasks**: Here you can find and manipulate all todos from every project.\
   Todos created in this project will be added to **Tasks project**.
 
 - **My Day**: It's the same as My Day feature in microsoft todo list. With My Day, you can manage your daily tasks while letting you start each day with a clean slate. When you first open My Day each day, you're greeted with a fresh space to add the tasks you want to accomplish that day.\
   Todos created in this project will have **My Day** set per default and added to **Tasks Project**.
 
-- **Bookmarked**: If we set a todo as bookmarked we'll find it in this project.\
+- **Bookmarked**: If you set a todo as bookmarked you'll find it in this project.\
   Todos created in this project will get Bookmarked and added to **Tasks project**.
 
 - **Planned**: Every todo who has a due date can be found here and organized as such: **(Earlier / Today / Tomorrow / Later this week / Next week / Later)**.\
