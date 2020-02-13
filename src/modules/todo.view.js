@@ -1,8 +1,8 @@
 import flatpickr from 'flatpickr';
-import assets from './assets';
-import DOMHelpers from './DOMHelpers';
-import initializeDOMElements from './initDOM';
-import viewHelpers from './todo.viewHelpers';
+import assets from './init/assets';
+import DOMHelpers from './helpers/DOMHelpers';
+import initializeDOMElements from './init/initDOM';
+import viewHelpers from './helpers/todo.viewHelpers';
 import 'flatpickr/dist/themes/light.css';
 
 const todoView = () => {

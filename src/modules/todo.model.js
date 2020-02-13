@@ -1,4 +1,4 @@
-import todoSort from './todo.sort';
+import todoSort from './features/todo.sort';
 
 const todoItem = (title) => {
   const subTasks = [];

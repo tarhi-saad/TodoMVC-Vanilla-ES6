@@ -1,4 +1,4 @@
-import DOMHelpers from './DOMHelpers';
+import DOMHelpers from '../helpers/DOMHelpers';
 
 /**
  * You can use this class to activate 'tooltip' option inside the whole page
